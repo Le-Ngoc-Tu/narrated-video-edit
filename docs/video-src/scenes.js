@@ -229,20 +229,8 @@ function buildReel() {
     master.from(sub, { y: 30, autoAlpha: 0, duration: 0.4 }, sc.b(4.8));
   }
 
-  // 5. kiểm toán
-  {
-    const sc = scene(40, 8);
-    mk(sc.el, 'center', `<div class="h2">${L.auditTitle}</div>`, { top: '70px' });
-    L.audit.forEach(([txt, val], i) => {
-      const r = mk(sc.el, 'arow', `<div class="check" style="width:56px;height:56px"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" style="width:30px;height:30px"><path d="M5 12.5l4.5 4.5L19 7"/></svg></div><div>${txt}</div><b>${val}</b>`);
-      place(r, { left: 410, top: 230 + i * 138 });
-      master.from(r, { x: 90, autoAlpha: 0, duration: 0.5, ease: 'power3.out' }, sc.b(0.8 + i * 0.9));
-      master.from(r.querySelector('.check'), { scale: 0, duration: 0.35, ease: 'back.out(3)' }, sc.b(1.1 + i * 0.9));
-    });
-  }
-
-  endScene(48, 12);
-  return at(60) + 0.4;
+  endScene(40, 12);
+  return at(52) + 0.4;
 }
 
 // ---------- banner ----------

@@ -34,7 +34,7 @@ It was developed and tested on **Windows 11**. macOS and Linux have not been tri
 
 | | English | Tiếng Việt (default) |
 | --- | --- | --- |
-| **What it makes** (showreel, 30 s, with music) | [Watch](docs/media/showreel-en.mp4) | [Xem](docs/media/showreel-vi.mp4) |
+| **What it makes** (showreel, 27 s, with music) | [Watch](docs/media/showreel-en.mp4) | [Xem](docs/media/showreel-vi.mp4) |
 | **Add it to Claude in three steps** (tutorial, 45 s, with music) | [Watch](docs/media/install-guide-en.mp4) | [Xem](docs/media/install-guide-vi.mp4) |
 
 [![Install guide: add the skill to Claude](docs/media/install-guide-en.jpg)](docs/media/install-guide-en.mp4)

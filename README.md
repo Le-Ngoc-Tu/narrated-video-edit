@@ -34,7 +34,7 @@ Skill được phát triển và thử trên **Windows 11**. macOS và Linux ch�
 
 | | Tiếng Việt | English |
 | --- | --- | --- |
-| **Nó làm ra gì** (showreel 30 giây, có nhạc) | [Xem](docs/media/showreel-vi.mp4) | [Watch](docs/media/showreel-en.mp4) |
+| **Nó làm ra gì** (showreel 27 giây, có nhạc) | [Xem](docs/media/showreel-vi.mp4) | [Watch](docs/media/showreel-en.mp4) |
 | **Thêm vào Claude trong ba bước** (hướng dẫn 45 giây, có nhạc) | [Xem](docs/media/install-guide-vi.mp4) | [Watch](docs/media/install-guide-en.mp4) |
 
 [![Hướng dẫn cài: thêm skill vào Claude](docs/media/install-guide-vi.jpg)](docs/media/install-guide-vi.mp4)

@@ -18,8 +18,6 @@ const I18N = {
     realNote: 'Real render from the skill\'s self-test (synthetic speaker)',
     fxTitle1: '190 effects.',
     fxTitle2: 'Each one measured.',
-    auditTitle: 'An independent audit',
-    audit: [['Captions cover every spoken word', '100%'], ['Loudness normalised', '-14 LUFS'], ['Flashes per second', 'under 3'], ['Overlay present on every frame', 'checked'], ['Self-test', '68 / 68']],
     bnSub: 'Your voice, edited like a designer.',
     bnChips: ['captions', 'B-roll', 'stickers', '190 effects', 'audit'],
     g: {
@@ -61,8 +59,6 @@ const I18N = {
     realNote: 'Dựng thật từ self-test của skill (người nói giả lập)',
     fxTitle1: '190 hiệu ứng.',
     fxTitle2: 'Từng cái đều được đo.',
-    auditTitle: 'Kiểm toán độc lập',
-    audit: [['Caption phủ mọi từ được nói', '100%'], ['Độ to được chuẩn hóa', '-14 LUFS'], ['Số lần chớp sáng mỗi giây', 'dưới 3'], ['Lớp phủ có ở mọi khung hình', 'đã kiểm'], ['Self-test', '68 / 68']],
     bnSub: 'Your voice, edited like a designer.',
     bnChips: ['caption', 'B-roll', 'sticker', '190 hiệu ứng', 'kiểm toán'],
     g: {
