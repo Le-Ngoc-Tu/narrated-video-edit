@@ -10,7 +10,7 @@ Nếu có chỗ sai, hoặc bạn là tác giả được dùng mà chưa có t�
 
 Xin cảm ơn những người duy trì và đóng góp cho **FFmpeg**, **OpenAI Whisper**, **faster-whisper và CTranslate2**, **OpenCV và OpenCV Zoo**, **MediaPipe**, **Playwright**, **GSAP**, **lottie-web**, **Noto Emoji**, **Fluent Emoji**, **Iconify**, các nhà thiết kế phông **Anton, Bangers, Be Vietnam Pro, Lora và Montserrat**, các chương trình truy cập mở của **Wikimedia, Openverse, NASA và Bảo tàng Nghệ thuật Cleveland**, và đặc tả **Agent Skills**. Các bạn đã trao đi công việc của nhiều năm, và dự án này tồn tại nhờ điều đó.
 
-Xin cảm ơn các nhà sáng tạo video có bài hướng dẫn công khai về dựng video với AI: nhịp dựng, thói quen làm caption và mức hoàn thiện mà skill này hướng tới đều học từ đó. Mục 6 nói rõ đã học gì và cố ý không chép gì.
+Xin cảm ơn **Nattalie Choprasert**, người có ba bài hướng dẫn công khai về dựng video với Claude mà chúng tôi đã học kỹ, và cảm ơn các nhà sáng tạo video khác có bài hướng dẫn công khai về dựng video với AI: nhịp dựng, thói quen làm caption và mức hoàn thiện mà skill này hướng tới đều học từ đó. Mục 6 nói rõ đã học gì và cố ý không chép gì.
 
 ## 2. Công cụ bạn tự cài (không kèm trong kho)
 
@@ -68,7 +68,7 @@ Mỗi tệp tải về có một dòng trong `assets/credits.json`. Nếu tệp 
 
 ## 6. Ý tưởng và phương pháp
 
-- **Nhịp dựng và độ hoàn thiện.** Băng caption nhấn từ đang nói, B-roll như vật thể thiết kế thay vì ảnh dán, quy tắc "giữ người nói, chỉ đè lớp lên trên" và thói quen kiểm toán trước khi giao đều học từ việc xem các bài hướng dẫn công khai của những người dựng video bằng AI (ba bài của một tác giả và bốn reel của một creator người Việt) cùng thực hành chung của video ngắn. Chỉ đo và học cấu trúc, thời gian (ví dụ khoảng cách giữa từ được nói và hiệu ứng theo sau). Không có cảnh quay, chữ, thương hiệu, preset, LUT hay tệp âm thanh nào của họ nằm trong kho. Tên họ không in ở đây vì tệp nguồn được nghiên cứu riêng; nếu bạn là một trong số họ và muốn có dòng ghi công, hãy mở issue.
+- **Nhịp dựng và độ hoàn thiện.** Băng caption nhấn từ đang nói, B-roll như vật thể thiết kế thay vì ảnh dán, quy tắc "giữ người nói, chỉ đè lớp lên trên" và thói quen kiểm toán trước khi giao đều học từ việc xem các bài hướng dẫn công khai của những người dựng video bằng AI (ba bài của Nattalie Choprasert và bốn reel của một creator người Việt) cùng thực hành chung của video ngắn. Chỉ đo và học cấu trúc, thời gian (ví dụ khoảng cách giữa từ được nói và hiệu ứng theo sau). Không có cảnh quay, chữ, thương hiệu, preset, LUT hay tệp âm thanh nào của họ nằm trong kho. Tên creator làm các reel không in ở đây vì tệp nguồn được nghiên cứu riêng; nếu đó là bạn và bạn muốn có dòng ghi công, hãy mở issue.
 - **Quy tắc dựng.** Các quy tắc ngân sách hiệu ứng trong `references/12-effects.md` rút từ tài liệu dựng đã công bố rồi kiểm bằng thực nghiệm; bản thân các hiệu ứng là kỹ thuật chung viết riêng cho dự án, không chép preset, LUT hay tệp âm thanh có sẵn.
 - **Định dạng skill** theo đặc tả mở [Agent Skills](https://agentskills.io/specification) và tài liệu [skill tùy chỉnh](https://claude.com/docs/skills/how-to) của Anthropic.
 - **Cách phát triển.** Dự án được viết với sự trợ giúp của trợ lý lập trình AI (Claude Code và Antigravity CLI) rồi do người duy trì rà soát, thử và sửa. Không có gì trong kho được trình bày như công sức hoàn toàn của con người, và không có gì được bảo đảm đúng chỉ vì trợ lý đã viết; self-test và các công cụ kiểm toán tồn tại vì lý do đó.
