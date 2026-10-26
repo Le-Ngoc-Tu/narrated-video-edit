@@ -1,0 +1,28 @@
+narrated-video-edit
+Copyright (c) 2026 Le-Ngoc-Tu and narrated-video-edit contributors
+Licensed under the MIT License (see LICENSE).
+
+This project bundles or fetches third-party material under its own license.
+The full list, with authors and uses, is in CREDITS.md. Summary of what is
+distributed inside this repository:
+
+  GSAP 3.15.0, DrawSVGPlugin 3.15.0   GSAP Standard License (https://gsap.com/standard-license)
+  lottie-web                          MIT, Bodymovin
+  YuNet face detector (ONNX)          MIT, Shiqi Yu (OpenCV Zoo)
+  MediaPipe Selfie Segmentation       Apache-2.0, Google
+  Fluent Emoji (62 PNG)               MIT, Microsoft
+  Anton, Bangers, Be Vietnam Pro,
+  Lora Italic, Montserrat             SIL Open Font License 1.1
+
+The original license texts sit next to each file under
+skills/narrated-video-edit/templates/ (LICENSE-*, OFL-*, NOTICE-*).
+
+Run-time downloads (Animated Noto Emoji, Iconify icon sets, Wikimedia Commons,
+Openverse, NASA, Cleveland Museum of Art) are not stored here. Their credit
+lines are written into out.credits.txt next to every video the skill produces.
+
+Background music in docs/media: "Music Promotion" by MiroMaxMusic,
+Pixabay Content License (https://pixabay.com/service/license-summary/).
+
+Product and company names are trademarks of their owners and are used only to
+identify tools. This project is independent and not endorsed by any of them.

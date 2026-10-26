@@ -1,0 +1,285 @@
+{
+  "family": "color",
+  "effects": [
+    {
+      "id": "teal-orange", "name": { "vi": "Tông xanh ngọc cam (teal and orange)", "en": "Teal and orange" }, "aliases": ["Teal & Orange", "Cinematic grade", "Blockbuster look"],
+      "purpose": "mood", "engine": "video",
+      "about": "Bóng tối ngả xanh ngọc, vùng sáng ngả cam: tông điện ảnh phổ biến nhất, làm da người nổi bật trên nền lạnh. Hợp vlog, phim ngắn, cảnh ngoài trời.",
+      "graph": "[in]split[a][b];[b]colorbalance=rs=-0.06:bs=0.07:rm=-0.02:bm=0.03:rh=0.07:bh=-0.07,eq=contrast=1.05:saturation={sat},format=yuv420p[c];[a][c]blend=all_expr='A*(1-{amount}*{trapT})+B*{amount}*{trapT}'[out]",
+      "params": { "amount": { "default": 1, "min": 0.2, "max": 1, "unit": "", "doc": "độ đậm của tông (1 là đủ)" }, "sat": { "default": 1.08, "min": 0.8, "max": 1.5, "unit": "x", "doc": "độ bão hòa" }, "fade": { "default": 0.2, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra tông" } },
+      "dur": { "min": 1, "default": 6, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["áp cả video thì tông phải nhất quán giữa các cảnh; áp từng đoạn sẽ thấy nhảy tông", "da người ngả cam quá tay: giảm amount về 0,6"]
+    },
+    {
+      "id": "bleach-bypass", "name": { "vi": "Bạc màu mạnh tương phản (bleach bypass)", "en": "Bleach bypass" }, "aliases": ["Bleach Bypass", "Desaturated contrast", "War film look"],
+      "purpose": "mood", "engine": "video",
+      "about": "Giảm bão hòa mạnh và tăng tương phản, ra cảm giác thô ráp, nặng nề như phim chiến tranh. Hợp cảnh căng thẳng, nghiêm túc hoặc kịch tính.",
+      "graph": "[in]split[a][b];[b]eq=saturation={sat}:contrast=1.3:brightness=-0.02[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "sat": { "default": 0.45, "min": 0.1, "max": 0.9, "unit": "x", "doc": "độ bão hòa còn lại" }, "fade": { "default": 0.2, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 2, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "avoid", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["da người trông nhợt: không dùng cho nội dung vui, làm đẹp"]
+    },
+    {
+      "id": "mono-bw", "name": { "vi": "Đen trắng", "en": "Black and white" }, "aliases": ["B&W", "Monochrome", "Desaturate"],
+      "purpose": "mood", "engine": "video",
+      "about": "Bỏ hết màu. Gợi hồi tưởng, nghiêm trang, tài liệu hoặc nghệ thuật; cũng là cách nhấn khoảnh khắc 'ngày xưa' trước khi trả lại màu.",
+      "graph": "[in]split[a][b];[b]hue=s=0[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.3, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian mất màu và trả màu" } },
+      "dur": { "min": 1, "default": 4, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "sparing", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["nội dung có chữ màu để phân biệt sẽ mất nghĩa khi bỏ màu"]
+    },
+    {
+      "id": "noir-contrast", "name": { "vi": "Đen trắng tương phản cao (noir)", "en": "Noir high contrast" }, "aliases": ["Film Noir", "High contrast B&W", "Crushed blacks"],
+      "purpose": "mood", "engine": "video",
+      "about": "Đen trắng tương phản gắt kèm góc tối: cảm giác trinh thám, bí ẩn, kịch tính. Hợp câu hỏi lớn hoặc cảnh nghi ngờ.",
+      "graph": "[in]split[a][b];[b]hue=s=0,eq=contrast={contrast}:brightness=-0.06,vignette=angle=PI/3[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "contrast": { "default": 1.55, "min": 1.1, "max": 2.2, "unit": "x", "doc": "độ tương phản" }, "fade": { "default": 0.25, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 4, "max": 30 }, "intensity": 2, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "avoid", "documentary": "use" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["tương phản trên 1,8 làm mất chi tiết vùng tối trên mặt"]
+    },
+    {
+      "id": "sepia", "name": { "vi": "Nâu cổ điển (sepia)", "en": "Sepia" }, "aliases": ["Sepia", "Old photo", "Vintage tone"],
+      "purpose": "mood", "engine": "video",
+      "about": "Tông nâu vàng như ảnh cũ. Báo hiệu quá khứ, kỷ niệm, lịch sử.",
+      "graph": "[in]split[a][b];[b]colorchannelmixer=.393:.769:.189:0:.349:.686:.168:0:.272:.534:.131,format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.3, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 4, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "sparing", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["hay dùng thành cliché 'ngày xưa'; kèm hạt phim và vignette mới thuyết phục"]
+    },
+    {
+      "id": "cold-steel", "name": { "vi": "Tông lạnh thép", "en": "Cold steel grade" }, "aliases": ["Cool tone", "Blue grade", "Cold temperature"],
+      "purpose": "mood", "engine": "video",
+      "about": "Ngả xanh lạnh, giảm bão hòa nhẹ: cảm giác công nghệ, lạnh lùng, đêm, khoa học viễn tưởng.",
+      "graph": "[in]split[a][b];[b]colortemperature=temperature={kelvin},eq=saturation=0.8:contrast=1.1,format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "kelvin": { "default": 9500, "min": 7000, "max": 15000, "unit": "K", "doc": "nhiệt độ màu (cao là lạnh hơn)" }, "fade": { "default": 0.25, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["da xám xịt khi lạnh quá: giữ kelvin dưới 12000 cho cảnh có người"]
+    },
+    {
+      "id": "warm-glow", "name": { "vi": "Tông ấm", "en": "Warm glow" }, "aliases": ["Warm tone", "Warm temperature", "Cozy grade"],
+      "purpose": "mood", "engine": "video",
+      "about": "Ngả vàng cam ấm: cảm giác thân thiện, ấm cúng, gia đình, ẩm thực.",
+      "graph": "[in]split[a][b];[b]colortemperature=temperature={kelvin},eq=saturation=1.1,format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "kelvin": { "default": 5200, "min": 3500, "max": 6000, "unit": "K", "doc": "nhiệt độ màu (thấp là ấm hơn; 6500 là trung tính)" }, "fade": { "default": 0.25, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["ngả cam quá thì mất cân bằng trắng: dùng kelvin trên 3500"]
+    },
+    {
+      "id": "golden-hour", "name": { "vi": "Giờ vàng (golden hour)", "en": "Golden hour" }, "aliases": ["Golden Hour", "Sunset grade", "Warm highlights"],
+      "purpose": "mood", "engine": "video",
+      "about": "Ấm vàng, tăng bão hòa và sáng nhẹ vùng sáng như lúc hoàng hôn. Làm cảnh đẹp, lãng mạn, du lịch.",
+      "graph": "[in]split[a][b];[b]colortemperature=temperature=5000,eq=contrast=1.06:saturation=1.12:brightness=0.02,colorbalance=rh=0.05:bh=-0.05,format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.3, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["trông giả nếu cảnh quay trong nhà ánh sáng trắng"]
+    },
+    {
+      "id": "night-blue", "name": { "vi": "Đêm xanh (day for night)", "en": "Night blue" }, "aliases": ["Day for Night", "Moonlight grade", "Blue night"],
+      "purpose": "mood", "engine": "video",
+      "about": "Tối đi, giảm bão hòa, ngả xanh dương như ban đêm. Hợp cảnh đêm, bí ẩn, hoặc chuyển ngày sang đêm.",
+      "graph": "[in]split[a][b];[b]eq=brightness=-0.14:saturation=0.75:contrast=1.1,colorbalance=bs=0.18:bm=0.1:rs=-0.08,format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.4, "min": 0.05, "max": 2, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 2, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "sparing", "documentary": "use" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["tối quá làm mặt người nói không còn thấy: giữ brightness trên -0,2"]
+    },
+    {
+      "id": "matte-fade", "name": { "vi": "Đen nhạt kiểu phim (matte)", "en": "Matte faded blacks" }, "aliases": ["Matte Look", "Lifted blacks", "Faded film"],
+      "purpose": "mood", "engine": "video",
+      "about": "Nâng vùng đen lên xám nhạt, hạ vùng trắng xuống: ảnh nhẹ, mềm, kiểu Instagram, phim analog. Phổ biến cho vlog đời sống.",
+      "graph": "[in]split[a][b];[b]curves=all='0/0.12 0.5/0.52 1/0.92',eq=saturation=0.9[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.25, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 6, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["chữ trắng trên nền matte mất tương phản: kiểm lại độ đọc được"]
+    },
+    {
+      "id": "vibrant-pop", "name": { "vi": "Màu rực (vibrance pop)", "en": "Vibrant pop" }, "aliases": ["Vibrance", "Saturation boost", "Pop color"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Tăng độ rực của các màu nhạt mà giữ da người tự nhiên. Làm cảnh sản phẩm, ẩm thực, du lịch bắt mắt hơn.",
+      "graph": "[in]split[a][b];[b]vibrance=intensity={vib},eq=contrast=1.06:saturation=1.05,format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "vib": { "default": 0.5, "min": 0.1, "max": 1.5, "unit": "", "doc": "độ rực" }, "fade": { "default": 0.2, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 4, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 3, "sfx": [],
+      "pitfalls": ["đẩy quá làm da cam gắt và nhiễu màu: giữ vib dưới 0,9"]
+    },
+    {
+      "id": "pastel-soft", "name": { "vi": "Pastel dịu", "en": "Pastel soft" }, "aliases": ["Soft pastel", "Airy look", "Low contrast bright"],
+      "purpose": "mood", "engine": "video",
+      "about": "Sáng, nhẹ, tương phản thấp, màu nhạt: cảm giác dễ thương, thời trang, làm đẹp.",
+      "graph": "[in]split[a][b];[b]eq=saturation=0.8:contrast=0.88:brightness=0.07,colorbalance=rs=0.03:bs=0.04[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.25, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["mất độ sâu khi nền sáng sẵn"]
+    },
+    {
+      "id": "cross-process", "name": { "vi": "Màu lệch kênh (cross process)", "en": "Cross process" }, "aliases": ["Cross Processing", "Lomo look", "Curves shift"],
+      "purpose": "mood", "engine": "video",
+      "about": "Đường cong màu từng kênh lệch nhau tạo tông xanh lá, vàng, tím bất thường như ảnh phim rửa sai thuốc. Trẻ, nghệ thuật, lomo.",
+      "graph": "[in]split[a][b];[b]curves=r='0/0 0.5/0.64 1/1':g='0/0 0.5/0.5 1/1':b='0/0.12 0.5/0.44 1/0.88'[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.2, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 4, "max": 30 }, "intensity": 2, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["da người ngả xanh lá: chỉ dùng như phong cách rõ ràng, không trộn với cảnh bình thường"]
+    },
+    {
+      "id": "duotone", "name": { "vi": "Hai tông màu (duotone)", "en": "Duotone" }, "aliases": ["Duotone", "Gradient Map", "Two-color"],
+      "purpose": "brand", "engine": "video",
+      "about": "Hình được ánh xạ sang hai màu (tối tím, sáng cam). Nhận diện mạnh, hợp tiêu đề, cảnh chuyển, hoặc làm nền cho chữ.",
+      "graph": "[in]split[a][b];[b]format=gray,format=rgb24,curves=r='0/0.1 1/1':g='0/0.02 1/0.5':b='0/0.35 1/0.45',format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.2, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 3, "max": 30 }, "intensity": 3, "beat": "any", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["mất màu da hoàn toàn: dùng cho cảnh phụ, không cho người nói chính"]
+    },
+    {
+      "id": "cyber-neon", "name": { "vi": "Neon công nghệ (cyber)", "en": "Cyber neon grade" }, "aliases": ["Cyberpunk look", "Neon grade", "Synthwave tone"],
+      "purpose": "mood", "engine": "video",
+      "about": "Xoay màu về hồng, xanh dương, bão hòa cao, bóng tối tím. Hợp nội dung công nghệ, game, đêm thành phố.",
+      "graph": "[in]split[a][b];[b]hue=h=-25:s=1.25,eq=contrast=1.12:saturation=1.12,colorbalance=bs=0.1:rh=0.06,format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.2, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 4, "max": 30 }, "intensity": 2, "beat": "any", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["da người hồng tím quá khi bão hòa cao"]
+    },
+    {
+      "id": "invert-flash", "name": { "vi": "Đảo màu (invert)", "en": "Invert colors" }, "aliases": ["Invert", "Negative", "Color invert"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Đảo màu thành âm bản ngắn trong chớp mắt. Cú sốc thị giác cho cú drop, câu chốt bất ngờ hoặc hiệu ứng ma quái.",
+      "graph": "[in]split[a][b];[b]negate[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.05, "min": 0.03, "max": 0.5, "unit": "s", "doc": "thời gian vào và ra (ngắn là gắt)" } },
+      "dur": { "min": 0.15, "default": 0.4, "max": 2 }, "intensity": 3, "beat": "kick", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 2, "flash": 1, "sfx": ["impact"],
+      "pitfalls": ["đảo màu nhấp nháy nhiều lần là nguy cơ co giật nhạy sáng; một lần ngắn là đủ"]
+    },
+    {
+      "id": "posterize", "name": { "vi": "Phân mảng màu (posterize)", "en": "Posterize" }, "aliases": ["Posterize", "Poster Edges", "Levels crush"],
+      "purpose": "mood", "engine": "video",
+      "about": "Giảm số bậc sáng thành vài mảng như tranh in. Phong cách đồ họa, pop-art, hoặc hiệu ứng chuyển cảnh nghệ thuật.",
+      "graph": "[in]split[a][b];[b]lutyuv=y='trunc(val/{step})*{step}'[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "step": { "default": 48, "min": 16, "max": 96, "unit": "bậc", "doc": "độ rộng mỗi bậc sáng (lớn là ít mảng hơn)" }, "fade": { "default": 0.2, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 0.5, "default": 2, "max": 20 }, "intensity": 2, "beat": "any", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["mặt thành mảng phẳng khi step trên 64"]
+    },
+    {
+      "id": "thermal-map", "name": { "vi": "Bản đồ nhiệt (thermal)", "en": "Thermal color map" }, "aliases": ["Thermal Vision", "False color", "Heat map"],
+      "purpose": "humor", "engine": "video",
+      "about": "Gán dải màu nhiệt lên độ sáng như camera hồng ngoại. Hợp cảnh hài, khoa học, 'đang quét' hoặc tiết lộ.",
+      "graph": "[in]split[a][b];[b]pseudocolor=preset=turbo,format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.15, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 0.5, "default": 2, "max": 20 }, "intensity": 3, "beat": "any", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["màu rất gắt; chỉ cho khoảnh khắc ngắn"]
+    },
+    {
+      "id": "bloom-glow", "name": { "vi": "Quầng sáng (bloom)", "en": "Bloom glow" }, "aliases": ["Glow", "Bloom", "Orton effect"],
+      "purpose": "mood", "engine": "video",
+      "about": "Vùng sáng tỏa quầng mềm ra xung quanh (hòa trộn kiểu screen với bản nhoè). Cảm giác mơ màng, lung linh, điện ảnh.",
+      "graph": "[in]format=gbrp,split[a][b];[b]gblur=sigma={sigma}[c];[a][c]blend=all_expr='255*(1-(1-A/255)*(1-B/255*{amount}*{trapT}))'[out]",
+      "params": { "sigma": { "default": 20, "min": 6, "max": 60, "unit": "px", "doc": "bán kính quầng" }, "amount": { "default": 0.5, "min": 0.1, "max": 1, "unit": "", "doc": "độ mạnh quầng" }, "fade": { "default": 0.25, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 4, "max": 30 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "sparing" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["làm ảnh sáng hơn: giảm exposure hoặc amount nếu nền đã sáng"]
+    },
+    {
+      "id": "dreamy-soft", "name": { "vi": "Mơ màng mềm (dreamy)", "en": "Dreamy soft focus" }, "aliases": ["Soft Focus", "Dreamy", "Gaussian blur mix"],
+      "purpose": "mood", "engine": "video",
+      "about": "Trộn bản nhoè vào bản gốc, sáng nhẹ: da mịn, cảnh hồi tưởng, lãng mạn.",
+      "graph": "[in]split[a][b];[b]gblur=sigma={sigma},eq=brightness=0.04:saturation=1.1[c];[a][c]blend=all_expr='A*(1-{mix}*{trapT})+B*{mix}*{trapT}'[out]",
+      "params": { "sigma": { "default": 12, "min": 4, "max": 40, "unit": "px", "doc": "độ nhoè" }, "mix": { "default": 0.45, "min": 0.1, "max": 0.9, "unit": "", "doc": "tỉ lệ trộn" }, "fade": { "default": 0.3, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 4, "max": 30 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "avoid", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["chữ và chi tiết mờ: không dùng khi cảnh có chữ phải đọc"]
+    },
+    {
+      "id": "vignette-dark", "name": { "vi": "Tối góc (vignette)", "en": "Vignette" }, "aliases": ["Vignette", "Edge darken", "Corner shading"],
+      "purpose": "clarity", "engine": "video",
+      "about": "Làm tối dần về bốn góc để dồn mắt vào giữa khung, nơi có người nói hoặc đồ vật. Tinh tế và phổ biến, hầu như mọi grade đều có.",
+      "graph": "[in]split[a][b];[a]format=gbrp[x];[b]format=gbrp[y];[x][y]blend=all_expr='A*(1-{amount}*{trapT}*pow(clip(hypot(X-W/2,Y-H/2)/hypot(W/2,H/2)-{start},0,1)/(1-{start}),2))'[out]",
+      "params": { "amount": { "default": 0.8, "min": 0.1, "max": 1, "unit": "", "doc": "độ tối ở góc" }, "start": { "default": 0.35, "min": 0, "max": 0.8, "unit": "", "doc": "bán kính bắt đầu tối (0 là từ tâm)" }, "fade": { "default": 0.3, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "use" }, "perMinute": 3, "sfx": [],
+      "pitfalls": ["tối góc lên chữ ở góc (watermark, caption) làm giảm độ đọc"]
+    },
+    {
+      "id": "letterbox-cinema", "name": { "vi": "Khung điện ảnh (letterbox)", "en": "Cinematic letterbox" }, "aliases": ["Letterbox", "Cinema bars", "Crop 2.39"],
+      "purpose": "mood", "engine": "video", "blackEdges": true,
+      "about": "Hai dải đen trên dưới khung như phim màn ảnh rộng. Báo hiệu cảnh 'điện ảnh', hồi tưởng hoặc trailer; dùng cho video ngang, với video dọc nên cẩn thận vì mất diện tích.",
+      "graph": "[in]split[a][b];[b]drawbox=x=0:y=0:w=iw:h=ih*{bar}:color=black:t=fill,drawbox=x=0:y=ih*(1-{bar}):w=iw:h=ih*{bar}:color=black:t=fill[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "bar": { "default": 0.1, "min": 0.04, "max": 0.2, "unit": "H", "doc": "độ cao mỗi dải theo chiều cao khung" }, "fade": { "default": 0.4, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "avoid", "documentary": "use" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["che caption ở cạnh dưới: nâng caption lên khỏi dải"]
+    },
+    {
+      "id": "color-pop", "name": { "vi": "Giữ một màu (color pop)", "en": "Selective color pop" }, "aliases": ["Color Splash", "Selective Color", "Color Hold"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Cả khung đen trắng trừ một màu được giữ lại (đỏ, vàng, xanh...). Dẫn mắt vào một vật hoặc chi tiết duy nhất.",
+      "graph": "[in]split[a][b];[b]colorhold=color={tint}:similarity={sim}:blend=0.1,format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "tint": { "type": "text", "default": "red", "doc": "màu giữ lại (tên ffmpeg hoặc 0xRRGGBB)" }, "sim": { "default": 0.3, "min": 0.05, "max": 0.8, "unit": "", "doc": "độ rộng dải màu giữ" }, "fade": { "default": 0.25, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 3, "max": 20 }, "intensity": 2, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "sparing" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["màu da cũng có thể bị giữ khi chọn đỏ hoặc cam: chọn màu xa tông da"]
+    },
+    {
+      "id": "color-tint", "name": { "vi": "Phủ một màu (tint)", "en": "Color tint" }, "aliases": ["Tint", "Colorize", "Color overlay"],
+      "purpose": "mood", "engine": "video",
+      "about": "Phủ một sắc màu nhẹ lên cả khung (hue 0 đến 360). Gợi hoàng hôn (25), băng giá (200), bí ẩn (270), thương hiệu.",
+      "graph": "[in]split[a][b];[b]colorize=hue={hue}:saturation=0.5:lightness=0.5:mix={mix},format=yuv420p[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "hue": { "default": 25, "min": 0, "max": 360, "unit": "độ", "doc": "sắc độ (0 đỏ, 120 lục, 240 lam)" }, "mix": { "default": 0.35, "min": 0.1, "max": 0.8, "unit": "", "doc": "độ đậm của màu phủ" }, "fade": { "default": 0.3, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 4, "max": 30 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "sparing" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["trùng màu thương hiệu thì dùng làm nhận diện; không thì dùng tiết kiệm"]
+    },
+    {
+      "id": "lowfi-wash", "name": { "vi": "Phai màu lo-fi", "en": "Lo-fi washed" }, "aliases": ["Lo-fi", "Washed out", "Faded vintage"],
+      "purpose": "mood", "engine": "video",
+      "about": "Màu phai, đen nhạt, ngả nhẹ vàng: cảm giác máy cũ, kỷ niệm, mạng xã hội thập niên 2000.",
+      "graph": "[in]split[a][b];[b]curves=all='0/0.08 1/0.9',eq=saturation=0.65:contrast=0.92,colorbalance=rm=0.05:bm=-0.04[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.25, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["kết hợp film-grain mới thuyết phục"]
+    },
+    {
+      "id": "high-key", "name": { "vi": "Sáng trong (high key)", "en": "High key bright" }, "aliases": ["High Key", "Bright airy", "Exposure up"],
+      "purpose": "mood", "engine": "video",
+      "about": "Sáng lên, tương phản nhẹ: cảm giác sạch, hiện đại, lạc quan; hợp mỹ phẩm, y tế, giáo dục.",
+      "graph": "[in]split[a][b];[b]eq=brightness=0.1:contrast=0.92:gamma=1.15[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.3, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["vùng sáng cháy mất chi tiết: kiểm trên da và áo trắng"]
+    },
+    {
+      "id": "low-key", "name": { "vi": "Tối sâu (low key)", "en": "Low key moody" }, "aliases": ["Low Key", "Moody", "Exposure down"],
+      "purpose": "mood", "engine": "video",
+      "about": "Tối hơn, tương phản mạnh: kịch tính, sang, bí ẩn. Hợp sản phẩm cao cấp, kể chuyện nghiêm.",
+      "graph": "[in]split[a][b];[b]eq=brightness=-0.1:contrast=1.25:gamma=0.85:saturation=0.85[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.3, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 5, "max": 60 }, "intensity": 2, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "use" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["mặt người nói tối quá khi quay thiếu sáng sẵn"]
+    },
+    {
+      "id": "hdr-punch", "name": { "vi": "Nét và rực kiểu HDR", "en": "HDR punch" }, "aliases": ["HDR Look", "Clarity", "Local contrast"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Tăng độ nét cục bộ và bão hòa để ảnh 'dày' hơn. Hợp cảnh phong cảnh, đồ ăn, sản phẩm.",
+      "graph": "[in]split[a][b];[b]unsharp=7:7:1.2:7:7:0,eq=contrast=1.1:saturation=1.3[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "fade": { "default": 0.2, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 4, "max": 30 }, "intensity": 1, "beat": "none", "faceSafe": false,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["làm lộ nhiễu và lỗ chân lông trên mặt: không dùng trên cận mặt"]
+    }
+  ]
+}

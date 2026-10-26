@@ -1,0 +1,411 @@
+{
+  "family": "subject",
+  "effects": [
+    {
+      "id": "bg-blur-portrait",
+      "name": {
+        "vi": "Xoá phông (bokeh nền)",
+        "en": "Background blur portrait"
+      },
+      "aliases": [
+        "Portrait Mode",
+        "Depth Blur",
+        "Background Blur"
+      ],
+      "purpose": "clarity",
+      "engine": "mask",
+      "about": "Người nói giữ nét, nền nhoè mạnh như chế độ chân dung. Làm nền lộn xộn bớt gây phân tâm mà không cần quay lại.",
+      "graph": "[in]split[a][b];[b]gblur=sigma={sigma}[bg];[bg]format=gbrp[bgx];[a]format=gbrp[ax];[mask]format=gbrp[maskx];[bgx][ax][maskx]maskedmerge[out]",
+      "params": {
+        "sigma": {
+          "default": 16,
+          "min": 4,
+          "max": 50,
+          "unit": "px",
+          "doc": "độ nhoè nền"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 5,
+        "max": 120
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "needs": [
+        "segmentation"
+      ],
+      "styles": {
+        "hype": "use",
+        "explainer": "use",
+        "documentary": "use"
+      },
+      "perMinute": 1,
+      "sfx": [],
+      "pitfalls": [
+        "viền tóc và tay có thể sót nền nhoè hoặc cắt lẹm: xem ảnh duyệt",
+        "cần node setup.mjs --with-segmentation và segment-person.mjs"
+      ]
+    },
+    {
+      "id": "bg-spotlight-dim",
+      "name": {
+        "vi": "Tối nền, rọi người (spotlight)",
+        "en": "Background dim spotlight"
+      },
+      "aliases": [
+        "Subject Spotlight",
+        "Darken Background",
+        "Vignette mask"
+      ],
+      "purpose": "emphasis",
+      "engine": "mask",
+      "about": "Nền tối đi, người nói sáng nguyên: dồn mắt vào người nói đúng lúc nói một câu chốt.",
+      "graph": "[in]split[a][b];[b]eq=brightness=-{dim}[bg];[bg]format=gbrp[bgx];[a]format=gbrp[ax];[mask]format=gbrp[maskx];[bgx][ax][maskx]maskedmerge[out]",
+      "params": {
+        "dim": {
+          "default": 0.35,
+          "min": 0.1,
+          "max": 0.7,
+          "unit": "",
+          "doc": "độ tối của nền"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 60
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "needs": [
+        "segmentation"
+      ],
+      "styles": {
+        "hype": "use",
+        "explainer": "use",
+        "documentary": "use"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "nền tối đột ngột ở đầu cửa sổ: đặt vào lúc có từ nhấn"
+      ]
+    },
+    {
+      "id": "bg-mono-pop",
+      "name": {
+        "vi": "Nền đen trắng, người có màu",
+        "en": "Subject color pop"
+      },
+      "aliases": [
+        "Color Pop",
+        "Selective Color (person)",
+        "Desaturate Background"
+      ],
+      "purpose": "emphasis",
+      "engine": "mask",
+      "about": "Nền bỏ màu, người giữ màu: tách người khỏi nền một cách thẩm mỹ, phổ biến trong video thời trang và cá nhân.",
+      "graph": "[in]split[a][b];[b]hue=s=0[bg];[bg]format=gbrp[bgx];[a]format=gbrp[ax];[mask]format=gbrp[maskx];[bgx][ax][maskx]maskedmerge[out]",
+      "params": {},
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 60
+      },
+      "intensity": 2,
+      "beat": "none",
+      "faceSafe": true,
+      "needs": [
+        "segmentation"
+      ],
+      "styles": {
+        "hype": "use",
+        "explainer": "sparing",
+        "documentary": "sparing"
+      },
+      "perMinute": 1,
+      "sfx": [],
+      "pitfalls": [
+        "mặt nạ sót nền sẽ thấy viền màu quanh người"
+      ]
+    },
+    {
+      "id": "person-outline",
+      "name": {
+        "vi": "Viền quanh người (outline stroke)",
+        "en": "Person outline stroke"
+      },
+      "aliases": [
+        "Sticker Outline",
+        "Cutout Stroke",
+        "Rim outline"
+      ],
+      "purpose": "brand",
+      "engine": "mask",
+      "about": "Viền màu dày quanh bóng người như nhãn dán cắt. Kiểu nhận diện mạnh của video hype và thumbnail.",
+      "graph": "[mask]split[m1][m2];[m1]gblur=sigma={width},lutyuv=y='if(gt(val,10),255,0)'[big];[big][m2]blend=all_mode=subtract,format=gray[ring];color=c={tint}:s={W}x{H}:r={fps}:d={durpad},trim=end_frame={frames}[col];[in]format=gbrp[inx];[col]format=gbrp[colx];[ring]format=gbrp[ringx];[inx][colx][ringx]maskedmerge[out]",
+      "params": {
+        "width": {
+          "default": 5,
+          "min": 2,
+          "max": 16,
+          "unit": "px",
+          "doc": "độ dày viền (xấp xỉ)"
+        },
+        "tint": {
+          "type": "text",
+          "default": "white",
+          "doc": "màu viền (tên ffmpeg hoặc 0xRRGGBB)"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 60
+      },
+      "intensity": 2,
+      "beat": "none",
+      "faceSafe": true,
+      "needs": [
+        "segmentation"
+      ],
+      "styles": {
+        "hype": "use",
+        "explainer": "sparing",
+        "documentary": "avoid"
+      },
+      "perMinute": 1,
+      "sfx": [],
+      "pitfalls": [
+        "mặt nạ nhiễu làm viền răng cưa: làm mượt mặt nạ trước"
+      ]
+    },
+    {
+      "id": "person-silhouette",
+      "name": {
+        "vi": "Bóng đổ phẳng (silhouette)",
+        "en": "Flat silhouette"
+      },
+      "aliases": [
+        "Silhouette",
+        "Solid cutout",
+        "Shadow figure"
+      ],
+      "purpose": "mood",
+      "engine": "mask",
+      "about": "Người biến thành bóng một màu trên nền giữ nguyên. Gợi bí ẩn, ẩn danh hoặc cú đổi phong cách đồ họa.",
+      "graph": "color=c={tint}:s={W}x{H}:r={fps}:d={durpad},trim=end_frame={frames}[col];[in]format=gbrp[inx];[col]format=gbrp[colx];[mask]format=gbrp[maskx];[inx][colx][maskx]maskedmerge[out]",
+      "params": {
+        "tint": {
+          "type": "text",
+          "default": "black",
+          "doc": "màu bóng (tên ffmpeg hoặc 0xRRGGBB)"
+        }
+      },
+      "dur": {
+        "min": 0.5,
+        "default": 2,
+        "max": 30
+      },
+      "intensity": 3,
+      "beat": "any",
+      "faceSafe": false,
+      "needs": [
+        "segmentation"
+      ],
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "sparing"
+      },
+      "perMinute": 1,
+      "sfx": [],
+      "pitfalls": [
+        "mất hết biểu cảm: chỉ cho khoảnh khắc ngắn"
+      ]
+    },
+    {
+      "id": "bg-solid-cutout",
+      "name": {
+        "vi": "Thay nền một màu",
+        "en": "Solid color background"
+      },
+      "aliases": [
+        "Green Screen Replace",
+        "Background Removal (solid)",
+        "Color backdrop"
+      ],
+      "purpose": "brand",
+      "engine": "mask",
+      "about": "Cắt người ra khỏi nền và đặt lên nền một màu của thương hiệu. Nền sạch cho tiêu đề, chữ lớn, hoặc đoạn giới thiệu.",
+      "graph": "color=c={tint}:s={W}x{H}:r={fps}:d={durpad},trim=end_frame={frames}[col];[col]format=gbrp[colx];[in]format=gbrp[inx];[mask]format=gbrp[maskx];[colx][inx][maskx]maskedmerge[out]",
+      "params": {
+        "tint": {
+          "type": "text",
+          "default": "0x1d2433",
+          "doc": "màu nền (tên ffmpeg hoặc 0xRRGGBB)"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 60
+      },
+      "intensity": 2,
+      "beat": "none",
+      "faceSafe": true,
+      "needs": [
+        "segmentation"
+      ],
+      "styles": {
+        "hype": "use",
+        "explainer": "use",
+        "documentary": "sparing"
+      },
+      "perMinute": 1,
+      "sfx": [],
+      "pitfalls": [
+        "viền tóc lộ nền cũ nếu mặt nạ không mịn: đặt màu nền gần tông nền gốc"
+      ]
+    },
+    {
+      "id": "bg-gradient-cutout",
+      "name": {
+        "vi": "Thay nền chuyển sắc",
+        "en": "Gradient background"
+      },
+      "aliases": [
+        "Gradient Backdrop",
+        "Animated background",
+        "Background replace (gradient)"
+      ],
+      "purpose": "brand",
+      "engine": "mask",
+      "about": "Người đặt lên nền chuyển sắc động sinh bằng mã. Hợp tiêu đề, khoảnh khắc nhấn, hoặc video tin nhanh.",
+      "graph": "gradients=s={W}x{H}:r={fps}:d={durpad}:c0=0x7a2cff:c1=0xff3d81:c2=0xffb347:nb_colors=3:speed=0.02,trim=end_frame={frames}[bgc];[bgc]format=gbrp[bgcx];[in]format=gbrp[inx];[mask]format=gbrp[maskx];[bgcx][inx][maskx]maskedmerge[out]",
+      "params": {},
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 30
+      },
+      "intensity": 2,
+      "beat": "any",
+      "faceSafe": true,
+      "needs": [
+        "segmentation"
+      ],
+      "styles": {
+        "hype": "use",
+        "explainer": "sparing",
+        "documentary": "avoid"
+      },
+      "perMinute": 1,
+      "sfx": [],
+      "pitfalls": [
+        "đổi toàn bộ không khí cảnh: không đặt giữa hai cảnh cùng nền"
+      ]
+    },
+    {
+      "id": "person-pop-scale",
+      "name": {
+        "vi": "Người phóng lên khỏi nền (pop out)",
+        "en": "Subject pop-out scale"
+      },
+      "aliases": [
+        "Pop Out",
+        "3D Pop",
+        "Subject zoom"
+      ],
+      "purpose": "emphasis",
+      "engine": "mask",
+      "about": "Người được phóng lớn nhẹ trong khi nền đứng yên, cho cảm giác bước ra khỏi màn hình. Mạnh hơn zoom thường vì nền không đổi.",
+      "let": {
+        "Z": "1+{amount}*{eo}"
+      },
+      "graph": "[in]split[a][b];[b]{zoomctr}[bz];[mask]{zoomctr}[mz];[a]format=gbrp[ax];[bz]format=gbrp[bzx];[mz]format=gbrp[mzx];[ax][bzx][mzx]maskedmerge[out]",
+      "params": {
+        "amount": {
+          "default": 0.12,
+          "min": 0.04,
+          "max": 0.3,
+          "unit": "x",
+          "doc": "độ phóng của người"
+        }
+      },
+      "dur": {
+        "min": 0.5,
+        "default": 1.2,
+        "max": 5
+      },
+      "intensity": 2,
+      "beat": "kick",
+      "faceSafe": true,
+      "needs": [
+        "segmentation"
+      ],
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "avoid"
+      },
+      "perMinute": 2,
+      "sfx": [
+        "impact"
+      ],
+      "pitfalls": [
+        "viền mặt nạ lộ khi phóng: giữ amount dưới 0,2",
+        "tâm phóng là giữa khung, không theo mặt"
+      ]
+    },
+    {
+      "id": "bg-pixelate",
+      "name": {
+        "vi": "Nền vỡ pixel",
+        "en": "Background pixelate"
+      },
+      "aliases": [
+        "Privacy Background",
+        "Mosaic Background",
+        "Pixel backdrop"
+      ],
+      "purpose": "clarity",
+      "engine": "mask",
+      "about": "Nền thành ô vuông lớn, người giữ nét. Che đồ đạc hoặc nơi ở phía sau mà vẫn giữ năng lượng trẻ trung.",
+      "graph": "[in]split[a][b];[b]pixelize=w={cell}:h={cell}[bg];[bg]format=gbrp[bgx];[a]format=gbrp[ax];[mask]format=gbrp[maskx];[bgx][ax][maskx]maskedmerge[out]",
+      "params": {
+        "cell": {
+          "default": 28,
+          "min": 10,
+          "max": 90,
+          "unit": "px",
+          "doc": "kích thước ô"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 60
+      },
+      "intensity": 2,
+      "beat": "none",
+      "faceSafe": true,
+      "needs": [
+        "segmentation"
+      ],
+      "styles": {
+        "hype": "use",
+        "explainer": "sparing",
+        "documentary": "avoid"
+      },
+      "perMinute": 1,
+      "sfx": [],
+      "pitfalls": [
+        "viền người có thể hơi lẫn ô: dùng cell vừa phải"
+      ]
+    }
+  ]
+}

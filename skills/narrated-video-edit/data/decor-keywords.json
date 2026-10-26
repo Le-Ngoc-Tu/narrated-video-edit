@@ -1,0 +1,375 @@
+{
+  "_doc": "Bảng gợi ý decor và truy vấn cho plan-skeleton (tác tử mở rộng được, không cần sửa mã). Từ khóa so khớp trên lời nói đã chuẩn hóa (chữ thường, bỏ dấu câu); tiếng Việt viết từng âm tiết nên chỉ dùng âm tiết đủ rõ nghĩa. 'icons': từ khóa dẫn tới truy vấn tiếng Anh cho icon Iconify (tên emoji tiếng Anh càng cụ thể càng ra kết quả). 'sparkle': từ khen dẫn tới hiệu ứng lấp lánh. 'confetti': cụm từ (các từ liền nhau) dẫn tới pháo giấy. 'concepts': từ khóa tiếng Việt sang khái niệm cảnh tiếng Anh cho truy vấn ảnh minh họa; từ tiếng Anh (chỉ có chữ ASCII) được giữ nguyên. 'weak': từ quá chung chung, không dùng làm từ khóa của nhịp (truy vấn ảnh, chữ lớn). pointers: từ chỉ trỏ (\"đây\", \"look\") làm plan-skeleton gợi ý mũi tên thay cho gạch chân.",
+  "icons": [
+    {
+      "query": "ticket",
+      "words": [
+        "vé",
+        "ticket",
+        "tickets"
+      ]
+    },
+    {
+      "query": "steaming bowl",
+      "words": [
+        "phở",
+        "mì",
+        "ramen",
+        "bún",
+        "noodle",
+        "noodles",
+        "soup"
+      ]
+    },
+    {
+      "query": "camera with flash",
+      "words": [
+        "selfie",
+        "chụp",
+        "camera",
+        "photo"
+      ]
+    },
+    {
+      "query": "t-shirt",
+      "words": [
+        "áo",
+        "shirt",
+        "outfit"
+      ]
+    },
+    {
+      "query": "shopping bags",
+      "words": [
+        "mua",
+        "shopping",
+        "shop",
+        "sale"
+      ]
+    },
+    {
+      "query": "money bag",
+      "words": [
+        "tiền",
+        "money",
+        "price",
+        "giá"
+      ]
+    },
+    {
+      "query": "magic wand",
+      "words": [
+        "gậy",
+        "wand",
+        "magic"
+      ]
+    },
+    {
+      "query": "clapper board",
+      "words": [
+        "phim",
+        "movie",
+        "film"
+      ]
+    },
+    {
+      "query": "wrapped gift",
+      "words": [
+        "quà",
+        "gift",
+        "present"
+      ]
+    },
+    {
+      "query": "automobile",
+      "words": [
+        "xe",
+        "car",
+        "taxi",
+        "grab"
+      ]
+    },
+    {
+      "query": "light bulb",
+      "words": [
+        "đèn",
+        "idea",
+        "ý"
+      ]
+    },
+    {
+      "query": "framed picture",
+      "words": [
+        "tranh",
+        "painting",
+        "poster"
+      ]
+    },
+    {
+      "query": "video game",
+      "words": [
+        "game",
+        "gaming",
+        "chơi"
+      ]
+    },
+    {
+      "query": "hot beverage",
+      "words": [
+        "coffee",
+        "trà",
+        "tea"
+      ]
+    },
+    {
+      "query": "rocket",
+      "words": [
+        "rocket",
+        "startup",
+        "launch"
+      ]
+    },
+    {
+      "query": "trophy",
+      "words": [
+        "thắng",
+        "win",
+        "champion",
+        "trophy"
+      ]
+    },
+    {
+      "query": "calendar",
+      "words": [
+        "lịch",
+        "calendar",
+        "schedule",
+        "tuần",
+        "week"
+      ]
+    },
+    {
+      "query": "books",
+      "words": [
+        "sách",
+        "book",
+        "books",
+        "học"
+      ]
+    },
+    {
+      "query": "musical note",
+      "words": [
+        "nhạc",
+        "music",
+        "song",
+        "hát"
+      ]
+    },
+    {
+      "query": "airplane",
+      "words": [
+        "bay",
+        "flight",
+        "airplane",
+        "sân"
+      ]
+    },
+    {
+      "query": "house",
+      "words": [
+        "nhà",
+        "home",
+        "house"
+      ]
+    },
+    {
+      "query": "red heart",
+      "words": [
+        "yêu",
+        "love",
+        "like"
+      ]
+    },
+    {
+      "query": "thumbs up",
+      "words": [
+        "đăng",
+        "subscribe",
+        "follow"
+      ]
+    },
+    {
+      "query": "bell",
+      "words": [
+        "chuông",
+        "notification",
+        "bell"
+      ]
+    },
+    {
+      "query": "gear",
+      "words": [
+        "cài",
+        "setting",
+        "settings",
+        "config"
+      ]
+    },
+    {
+      "query": "robot",
+      "words": [
+        "robot",
+        "ai",
+        "bot"
+      ]
+    },
+    {
+      "query": "laptop",
+      "words": [
+        "laptop",
+        "computer",
+        "code",
+        "lập"
+      ]
+    }
+  ],
+  "sparkle": [
+    "đẹp",
+    "xinh",
+    "tuyệt",
+    "khủng",
+    "thương",
+    "amazing",
+    "beautiful",
+    "awesome",
+    "wow",
+    "perfect",
+    "gorgeous",
+    "cute"
+  ],
+  "confetti": [
+    [
+      "cảm",
+      "ơn"
+    ],
+    [
+      "thank",
+      "you"
+    ],
+    [
+      "chúc",
+      "mừng"
+    ],
+    [
+      "congratulations"
+    ],
+    [
+      "hết",
+      "một",
+      "ngày"
+    ],
+    [
+      "hẹn",
+      "gặp",
+      "lại"
+    ],
+    [
+      "see",
+      "you"
+    ]
+  ],
+  "concepts": {
+    "phở": "pho noodle soup",
+    "mì": "noodle bowl",
+    "cơm": "rice bowl",
+    "bánh": "bakery pastry",
+    "trà": "tea cup",
+    "lẩu": "hot pot",
+    "nướng": "grilled meat",
+    "kem": "ice cream",
+    "bia": "beer glass",
+    "chợ": "street market",
+    "biển": "beach",
+    "núi": "mountain",
+    "hoa": "flowers",
+    "mèo": "cat",
+    "chó": "dog",
+    "sách": "book",
+    "nhạc": "music",
+    "phim": "cinema",
+    "xe": "car",
+    "tiền": "money",
+    "vàng": "gold",
+    "đèn": "lamp",
+    "tranh": "painting",
+    "áo": "clothes",
+    "giày": "shoes",
+    "túi": "handbag",
+    "vé": "ticket",
+    "quà": "gift",
+    "đồ": "objects",
+    "thành": "city skyline",
+    "phố": "city street",
+    "cầu": "bridge",
+    "sông": "river",
+    "mưa": "rain",
+    "nắng": "sunshine",
+    "cây": "tree"
+  },
+  "weak": [
+    "người",
+    "mình",
+    "nhưng",
+    "chỗ",
+    "cái",
+    "việc",
+    "những",
+    "được",
+    "này",
+    "đó",
+    "rất",
+    "nhiều",
+    "thì",
+    "khi",
+    "bạn",
+    "chúng",
+    "thôi",
+    "luôn",
+    "nhé",
+    "nha",
+    "nè",
+    "ạ",
+    "cũng",
+    "vậy",
+    "kiểu",
+    "thật",
+    "thế",
+    "sao",
+    "gì",
+    "lại",
+    "đây",
+    "đấy",
+    "vẫn",
+    "đang",
+    "còn",
+    "nữa",
+    "hơn",
+    "quá",
+    "lắm",
+    "thấy",
+    "nói",
+    "làm",
+    "biết",
+    "mọi",
+    "một",
+    "hai"
+  ],
+  "pointers": [
+    "here",
+    "this",
+    "look",
+    "đây",
+    "xem"
+  ]
+}

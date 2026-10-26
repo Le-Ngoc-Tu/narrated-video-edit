@@ -1,0 +1,7 @@
+selfie_segmenter.tflite và selfie_segmenter_landscape.tflite: mô hình MediaPipe Selfie Segmentation của Google
+(tác giả Tingbo Hou, Siargey Pisarchyk, Karthik Raveendran; 6/5/2021), cấp phép Apache License 2.0 theo thẻ mô hình chính thức
+"Model Card MediaPipe Selfie Segmentation" (https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MediaPipe%20Selfie%20Segmentation.pdf).
+Nguồn tệp: https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite
+          https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter_landscape/float16/latest/selfie_segmenter_landscape.tflite
+Toàn văn giấy phép: LICENSE-mediapipe-apache-2.0.txt. Theo thẻ mô hình, mọi dạng giám sát hoặc nhận dạng danh tính nằm ngoài phạm vi dùng:
+skill chỉ dùng để tách người khỏi nền khi dựng video.

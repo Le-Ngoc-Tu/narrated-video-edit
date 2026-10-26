@@ -1,0 +1,687 @@
+{
+  "family": "retro",
+  "effects": [
+    {
+      "id": "film-grain",
+      "name": {
+        "vi": "Hạt phim (film grain)",
+        "en": "Film grain"
+      },
+      "aliases": [
+        "Film Grain",
+        "Noise",
+        "Analog grain"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Thêm hạt nhiễu mịn chuyển động như phim analog, làm ảnh số bớt lạnh và dính các lớp với nhau. Gần như mọi grade điện ảnh đều có.",
+      "chain": "noise=alls={amount}:allf=t+u",
+      "params": {
+        "amount": {
+          "default": 14,
+          "min": 4,
+          "max": 45,
+          "unit": "",
+          "doc": "độ mạnh của hạt"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 6,
+        "max": 120
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "sparing",
+        "explainer": "avoid",
+        "documentary": "use"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "nén video mạng xã hội ăn mất hạt mịn: để amount từ 12 trở lên nếu muốn còn thấy sau khi tải lên",
+        "tốn bitrate: video dài sẽ nặng hơn"
+      ]
+    },
+    {
+      "id": "vhs-look",
+      "name": {
+        "vi": "Băng VHS",
+        "en": "VHS tape look"
+      },
+      "aliases": [
+        "VHS",
+        "Analog tape",
+        "Tracking error"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Nhoè nhẹ, lệch màu, nhiễu và một dải lỗi dò băng chạy dọc khung. Hoài niệm thập niên 80 và 90, vlog cũ, nội dung kinh dị nhẹ.",
+      "graph": "[in]boxblur=1:1[v0];[v0]split[a][b];[b]chromashift=crh=30:cbh=-30,noise=alls=60:allf=t,eq=brightness=0.1[c];[a]chromashift=crh=4:cbh=-4,noise=alls=14:allf=t,eq=saturation=1.2[d];[d]format=gbrp[d2];[c]format=gbrp[c2];[d2][c2]blend=all_expr='if(between(Y,mod(T*{speed},H),mod(T*{speed},H)+{band}),B,A)'[out]",
+      "params": {
+        "speed": {
+          "default": 240,
+          "min": 60,
+          "max": 800,
+          "unit": "px/s",
+          "doc": "tốc độ dải lỗi chạy xuống"
+        },
+        "band": {
+          "default": 36,
+          "min": 8,
+          "max": 120,
+          "unit": "px",
+          "doc": "độ cao dải lỗi"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 60
+      },
+      "intensity": 2,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "sparing"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "làm mờ chữ nhỏ: không áp lên cảnh có chữ phải đọc",
+        "kết hợp date-stamp hoặc camcorder-rec cho trọn bộ nhận diện"
+      ]
+    },
+    {
+      "id": "crt-scanlines",
+      "name": {
+        "vi": "Màn hình CRT (scanlines)",
+        "en": "CRT scanlines"
+      },
+      "aliases": [
+        "Scanlines",
+        "CRT Monitor",
+        "Old TV"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Vạch ngang mảnh và tương phản cao như màn hình ống đèn. Hợp nội dung game, công nghệ cổ, phong cách pixel.",
+      "chain": "drawgrid=w=0:h={pitch}:t=1:c=black@{dark},eq=contrast=1.1:saturation=1.1",
+      "params": {
+        "pitch": {
+          "default": 4,
+          "min": 2,
+          "max": 12,
+          "unit": "px",
+          "doc": "khoảng cách giữa các vạch"
+        },
+        "dark": {
+          "default": 0.35,
+          "min": 0.1,
+          "max": 0.7,
+          "unit": "",
+          "doc": "độ đậm vạch"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 60
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "avoid"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "vạch mảnh gây hiện tượng nhiễu moiré khi nén: đặt pitch từ 4 trở lên"
+      ]
+    },
+    {
+      "id": "camcorder-rec",
+      "name": {
+        "vi": "Máy quay cầm tay (REC)",
+        "en": "Camcorder REC overlay"
+      },
+      "aliases": [
+        "REC Overlay",
+        "Camcorder UI",
+        "Y2K camcorder"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Chấm đỏ REC nhấp nháy ở góc, đồng hồ thời gian chạy và chữ trạng thái như màn hình máy quay. Phong cách vlog found-footage và Y2K.",
+      "chain": "drawtext=fontfile='{fontBold}':text='REC':x='w*0.1':y='h*0.055':fontsize='h*0.028':fontcolor=white:shadowcolor=black@0.6:shadowx=2:shadowy=2,drawbox=x='iw*0.055':y='ih*0.058':w='ih*0.02':h='ih*0.02':color=red@0.95:t=fill:enable='lt(mod(t,1),0.6)',drawtext=fontfile='{fontBold}':text='%{pts\\:hms}':x='w*0.055':y='h*0.09':fontsize='h*0.024':fontcolor=white:shadowcolor=black@0.6:shadowx=2:shadowy=2",
+      "params": {},
+      "dur": {
+        "min": 1,
+        "default": 5,
+        "max": 120
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "sparing"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "chiếm góc trên trái: tránh cùng lúc với sticker hoặc thẻ ở góc đó",
+        "thanh 'an toàn' phía trên của TikTok che bớt: đẩy xuống nếu cần"
+      ]
+    },
+    {
+      "id": "date-stamp",
+      "name": {
+        "vi": "Dấu ngày máy ảnh số",
+        "en": "Digicam date stamp"
+      },
+      "aliases": [
+        "Date Stamp",
+        "Timestamp",
+        "Digicam orange date"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Dòng ngày cam ở góc dưới phải như máy ảnh số đời đầu. Gợi hoài niệm và cảm giác 'ảnh kỷ niệm'.",
+      "chain": "drawtext=fontfile='{fontBold}':text='{stamp}':x='w-text_w-w*0.07':y='h*0.9':fontsize='h*0.028':fontcolor=0xff8a1f:shadowcolor=black@0.7:shadowx=2:shadowy=2",
+      "params": {
+        "stamp": {
+          "type": "text",
+          "default": "22 10 2026",
+          "doc": "chuỗi ngày hiển thị"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 5,
+        "max": 120
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "sparing"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "ngày hiển thị là chữ do người dùng đặt: dùng ngày thật của clip, không bịa",
+        "nằm trong vùng giao diện của nền tảng ở video dọc: đặt cao lên khỏi 26% dưới khung"
+      ]
+    },
+    {
+      "id": "viewfinder-frame",
+      "name": {
+        "vi": "Khung ngắm máy ảnh",
+        "en": "Viewfinder frame"
+      },
+      "aliases": [
+        "Viewfinder",
+        "Camera Corners",
+        "Focus brackets"
+      ],
+      "purpose": "clarity",
+      "engine": "video",
+      "about": "Bốn dấu góc trắng và dấu chữ thập giữa khung như khi ngắm máy ảnh. Dẫn mắt vào giữa, gợi cảm giác đang ghi hình trực tiếp.",
+      "chain": "drawbox=x='iw*0.07':y='ih*0.07':w='iw*0.09':h=3:color=white@0.9:t=fill,drawbox=x='iw*0.07':y='ih*0.07':w=3:h='iw*0.09':color=white@0.9:t=fill,drawbox=x='iw*0.93-iw*0.09':y='ih*0.07':w='iw*0.09':h=3:color=white@0.9:t=fill,drawbox=x='iw*0.93-3':y='ih*0.07':w=3:h='iw*0.09':color=white@0.9:t=fill,drawbox=x='iw*0.07':y='ih*0.93-3':w='iw*0.09':h=3:color=white@0.9:t=fill,drawbox=x='iw*0.07':y='ih*0.93-iw*0.09':w=3:h='iw*0.09':color=white@0.9:t=fill,drawbox=x='iw*0.93-iw*0.09':y='ih*0.93-3':w='iw*0.09':h=3:color=white@0.9:t=fill,drawbox=x='iw*0.93-3':y='ih*0.93-iw*0.09':w=3:h='iw*0.09':color=white@0.9:t=fill",
+      "params": {},
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 60
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "sparing",
+        "documentary": "sparing"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "các góc nằm trong vùng an toàn 7% mép: giữ cách mép để không bị nền tảng che"
+      ]
+    },
+    {
+      "id": "light-leak",
+      "name": {
+        "vi": "Rò sáng (light leak)",
+        "en": "Light leak"
+      },
+      "aliases": [
+        "Light Leaks",
+        "Film leak",
+        "Lens flare wash"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Mảng sáng cam hồng trôi qua khung như ánh sáng lọt vào máy phim. Ấm, hoài niệm, lãng mạn; hợp chuyển cảnh nhẹ và đoạn kể chuyện. Sinh bằng mã, không dùng video rò sáng bên ngoài.",
+      "graph": "gradients=s={W}x{H}:r={fps}:d={durpad}:c0=0xff5a1e:c1=0xffb347:c2=0xff2d6f:nb_colors=3:speed=0.03:type=radial,trim=end_frame={frames}[lk];[in]format=gbrp[a];[lk]format=gbrp[b];[a][b]blend=all_expr='255*(1-(1-A/255)*(1-B/255*{amount}*{bellT}*(0.1+0.9*pow(clip(1.1-hypot(X-W*0.9,Y-H*0.1)/hypot(W,H),0,1),2))))'[out]",
+      "params": {
+        "amount": {
+          "default": 0.55,
+          "min": 0.2,
+          "max": 1,
+          "unit": "",
+          "doc": "độ sáng của mảng rò"
+        }
+      },
+      "dur": {
+        "min": 0.6,
+        "default": 1.6,
+        "max": 6
+      },
+      "intensity": 2,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "sparing"
+      },
+      "perMinute": 3,
+      "flash": 0.5,
+      "sfx": [],
+      "pitfalls": [
+        "dùng ở điểm chuyển cảnh thì đỉnh sáng nên trùng điểm cắt",
+        "làm cháy sáng khuôn mặt nếu amount cao"
+      ]
+    },
+    {
+      "id": "film-burn",
+      "name": {
+        "vi": "Cháy phim (film burn)",
+        "en": "Film burn flash"
+      },
+      "aliases": [
+        "Film Burn",
+        "Burn transition",
+        "Hot flash"
+      ],
+      "purpose": "transition",
+      "engine": "video",
+      "about": "Chớp cam nóng bùng từ một góc rồi tắt, như đoạn phim bị cháy sáng. Chuyển cảnh ấm và có chất; hợp hồi tưởng và nhạc.",
+      "graph": "color=c=0xff6a00:s={W}x{H}:r={fps}:d={durpad},trim=end_frame={frames}[bn];[in]format=gbrp[a];[bn]format=gbrp[b];[a][b]blend=all_expr='255*(1-(1-A/255)*(1-B/255*{amount}*pow({bellT},1.5)*clip(1.3-hypot(X-W*0.1,Y-H*0.9)/hypot(W,H)*1.1,0.25,1)))'[out]",
+      "params": {
+        "amount": {
+          "default": 0.85,
+          "min": 0.3,
+          "max": 1,
+          "unit": "",
+          "doc": "độ nóng ở đỉnh"
+        }
+      },
+      "dur": {
+        "min": 0.3,
+        "default": 0.7,
+        "max": 1.6
+      },
+      "intensity": 3,
+      "beat": "kick",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "sparing"
+      },
+      "perMinute": 2,
+      "flash": 1,
+      "sfx": [
+        "impact"
+      ],
+      "pitfalls": [
+        "chớp lớn: tối đa vài lần mỗi video"
+      ]
+    },
+    {
+      "id": "projector-weave",
+      "name": {
+        "vi": "Máy chiếu phim (gate weave)",
+        "en": "Projector gate weave"
+      },
+      "aliases": [
+        "Gate Weave",
+        "8mm look",
+        "Film jitter"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Khung rung nhẹ ngẫu nhiên, sáng nhấp nháy và hạt nhiễu như phim 8 ly chiếu bằng máy cũ. Thêm chất hoài niệm cho cảnh kỷ niệm.",
+      "let": {
+        "DX": "{amp}*(sin(n*2.7)+0.6*sin(n*5.9+1))",
+        "DY": "{amp}*0.7*(sin(n*3.3+2)+0.5*sin(n*7.1))"
+      },
+      "chain": "{shakecrop},eq=brightness='{flick}*sin(n*3.1)':eval=frame,noise=alls=12:allf=t",
+      "params": {
+        "amp": {
+          "default": 3,
+          "min": 1,
+          "max": 10,
+          "unit": "px",
+          "doc": "biên độ rung"
+        },
+        "flick": {
+          "default": 0.025,
+          "min": 0.005,
+          "max": 0.08,
+          "unit": "",
+          "doc": "độ nhấp nháy sáng"
+        },
+        "margin": {
+          "default": 1.05,
+          "min": 1.02,
+          "max": 1.2,
+          "unit": "x",
+          "doc": "phóng dự phòng"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 5,
+        "max": 60
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "sparing",
+        "explainer": "avoid",
+        "documentary": "use"
+      },
+      "perMinute": 2,
+      "flash": 0,
+      "sfx": [],
+      "pitfalls": [
+        "rung và nhấp nháy dễ gây khó chịu nếu kéo dài: dùng đoạn ngắn dưới 10 giây"
+      ]
+    },
+    {
+      "id": "halation-glow",
+      "name": {
+        "vi": "Quầng đỏ phim (halation)",
+        "en": "Halation"
+      },
+      "aliases": [
+        "Halation",
+        "Red glow",
+        "Film bloom"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Vùng sáng tỏa viền đỏ cam mềm như phim nhiếp ảnh cổ. Làm đèn, da sáng và chữ sáng có quầng ấm điện ảnh.",
+      "graph": "[in]format=gbrp,split[a][b];[b]lutrgb=r='if(gt(val,170),val,0)':g='if(gt(val,170),val*0.45,0)':b='if(gt(val,170),val*0.2,0)',gblur=sigma={sigma}[c];[a][c]blend=all_expr='255*(1-(1-A/255)*(1-B/255*{amount}*{trapT}))'[out]",
+      "params": {
+        "sigma": {
+          "default": 18,
+          "min": 6,
+          "max": 50,
+          "unit": "px",
+          "doc": "bán kính quầng"
+        },
+        "amount": {
+          "default": 0.9,
+          "min": 0.2,
+          "max": 1.5,
+          "unit": "",
+          "doc": "độ mạnh quầng"
+        },
+        "fade": {
+          "default": 0.25,
+          "min": 0.05,
+          "max": 1,
+          "unit": "s",
+          "doc": "thời gian vào và ra"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 5,
+        "max": 60
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "use"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "chỉ thấy rõ khi cảnh có vùng sáng mạnh; cảnh tối đều thì không có tác dụng"
+      ]
+    },
+    {
+      "id": "chromatic-aberration",
+      "name": {
+        "vi": "Lệch sắc (chromatic aberration)",
+        "en": "Chromatic aberration"
+      },
+      "aliases": [
+        "Chromatic Aberration",
+        "RGB Shift",
+        "Color fringing"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Các kênh đỏ và xanh lệch nhẹ ngược chiều làm viền vật thể có quầng màu như ống kính rẻ. Cảm giác số, khó chịu hoặc phim cũ.",
+      "chain": "rgbashift=rh=-{px}:bh={px}",
+      "params": {
+        "px": {
+          "default": 4,
+          "min": 1,
+          "max": 16,
+          "unit": "px",
+          "doc": "độ lệch kênh"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 60
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "sparing"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "trên 8px thành hiệu ứng glitch, mất vẻ tinh tế"
+      ]
+    },
+    {
+      "id": "fisheye-lens",
+      "name": {
+        "vi": "Mắt cá (fisheye)",
+        "en": "Fisheye lens"
+      },
+      "aliases": [
+        "Fisheye",
+        "Barrel Distortion",
+        "Lens Distortion"
+      ],
+      "purpose": "humor",
+      "engine": "video",
+      "about": "Hình phồng cong ở giữa như ống kính mắt cá. Trẻ, vui, kiểu quay board và vlog thể thao.",
+      "chain": "lenscorrection=k1=-{k}:k2=-{k2}",
+      "params": {
+        "k": {
+          "default": 0.3,
+          "min": 0.05,
+          "max": 0.6,
+          "unit": "",
+          "doc": "độ phồng bậc 1"
+        },
+        "k2": {
+          "default": 0.05,
+          "min": 0,
+          "max": 0.3,
+          "unit": "",
+          "doc": "độ phồng bậc 2"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 3,
+        "max": 30
+      },
+      "intensity": 2,
+      "beat": "none",
+      "faceSafe": false,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "avoid"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "mặt ở giữa bị phình ra: chỉ hợp cảnh hài, không dùng cận mặt nghiêm túc"
+      ]
+    },
+    {
+      "id": "tilt-shift",
+      "name": {
+        "vi": "Tilt-shift mô hình",
+        "en": "Tilt-shift miniature"
+      },
+      "aliases": [
+        "Tilt Shift",
+        "Miniature effect",
+        "Selective blur band"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Nhoè phần trên và dưới, chừa một dải nét ở giữa: cảnh trông như mô hình thu nhỏ. Hợp cảnh thành phố, bàn làm việc nhìn từ trên.",
+      "graph": "[in]format=gbrp,split[a][b];[b]gblur=sigma={sigma}[c];[a][c]blend=all_expr='A*(1-clip((abs(Y/H-{cy})-{band})*{soft},0,1))+B*clip((abs(Y/H-{cy})-{band})*{soft},0,1)'[out]",
+      "params": {
+        "sigma": {
+          "default": 14,
+          "min": 4,
+          "max": 40,
+          "unit": "px",
+          "doc": "độ nhoè phần ngoài dải"
+        },
+        "cy": {
+          "default": 0.5,
+          "min": 0.2,
+          "max": 0.8,
+          "unit": "H",
+          "doc": "vị trí tâm dải nét"
+        },
+        "band": {
+          "default": 0.15,
+          "min": 0.05,
+          "max": 0.4,
+          "unit": "H",
+          "doc": "nửa độ cao dải nét"
+        },
+        "soft": {
+          "default": 4,
+          "min": 1,
+          "max": 12,
+          "unit": "",
+          "doc": "độ chuyển nét sang nhoè"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 30
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": false,
+      "styles": {
+        "hype": "sparing",
+        "explainer": "sparing",
+        "documentary": "sparing"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "đặt dải nét trùng vị trí mặt (cy theo fy) kẻo mặt bị nhoè"
+      ]
+    },
+    {
+      "id": "anamorphic-streak",
+      "name": {
+        "vi": "Vệt sáng ngang (anamorphic)",
+        "en": "Anamorphic streak"
+      },
+      "aliases": [
+        "Anamorphic Flare",
+        "Horizontal streak",
+        "Light streaks"
+      ],
+      "purpose": "mood",
+      "engine": "video",
+      "about": "Các điểm sáng mạnh kéo thành vệt xanh dương nằm ngang như ống kính anamorphic. Cảm giác điện ảnh, công nghệ, đèn đêm.",
+      "graph": "[in]format=gbrp,split[a][b];[b]lutrgb=r='if(gt(val,215),val*0.35,0)':g='if(gt(val,215),val*0.6,0)':b='if(gt(val,215),val,0)',gblur=sigma={len}:sigmaV=1.5[c];[a][c]blend=all_expr='255*(1-(1-A/255)*(1-B/255*{amount}*{trapT}))'[out]",
+      "params": {
+        "len": {
+          "default": 70,
+          "min": 20,
+          "max": 160,
+          "unit": "px",
+          "doc": "độ dài vệt"
+        },
+        "amount": {
+          "default": 1.2,
+          "min": 0.3,
+          "max": 2,
+          "unit": "",
+          "doc": "độ mạnh vệt"
+        },
+        "fade": {
+          "default": 0.25,
+          "min": 0.05,
+          "max": 1,
+          "unit": "s",
+          "doc": "thời gian vào và ra"
+        }
+      },
+      "dur": {
+        "min": 1,
+        "default": 4,
+        "max": 30
+      },
+      "intensity": 1,
+      "beat": "none",
+      "faceSafe": true,
+      "styles": {
+        "hype": "use",
+        "explainer": "avoid",
+        "documentary": "sparing"
+      },
+      "perMinute": 2,
+      "sfx": [],
+      "pitfalls": [
+        "chỉ thấy khi cảnh có đèn hoặc phản chiếu rất sáng"
+      ]
+    }
+  ]
+}

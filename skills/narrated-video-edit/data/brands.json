@@ -1,0 +1,250 @@
+{
+  "_doc": "Thương hiệu hay được nhắc trong video công nghệ. 'names' là từ khóa trong lời nói (chữ thường, bỏ dấu câu; tiếng Việt viết từng âm tiết nên cụm nằm ở 'phrases'). 'icon' là icon Iconify (bộ logos hoặc simple-icons, đều CC0; nhãn hiệu vẫn thuộc chủ sở hữu, chỉ dùng khi lời nói nhắc đúng thương hiệu đó). 'color' là màu nền của ô logo khi icon đơn sắc. plan-skeleton tự gợi ý thẻ logo khi lời nói nhắc; sửa tay trong edit-plan.json (cards, type logos).",
+  "brands": [
+    {
+      "id": "openai",
+      "label": "OpenAI",
+      "names": [
+        "openai",
+        "chatgpt",
+        "gpt"
+      ],
+      "icon": "logos:openai-icon",
+      "color": "#10a37f"
+    },
+    {
+      "id": "anthropic",
+      "label": "Anthropic",
+      "names": [
+        "anthropic",
+        "claude"
+      ],
+      "icon": "simple-icons:anthropic",
+      "color": "#d97757"
+    },
+    {
+      "id": "google",
+      "label": "Google",
+      "names": [
+        "google",
+        "gemini"
+      ],
+      "icon": "logos:google-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "meta",
+      "label": "Meta",
+      "names": [
+        "meta",
+        "llama"
+      ],
+      "icon": "logos:meta-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "microsoft",
+      "label": "Microsoft",
+      "names": [
+        "microsoft",
+        "copilot"
+      ],
+      "icon": "logos:microsoft-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "apple",
+      "label": "Apple",
+      "names": [
+        "apple",
+        "iphone",
+        "ios"
+      ],
+      "icon": "simple-icons:apple",
+      "color": "#1d1d1f"
+    },
+    {
+      "id": "nvidia",
+      "label": "NVIDIA",
+      "names": [
+        "nvidia"
+      ],
+      "icon": "simple-icons:nvidia",
+      "color": "#76b900"
+    },
+    {
+      "id": "github",
+      "label": "GitHub",
+      "names": [
+        "github"
+      ],
+      "icon": "simple-icons:github",
+      "color": "#24292f"
+    },
+    {
+      "id": "huggingface",
+      "label": "Hugging Face",
+      "names": [
+        "huggingface",
+        "hugging"
+      ],
+      "icon": "logos:hugging-face-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "python",
+      "label": "Python",
+      "names": [
+        "python"
+      ],
+      "icon": "logos:python",
+      "color": "#ffffff"
+    },
+    {
+      "id": "react",
+      "label": "React",
+      "names": [
+        "react"
+      ],
+      "icon": "logos:react",
+      "color": "#20232a"
+    },
+    {
+      "id": "docker",
+      "label": "Docker",
+      "names": [
+        "docker"
+      ],
+      "icon": "logos:docker-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "youtube",
+      "label": "YouTube",
+      "names": [
+        "youtube"
+      ],
+      "icon": "logos:youtube-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "tiktok",
+      "label": "TikTok",
+      "names": [
+        "tiktok"
+      ],
+      "icon": "logos:tiktok-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "facebook",
+      "label": "Facebook",
+      "names": [
+        "facebook"
+      ],
+      "icon": "logos:facebook",
+      "color": "#ffffff"
+    },
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "names": [
+        "instagram"
+      ],
+      "icon": "logos:instagram-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "canva",
+      "label": "Canva",
+      "names": [
+        "canva"
+      ],
+      "icon": "simple-icons:canva",
+      "color": "#00c4cc"
+    },
+    {
+      "id": "figma",
+      "label": "Figma",
+      "names": [
+        "figma"
+      ],
+      "icon": "logos:figma",
+      "color": "#ffffff"
+    },
+    {
+      "id": "notion",
+      "label": "Notion",
+      "names": [
+        "notion"
+      ],
+      "icon": "logos:notion-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "telegram",
+      "label": "Telegram",
+      "names": [
+        "telegram"
+      ],
+      "icon": "logos:telegram",
+      "color": "#ffffff"
+    },
+    {
+      "id": "shopee",
+      "label": "Shopee",
+      "names": [
+        "shopee"
+      ],
+      "icon": "simple-icons:shopee",
+      "color": "#ee4d2d"
+    },
+    {
+      "id": "netflix",
+      "label": "Netflix",
+      "names": [
+        "netflix"
+      ],
+      "icon": "logos:netflix-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "spotify",
+      "label": "Spotify",
+      "names": [
+        "spotify"
+      ],
+      "icon": "logos:spotify-icon",
+      "color": "#ffffff"
+    },
+    {
+      "id": "amazon",
+      "label": "Amazon",
+      "names": [
+        "amazon"
+      ],
+      "icon": "simple-icons:amazon",
+      "color": "#ff9900"
+    },
+    {
+      "id": "tesla",
+      "label": "Tesla",
+      "names": [
+        "tesla"
+      ],
+      "icon": "simple-icons:tesla",
+      "color": "#cc0000"
+    },
+    {
+      "id": "paddlepaddle",
+      "label": "PaddlePaddle",
+      "names": [
+        "paddlepaddle",
+        "paddleocr",
+        "paddle"
+      ],
+      "icon": "simple-icons:paddlepaddle",
+      "color": "#0062b0"
+    }
+  ]
+}

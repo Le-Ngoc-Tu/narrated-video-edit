@@ -1,0 +1,11 @@
+{
+  "_doc": "Mẫu câu lệnh của trang chọn kiểu (scripts/style-menu.mjs). {video}, {style}, {items}, {constraints} được thay khi bấm Copy prompt. Mỗi dòng của {items} theo itemLine ({code}, {id}, {purpose} là nhãn họ, {about} là câu đầu của mô tả). constraints là các ràng buộc cố định luôn đi kèm câu lệnh; sửa ở đây, không sửa trong mã.",
+  "title": "Style Menu: chọn hiệu ứng, trộn, Copy rồi dán cho tác tử",
+  "promptTemplate": "Dùng skill narrated-video-edit để dựng video của tôi: {video}.\nPhong cách: {style}.\nHiệu ứng tôi chọn (id trong data/effects):\n{items}\nGắn mỗi hiệu ứng vào từ nhấn hoặc điểm chuyển, không rải đều.\n{constraints}",
+  "itemLine": "- {code} {id} ({purpose}): {about}",
+  "constraints": [
+    "Giữ mọi thẻ, chữ và sticker trong vùng an toàn của khung dọc 9:16, không đè vùng nút của nền tảng.",
+    "Không che mặt tôi.",
+    "Lập kế hoạch và gửi tôi xem plan-board.png trước, chờ tôi chốt rồi mới tải tài nguyên và dựng."
+  ]
+}

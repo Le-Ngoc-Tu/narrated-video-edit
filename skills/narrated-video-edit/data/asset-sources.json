@@ -1,0 +1,78 @@
+{
+  "_doc": "Nguồn tài nguyên (ảnh, clip) có giấy phép cho resolve-assets.mjs, và quy tắc nhận giấy phép. Không có danh sách nguồn hay quy tắc nào nằm cứng trong mã. 'sources' là nguồn công cụ tự gọi: type jsonApi là kiểu khai báo (url có {query} và {pageSize}; results là đường tới mảng kết quả; fields ánh xạ trường bằng đường dẫn chấm, a[0] là phần tử đầu, a[].b là danh sách ghép bằng dấu cách; urlTemplate điền {tên trường của kết quả}; const là giá trị cố định; where lọc kết quả theo trường bằng giá trị), thêm nguồn kiểu này chỉ cần thêm một mục. type commons và nasa cần mã riêng vì API hai bước. 'manualCandidates' là nguồn tác tử tự tìm và xác minh bằng WebSearch hoặc WebFetch rồi đăng ký bằng resolve-assets --register (xem references/04-assets-licenses.md, mục 'Tìm ngoài danh sách'). 'status' ghi lần xác minh gần nhất: 'api-ok' là đã gọi API thật; 'page-ok' là trang tồn tại; 'bot-blocked' là trang chặn truy cập tự động (mở bằng trình duyệt).",
+  "defaults": {
+    "allow": ["cc0", "pd", "by"],
+    "limit": 6,
+    "sources": ["commons", "openverse", "nasa", "cleveland"],
+    "userAgent": "narrated-video-edit/1.0 (licensed asset lookup for a local video editing skill)",
+    "timeoutMs": 40000,
+    "downloadTimeoutMs": 120000
+  },
+  "forbiddenLicenses": ["by-nc", "by-nd", "other"],
+  "licenseRules": [
+    { "match": "cc0|zero|public domain dedication", "key": "cc0" },
+    { "match": "public domain|pdm|pd-|no known copyright|nasa", "key": "pd" },
+    { "match": "\\bnc\\b|non-?commercial", "key": "by-nc" },
+    { "match": "\\bnd\\b|no-?derivs", "key": "by-nd" },
+    { "match": "by-sa|share ?alike|\\bsa\\b", "key": "by-sa" },
+    { "match": "\\bcc[- ]by\\b|^by$|attribution", "key": "by" }
+  ],
+  "sources": {
+    "openverse": {
+      "type": "jsonApi",
+      "label": "Openverse (chỉ mục chung Flickr, Wikimedia, bảo tàng, thư viện)",
+      "kinds": ["image"],
+      "url": "https://api.openverse.org/v1/images/?q={query}&license=cc0,pdm,by&page_size={pageSize}&mature=false",
+      "pageSize": { "factor": 2, "max": 20 },
+      "results": "results",
+      "fields": { "id": "id", "title": "title", "description": "tags[].name", "url": "url", "thumb": "thumbnail", "width": "width", "height": "height", "page": "foreign_landing_url", "creator": "creator", "license": "license", "licenseVersion": "license_version", "licenseUrl": "license_url" },
+      "licenseValueSuffix": { "pdm": " public domain" },
+      "status": "api-ok 2026-10-22"
+    },
+    "cleveland": {
+      "type": "jsonApi",
+      "label": "Cleveland Museum of Art Open Access (CC0, tác phẩm nghệ thuật và đồ vật bảo tàng)",
+      "kinds": ["image"],
+      "url": "https://openaccess-api.clevelandart.org/api/artworks/?q={query}&has_image=1&cc0=1&limit={pageSize}",
+      "pageSize": { "factor": 2, "max": 20 },
+      "results": "data",
+      "where": { "share_license_status": "CC0" },
+      "fields": { "id": "id", "title": "title", "description": "tombstone", "url": "images.web.url", "thumb": "images.web.url", "width": "images.web.width", "height": "images.web.height", "page": "url", "creator": "creators[0].description" },
+      "const": { "license": "CC0", "licenseName": "CC0 1.0 (Cleveland Museum of Art Open Access)", "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/" },
+      "status": "api-ok 2026-10-22"
+    },
+    "commons": {
+      "type": "commons",
+      "label": "Wikimedia Commons (giấy phép đọc từ metadata từng tệp)",
+      "kinds": ["image", "video"],
+      "endpoint": "https://commons.wikimedia.org/w/api.php",
+      "imageWidth": 1920,
+      "videoWidthRange": [640, 1920],
+      "pageSize": { "factor": 2, "max": 20 },
+      "status": "api-ok 2026-10-22"
+    },
+    "nasa": {
+      "type": "nasa",
+      "label": "NASA Image and Video Library (miền công cộng; không ngụ ý NASA bảo trợ, không dùng logo NASA)",
+      "kinds": ["image", "video"],
+      "searchUrl": "https://images-api.nasa.gov/search",
+      "assetUrl": "https://images-api.nasa.gov/asset/",
+      "pageUrl": "https://images.nasa.gov/details/",
+      "pageSizeMax": 10,
+      "licenseName": "NASA media (miền công cộng; không ngụ ý NASA bảo trợ, không dùng logo NASA)",
+      "licenseUrl": "https://www.nasa.gov/nasa-brand-center/images-and-media/",
+      "status": "api-ok 2026-10-22"
+    }
+  },
+  "manualCandidates": [
+    { "id": "loc-free-to-use", "label": "Library of Congress Free to Use and Reuse", "url": "https://www.loc.gov/free-to-use/", "license": "miền công cộng hoặc không rõ hạn chế: đọc dòng 'Rights Advisory' của từng mục", "how": "Mở bộ sưu tập, chọn mục, đọc phần Rights and Access của TRANG mục đó; chỉ nhận khi ghi miền công cộng hoặc không có hạn chế đã biết.", "status": "page-ok 2026-10-22" },
+    { "id": "rijksmuseum", "label": "Rijksmuseum (hình ảnh miền công cộng, CC0)", "url": "https://www.rijksmuseum.nl/en/research/conduct-research/data", "license": "CC0 cho dữ liệu và ảnh miền công cộng", "how": "Dùng trang dữ liệu để xem điều khoản và cách tải; xác nhận từng tác phẩm ghi 'Public Domain' trước khi lấy.", "status": "page-ok 2026-10-22" },
+    { "id": "smithsonian-open-access", "label": "Smithsonian Open Access", "url": "https://www.si.edu/openaccess", "license": "CC0 cho mục gắn nhãn CC0", "how": "Tìm trong bộ sưu tập, lọc 'CC0', mở trang mục và xác nhận nhãn CC0 hiển thị trên trang đó.", "status": "bot-blocked 2026-10-22 (mở bằng trình duyệt)" },
+    { "id": "met-open-access", "label": "The Met Open Access", "url": "https://www.metmuseum.org/about-the-met/policies-and-documents/open-access", "license": "CC0 cho tác phẩm gắn 'Public Domain' hoặc OA", "how": "Tìm trong bộ sưu tập, chỉ lấy mục hiển thị nhãn Open Access / CC0 trên trang của nó.", "status": "bot-blocked 2026-10-22 (mở bằng trình duyệt)" },
+    { "id": "internet-archive", "label": "Internet Archive (nhiều giấy phép khác nhau)", "url": "https://archive.org/", "license": "tùy từng mục: chỉ nhận mục ghi rõ CC0, miền công cộng hoặc CC BY ở trường License", "how": "Mở trang mục, đọc trường License; bỏ mục không ghi hoặc ghi NC, ND, SA.", "status": "chưa kiểm" }
+  ],
+  "notAllowedAlone": [
+    { "name": "Pexels, Pixabay, Unsplash", "why": "giấy phép riêng (không phải CC0 hay CC BY): có khóa API riêng của người dùng thì đưa vào nhưng phải ghi rõ giấy phép riêng và người dùng đồng ý; mặc định không dùng" },
+    { "name": "YouTube, TikTok, Instagram, Google Images, Pinterest", "why": "không có giấy phép tái sử dụng rõ ràng; quy tắc cứng của skill cấm tải" }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "family": "layout",
+  "effects": [
+    {
+      "id": "double-take-split", "name": { "vi": "Chia đôi hai cỡ cảnh (double take)", "en": "Double-take split screen" }, "aliases": ["Split Screen", "Stacked crop", "Two-shot split"],
+      "purpose": "retention", "engine": "video", "blackEdges": false,
+      "about": "Khung chia trên dưới: nửa trên là cảnh rộng, nửa dưới là cận cùng cảnh đó. Một người nói thành hai góc máy cùng lúc, tăng nhịp mà không cần clip thứ hai.",
+      "graph": "[in]split[a][b];[a]crop=iw:trunc(ih/4)*2:0:ih*0.1[t];[b]crop=trunc(iw/{zoom}/2)*2:trunc(ih/2/{zoom}/2)*2:iw*{fx}-iw/{zoom}*{fx}:ih*{fy}-ih/{zoom}*{fy},scale={W}:trunc({H}/2)[bt];[t]scale={W}:trunc({H}/2)[tt];[tt][bt]vstack,scale={W}:{H}[out]",
+      "params": { "zoom": { "default": 1.6, "min": 1.2, "max": 2.5, "unit": "x", "doc": "độ cận của nửa dưới" } },
+      "dur": { "min": 1, "default": 4, "max": 20 }, "intensity": 2, "beat": "none", "faceSafe": false, "needs": ["faces"],
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["nửa trên cắt dải giữa nên mặt có thể bị cắt: kiểm bằng khung xem thử", "mất caption nếu đặt giữa khung: dời caption xuống nửa dưới"]
+    },
+    {
+      "id": "pop-art-grid", "name": { "vi": "Lưới 2x2 màu khác nhau (pop art)", "en": "Pop-art 2x2 grid" }, "aliases": ["Warhol Effect", "Quad Split", "Grid 2x2"],
+      "purpose": "humor", "engine": "video",
+      "about": "Bốn bản của khung hình xếp lưới 2x2, mỗi ô một tông màu như tranh Warhol. Cú đổi không khí vui và đồ họa; hợp nhạc nhanh.",
+      "graph": "[in]scale=trunc({W}/2):trunc({H}/2),split=4[a][b][c][d];[b]hue=h=90[b2];[c]hue=h=180[c2];[d]hue=h=270[d2];[a][b2]hstack[t];[c2][d2]hstack[u];[t][u]vstack,scale={W}:{H}[out]",
+      "params": {},
+      "dur": { "min": 0.4, "default": 1.5, "max": 10 }, "intensity": 3, "beat": "any", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["mặt thu còn một phần tư diện tích: chỉ dùng ở khoảnh khắc ngắn"]
+    },
+    {
+      "id": "frame-card", "name": { "vi": "Khung thẻ trên nền mờ (card frame)", "en": "Card on blurred background" }, "aliases": ["Shrink to Card", "Blur Background Fit", "Border Frame"],
+      "purpose": "brand", "engine": "video", "blackEdges": false,
+      "about": "Video thu nhỏ thành một thẻ có viền trắng ở giữa, nền là bản mờ tối của chính nó. Gợi ảnh dán, thẻ kỷ niệm; cũng chừa chỗ trên và dưới cho chữ, sticker.",
+      "graph": "[in]split[a][b];[a]gblur=sigma={bgblur},eq=brightness=-0.2[bg];[b]scale=trunc({W}*{fit}/2)*2:trunc({H}*{fit}/2)*2,pad=iw+{border}*2:ih+{border}*2:{border}:{border}:white[fg];[bg][fg]overlay=x='(W-w)/2':y='(H-h)/2'[out]",
+      "params": { "fit": { "default": 0.82, "min": 0.5, "max": 0.95, "unit": "x", "doc": "kích thước thẻ so với khung" }, "border": { "default": 10, "min": 0, "max": 30, "unit": "px", "doc": "độ dày viền trắng" }, "bgblur": { "default": 30, "min": 8, "max": 80, "unit": "px", "doc": "độ nhoè nền" } },
+      "dur": { "min": 1, "default": 4, "max": 30 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["khung hơi nhảy ở đầu và cuối cửa sổ (không có chuyển động vào ra): đặt cửa sổ trùng chỗ cắt"]
+    },
+    {
+      "id": "corner-pip", "name": { "vi": "Khung nhỏ góc (picture in picture)", "en": "Corner picture-in-picture" }, "aliases": ["PiP", "Facecam inset", "Reaction cam"],
+      "purpose": "retention", "engine": "video",
+      "about": "Nền là bản phóng to của khung hình, một khung nhỏ có viền ở góc trên bên phải giữ khung gốc. Kiểu facecam quen thuộc của video bình luận và game.",
+      "graph": "[in]split[a][b];[a]scale=trunc({W}*{zoom}/2)*2:trunc({H}*{zoom}/2)*2,crop={W}:{H}[bg];[b]scale=trunc({W}*{size}/2)*2:trunc({H}*{size}/2)*2,pad=iw+8:ih+8:4:4:white[pip];[bg][pip]overlay=x='W-w-W*0.05':y='H*0.08'[out]",
+      "params": { "zoom": { "default": 1.5, "min": 1.1, "max": 2.5, "unit": "x", "doc": "độ phóng của nền" }, "size": { "default": 0.32, "min": 0.15, "max": 0.5, "unit": "x", "doc": "kích thước khung nhỏ so với khung" } },
+      "dur": { "min": 1, "default": 4, "max": 30 }, "intensity": 2, "beat": "none", "faceSafe": false, "needs": ["faces"],
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["khung nhỏ có thể che nền: đặt ở góc xa người nói", "với một nguồn duy nhất thì khung nhỏ trùng nội dung nền: nên dùng khi nền được thay bằng cutaway"]
+    },
+    {
+      "id": "grade-wipe", "name": { "vi": "Quét đổi tông (grade wipe)", "en": "Grade reveal wipe" }, "aliases": ["Before/After Slider", "Split Reveal", "Look wipe"],
+      "purpose": "reveal", "engine": "video",
+      "about": "Một đường thẳng quét ngang khung: bên đã quét có tông màu mới, bên chưa quét còn tông gốc, kèm vạch trắng ở mép quét. Cho cảm giác trước và sau hoặc lộ tông phim.",
+      "graph": "[in]format=gbrp,split[a][b];[b]hue=s=0.2,eq=contrast=1.15:saturation=1.1[c];[a][c]blend=all_expr='if(lt(abs(X-W*{pT}),2),255,if(lt(X,W*{pT}),B,A))'[out]",
+      "params": {},
+      "dur": { "min": 0.6, "default": 1.4, "max": 6 }, "intensity": 2, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 2, "sfx": ["whoosh"],
+      "pitfalls": ["đường quét kéo qua mặt người nói: dùng ở lúc người nói im hoặc ở cutaway"]
+    },
+    {
+      "id": "layout-stack", "name": { "vi": "Xếp dọc nền mờ (stack)", "en": "Vertical stack layout" }, "aliases": ["Vertical Video Fit", "Blur fill", "Portrait stack"],
+      "purpose": "brand", "engine": "overlay",
+      "about": "Bố cục có sẵn của skill: video ngang đặt giữa khung dọc 9:16 trên nền mờ, nửa trên chừa cho decor. Chọn bằng plan-skeleton --layout stack.",
+      "ref": { "kind": "layout", "type": "stack" },
+      "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 0,
+      "pitfalls": ["chỉ dùng cho video ngang đổi sang dọc; video gốc đã dọc thì không cần"]
+    },
+    {
+      "id": "layout-follow", "name": { "vi": "Cắt dọc bám mặt (follow)", "en": "Face-follow vertical crop" }, "aliases": ["Auto Reframe", "Smart Crop", "Subject tracking crop"],
+      "purpose": "brand", "engine": "overlay",
+      "about": "Bố cục có sẵn: khung cắt 9:16 từ video ngang đi theo mặt người nói bằng đường đi rút gọn. Chọn bằng plan-skeleton --layout follow.",
+      "ref": { "kind": "layout", "type": "follow" },
+      "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 0,
+      "pitfalls": ["cần dò mặt đủ (từ 40% mẫu) và gốc từ 1080p để rõ nét"]
+    }
+  ]
+}

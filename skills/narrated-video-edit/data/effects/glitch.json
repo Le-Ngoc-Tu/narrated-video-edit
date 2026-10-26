@@ -1,0 +1,96 @@
+{
+  "family": "glitch",
+  "effects": [
+    {
+      "id": "rgb-split-hit", "name": { "vi": "Tách kênh RGB (RGB split)", "en": "RGB split hit" }, "aliases": ["RGB Split", "Color Channel Shift", "Chromatic glitch"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Ba kênh màu tách lệch nhau ở đỉnh nhịp rồi nhập lại. Hiệu ứng nhấn nhịp quen thuộc của edit phonk, game và công nghệ.",
+      "graph": "[in]split[a][b];[b]rgbashift=rh=-{px}:rv={py}:bh={px}:bv=-{py}[c];[a][c]blend=all_expr='A*(1-{bellT})+B*{bellT}'[out]",
+      "params": { "px": { "default": 14, "min": 3, "max": 40, "unit": "px", "doc": "độ lệch ngang" }, "py": { "default": 4, "min": 0, "max": 20, "unit": "px", "doc": "độ lệch dọc" } },
+      "dur": { "min": 0.15, "default": 0.4, "max": 1 }, "intensity": 2, "beat": "snare", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 4, "sfx": ["glitch"],
+      "pitfalls": ["kéo dài trên 1 giây thì thành lỗi màu, không còn là điểm nhấn"]
+    },
+    {
+      "id": "block-glitch", "name": { "vi": "Khối lỗi (block glitch)", "en": "Block swap glitch" }, "aliases": ["Digital Glitch", "Block corruption", "Macroblocking"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Các khối chữ nhật bị hoán đổi vị trí ngẫu nhiên như lỗi giải mã video. Gai góc, công nghệ; hợp cú nhấn ngắn hoặc cảnh 'hỏng tín hiệu'.",
+      "chain": "swaprect=w={bw}:h={bh}:x1='mod(n*37,{W}-{bw})':y1='mod(n*53,{H}-{bh})':x2='mod(n*91+200,{W}-{bw})':y2='mod(n*17+300,{H}-{bh})',swaprect=w={bw}:h={bh}:x1='mod(n*71,{W}-{bw})':y1='mod(n*29,{H}-{bh})':x2='mod(n*43+100,{W}-{bw})':y2='mod(n*83+50,{H}-{bh})',swaprect=w={bw}:h='{bh}*0.4':x1='mod(n*19,{W}-{bw})':y1='mod(n*61,{H}-{bh})':x2='mod(n*59+250,{W}-{bw})':y2='mod(n*13+450,{H}-{bh})'",
+      "params": { "bw": { "default": 160, "min": 40, "max": 320, "unit": "px", "doc": "rộng mỗi khối" }, "bh": { "default": 60, "min": 20, "max": 200, "unit": "px", "doc": "cao mỗi khối" } },
+      "dur": { "min": 0.15, "default": 0.5, "max": 1.5 }, "intensity": 3, "beat": "snare", "faceSafe": false,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 3, "sfx": ["glitch"],
+      "pitfalls": ["khối đổi vị trí che mặt trong khoảnh khắc: giữ ngắn", "bw và bh phải nhỏ hơn khung; trên video nhỏ giảm kích thước khối"]
+    },
+    {
+      "id": "censor-mosaic", "name": { "vi": "Che mosaic vùng (censor)", "en": "Mosaic censor" }, "aliases": ["Mosaic", "Pixelate region", "Blur censor"],
+      "purpose": "clarity", "engine": "video",
+      "about": "Làm vỡ ô vuông một vùng chữ nhật (biển số, tên, chi tiết riêng tư) trong cửa sổ thời gian. Vừa là che thông tin nhạy cảm, vừa là gag.",
+      "graph": "[in]split[a][b];[b]crop=w='iw*{rw}':h='ih*{rh}':x='iw*{rx}':y='ih*{ry}',pixelize=w={cell}:h={cell}[m];[a][m]overlay=x='W*{rx}':y='H*{ry}'[out]",
+      "params": { "rx": { "default": 0.3, "min": 0, "max": 0.9, "unit": "W", "doc": "mép trái vùng che (tỉ lệ chiều rộng)" }, "ry": { "default": 0.3, "min": 0, "max": 0.9, "unit": "H", "doc": "mép trên vùng che (tỉ lệ chiều cao)" }, "rw": { "default": 0.4, "min": 0.05, "max": 1, "unit": "W", "doc": "rộng vùng che" }, "rh": { "default": 0.2, "min": 0.05, "max": 1, "unit": "H", "doc": "cao vùng che" }, "cell": { "default": 20, "min": 8, "max": 80, "unit": "px", "doc": "kích thước ô" } },
+      "dur": { "min": 0.5, "default": 3, "max": 60 }, "intensity": 1, "beat": "none", "faceSafe": false,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["vùng che là tĩnh: nếu vật cần che di chuyển, đặt nhiều cửa sổ ngắn hoặc nới vùng che", "ô quá nhỏ (dưới 8px) vẫn đọc được chữ bên dưới, không còn là che"]
+    },
+    {
+      "id": "edge-neon", "name": { "vi": "Viền neon (edge glow)", "en": "Neon edge glow" }, "aliases": ["Find Edges", "Edge Glow", "Neon outline"],
+      "purpose": "mood", "engine": "video",
+      "about": "Dò đường viền vật thể rồi tô sáng neon trên nền tối đi. Hình trông như vẽ bằng đèn; hợp tiêu đề công nghệ hoặc đoạn 'chế độ xem khác'.",
+      "graph": "[in]format=gbrp,split[a][b];[b]edgedetect=mode=wires:low=0.06:high=0.18,format=rgb24,colorchannelmixer=rr={tr}:gg={tg}:bb={tb},format=gbrp[c];[a][c]blend=all_expr='A*(1-{trapT})+max(A*{dim},B*{glow})*{trapT}'[out]",
+      "params": { "tr": { "default": 0.15, "min": 0, "max": 1, "unit": "", "doc": "độ đỏ của viền (cyan: 0,15 / 0,9 / 1; hồng: 1 / 0,2 / 0,8)" }, "tg": { "default": 0.9, "min": 0, "max": 1, "unit": "", "doc": "độ lục của viền" }, "tb": { "default": 1, "min": 0, "max": 1, "unit": "", "doc": "độ lam của viền" }, "dim": { "default": 0.3, "min": 0.1, "max": 1, "unit": "", "doc": "độ sáng còn lại của hình gốc" }, "glow": { "default": 1.4, "min": 0.5, "max": 3, "unit": "x", "doc": "độ sáng viền" }, "fade": { "default": 0.2, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 0.5, "default": 2, "max": 20 }, "intensity": 2, "beat": "any", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["viền nhiễu ở video nén mạnh; dùng nguồn sạch"]
+    },
+    {
+      "id": "mirror-split", "name": { "vi": "Phản chiếu đôi (mirror)", "en": "Mirror split" }, "aliases": ["Mirror", "Reflect", "Symmetry"],
+      "purpose": "humor", "engine": "video",
+      "about": "Nửa trái khung lật sang nửa phải tạo hình đối xứng. Ma quái, nghệ thuật, hoặc gag 'sinh đôi'.",
+      "graph": "[in]crop=trunc(iw/4)*2:ih:0:0,split[l][t];[t]hflip[r];[l][r]hstack,scale={W}:{H}[out]",
+      "params": {},
+      "dur": { "min": 0.5, "default": 2, "max": 20 }, "intensity": 2, "beat": "any", "faceSafe": false,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["mặt bị cắt đôi nếu người nói ở giữa khung; hợp người nói lệch trái"]
+    },
+    {
+      "id": "kaleido-quad", "name": { "vi": "Vạn hoa bốn góc (kaleidoscope)", "en": "Quad mirror kaleidoscope" }, "aliases": ["Kaleidoscope", "Quad Mirror", "4-way mirror"],
+      "purpose": "mood", "engine": "video",
+      "about": "Một góc phần tư khung được lật thành bốn, ra mẫu đối xứng như ống vạn hoa. Cú đổi không khí mạnh; hợp nhạc điện tử hoặc chuyển cảnh nghệ thuật.",
+      "graph": "[in]crop=trunc(iw/4)*2:trunc(ih/4)*2:0:0,split=4[a][b][c][d];[b]hflip[b2];[c]vflip[c2];[d]hflip,vflip[d2];[a][b2]hstack[t];[c2][d2]hstack[u];[t][u]vstack,scale={W}:{H}[out]",
+      "params": {},
+      "dur": { "min": 0.4, "default": 1.5, "max": 10 }, "intensity": 3, "beat": "any", "faceSafe": false,
+      "styles": { "hype": "sparing", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["lấy góc trên trái làm gốc nên không thấy người nói; chỉ cho cảnh phụ hoặc cutaway"]
+    },
+    {
+      "id": "tv-static-burst", "name": { "vi": "Nhiễu tivi (static burst)", "en": "TV static burst" }, "aliases": ["TV Static", "Noise burst", "Signal loss"],
+      "purpose": "transition", "engine": "video",
+      "about": "Nhiễu trắng đen phủ lên khung ngắn rồi tan, như mất tín hiệu. Dùng làm cú ngắt hoặc chuyển cảnh kiểu băng cũ.",
+      "graph": "[in]split[a][b];[b]noise=alls=100:allf=t,eq=saturation=0[c];[a][c]blend=all_expr='A*(1-{bellT})+B*{bellT}'[out]",
+      "params": {},
+      "dur": { "min": 0.15, "default": 0.4, "max": 1 }, "intensity": 3, "beat": "snare", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 3, "sfx": ["glitch"],
+      "pitfalls": ["nhiễu mạnh làm tăng dung lượng video"]
+    },
+    {
+      "id": "solarize-flash", "name": { "vi": "Cháy sáng đảo tông (solarize)", "en": "Solarize flash" }, "aliases": ["Solarize", "Sabattier", "Tone invert"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Vùng sáng bị đảo tông còn vùng tối giữ nguyên, hình thành màu ảo như ảnh in phơi quá. Nghệ thuật, siêu thực.",
+      "graph": "[in]split[a][b];[b]lutyuv=y='if(gt(val,{knee}),255-val,val)'[c];[a][c]blend=all_expr='A*(1-{trapT})+B*{trapT}'[out]",
+      "params": { "knee": { "default": 128, "min": 60, "max": 200, "unit": "", "doc": "ngưỡng sáng bắt đầu đảo tông" }, "fade": { "default": 0.1, "min": 0.03, "max": 0.6, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 0.2, "default": 0.6, "max": 3 }, "intensity": 3, "beat": "any", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 1, "flash": 1, "sfx": [],
+      "pitfalls": ["đổi tông mặt đột ngột: giữ ngắn"]
+    },
+    {
+      "id": "digital-jitter", "name": { "vi": "Giật số (digital jitter)", "en": "Digital jitter shake" }, "aliases": ["Glitch Shake", "Jitter", "RGB shake"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Khung giật nhanh theo bước rời rạc kèm lệch kênh màu. Nhẹ hơn block glitch, hợp nhấn một từ hoặc câu nói ngắn.",
+      "let": { "DX": "{amp}*sin(n*13.7)*gt(sin(n*2.1),-0.3)", "DY": "{amp}*0.6*cos(n*11.3)*gt(sin(n*1.7+1),-0.3)" },
+      "chain": "{shakecrop},rgbashift=rh=-5:bh=5",
+      "params": { "amp": { "default": 14, "min": 4, "max": 40, "unit": "px", "doc": "biên độ giật" }, "margin": { "default": 1.1, "min": 1.04, "max": 1.3, "unit": "x", "doc": "phóng dự phòng" } },
+      "dur": { "min": 0.2, "default": 0.6, "max": 2 }, "intensity": 2, "beat": "snare", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 3, "sfx": ["glitch"],
+      "pitfalls": ["là cú chạm cả khung hình: tối đa 3 lần mỗi video"]
+    }
+  ]
+}

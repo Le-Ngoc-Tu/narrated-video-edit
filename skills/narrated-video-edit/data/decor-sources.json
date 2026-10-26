@@ -1,0 +1,26 @@
+{
+  "_doc": "Nguồn decor (emoji, icon, hoạt họa) đã xác minh giấy phép ngày 2026-10-22 từ trang chính thức hoặc API của nguồn. 'allow' là danh sách trắng SPDX cho decor tải về; 'needsCredit' là giấy phép buộc ghi công (render-overlay ghi vào overlay-summary.json và finalize đưa vào .credits.txt). Mọi nguồn tải qua mạng gửi từ khóa ra ngoài: nói với người dùng ở cổng 1.",
+  "allow": ["MIT", "ISC", "Apache-2.0", "CC0-1.0", "Unlicense", "CC-BY-4.0", "BSD-3-Clause"],
+  "needsCredit": ["CC-BY-4.0", "CC-BY-3.0"],
+  "iconify": {
+    "api": "https://api.iconify.design",
+    "color": ["fluent-emoji-flat", "noto", "fxemoji", "twemoji", "streamline-emojis"],
+    "mono": ["ph", "lucide", "tabler", "mdi"]
+  },
+  "noto": {
+    "lottie": "https://fonts.gstatic.com/s/e/notoemoji/latest/{codepoint}/lottie.json",
+    "credit": "Animated Noto Emoji, Google, CC BY 4.0 (https://googlefonts.github.io/noto-emoji-files/)"
+  },
+  "sources": [
+    { "id": "fluent-emoji-3d", "kind": "emoji tĩnh 3D", "license": "MIT", "status": "đã gói sẵn", "where": "templates/emoji (62 tệp)", "note": "nguồn Microsoft Fluent Emoji" },
+    { "id": "noto-animated", "kind": "emoji động (Lottie)", "license": "CC-BY-4.0", "status": "dùng, tải theo yêu cầu", "where": "fonts.gstatic.com/s/e/notoemoji/latest/{cp}/lottie.json", "verified": "trang googlefonts.github.io/noto-emoji-files ghi 'Animated Noto Emoji is licensed under CC BY 4.0'; truy cập không cần khóa; 47/62 emoji của skill có bản động", "note": "tua khung xác định được bằng lottie-web goToAndStop (đã thử, ảnh giống hệt khi tua lại); cần ghi công" },
+    { "id": "iconify-color", "kind": "icon màu, emoji vector", "license": "theo từng bộ (MIT, Apache-2.0, CC-BY-4.0)", "status": "dùng, tải theo yêu cầu", "where": "api.iconify.design", "verified": "collections.json ghi giấy phép SPDX cho từng bộ; 243 bộ, lọc bằng 'allow'", "note": "tìm theo từ khóa, lấy SVG, làm sticker cắt viền trắng" },
+    { "id": "iconify-mono", "kind": "icon đơn sắc", "license": "MIT, ISC, Apache-2.0", "status": "dùng, tải theo yêu cầu", "where": "api.iconify.design (ph, lucide, tabler, mdi)", "note": "tô màu theo bảng màu phong cách" },
+    { "id": "code-generated", "kind": "hiệu ứng sinh bằng mã", "license": "không có rủi ro giấy phép", "status": "dùng", "where": "templates/overlay.js", "note": "sparkle, confetti, vòng xung, vạch tốc độ, swoosh bằng GSAP và SVG" },
+    { "id": "openpeeps", "kind": "hình người minh họa", "license": "CC0-1.0", "status": "chưa dùng", "verified": "openpeeps.com ghi 'Free for commercial and personal use under CC0'", "note": "hình người kiểu nét vẽ, hợp video giải thích hơn vlog" },
+    { "id": "kenney", "kind": "bộ asset game", "license": "CC0-1.0", "status": "chưa dùng", "verified": "kenney.nl/support ghi CC0, không cần ghi công", "note": "chưa rõ có bộ SVG hợp decor" },
+    { "id": "undraw", "kind": "hình minh họa", "license": "giấy phép riêng của unDraw", "status": "loại", "verified": "undraw.co/license: cấm phân phối theo gói và cấm dùng để huấn luyện hay tinh chỉnh mô hình AI", "note": "không gói sẵn và không tự tải" },
+    { "id": "lottiefiles", "kind": "Lottie cộng đồng", "license": "Lottie Simple License, khác nhau theo tệp", "status": "loại khỏi v1", "verified": "lottiefiles.com/page/license: bản sửa đổi phải giữ cùng giấy phép; tệp từng tác giả có thể khác", "note": "không có API công khai không cần khóa và giấy phép từng tệp không chắc chắn" },
+    { "id": "openmoji", "kind": "emoji", "license": "CC-BY-SA-4.0", "status": "loại", "note": "SA không nằm trong danh sách trắng (bản sao video thành phẩm phải cùng giấy phép)" }
+  ]
+}

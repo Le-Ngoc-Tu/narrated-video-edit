@@ -1,0 +1,41 @@
+{
+  "_doc": "Quy tắc chọn hiệu ứng của thư viện data/effects cho từng phong cách; plan-skeleton đọc để tự gợi ý, plan-lint đọc để kiểm ngân sách. Tên hiệu ứng là id trong data/effects. maxPerMinute: tổng hiệu ứng tự gợi ý mỗi phút. strongPerMinute: hiệu ứng intensity 3 (chạm cả khung hình) mỗi phút; quy tắc aesthetic R4 giữ ít. minGapSec: khoảng cách tối thiểu giữa hai cửa sổ. atCut: tại điểm nối sau khi cắt khoảng ngắt, tỉ lệ fraction các chỗ nối được thêm một chuyển cảnh lấy từ pool (luân phiên, không lặp liền kề), cửa sổ đặt cân hai bên điểm nối. atStat: tại thẻ số liệu. atOpen: ở nhịp mở đầu (hook). atPunch: thay một phần zoom nhấn thường bằng biến thể mạnh hơn hoặc cứng hơn (fraction của số zoom). Pool rỗng là tắt. lint.* là ngưỡng plan-lint (nhân với số phút). Sửa số trong tệp này để chỉnh độ dày hiệu ứng, không cần sửa mã.",
+  "styles": {
+    "hype": {
+      "maxPerMinute": 7,
+      "strongPerMinute": 2,
+      "minGapSec": 3.5,
+      "atCut": { "pool": ["whip-pan", "whip-tilt", "zoom-blur-through", "rgb-split-hit", "roll-swing", "glitch-cut"], "fraction": 0.3 },
+      "atStat": { "pool": ["zoom-pulse", "bounce-zoom", "rgb-split-hit"], "fraction": 0.5 },
+      "atOpen": { "pool": ["zoom-blur-through"], "fraction": 1 },
+      "atPunch": [{ "effect": "jump-punch", "fraction": 0.2 }, { "effect": "crash-zoom", "fraction": 0.12 }]
+    },
+    "explainer": {
+      "maxPerMinute": 3,
+      "strongPerMinute": 0.5,
+      "minGapSec": 8,
+      "atCut": { "pool": ["blur-through", "whip-pan"], "fraction": 0.12 },
+      "atStat": { "pool": ["punch-in"], "fraction": 0.4 },
+      "atOpen": { "pool": [], "fraction": 0 },
+      "atPunch": [{ "effect": "jump-punch", "fraction": 0.2 }]
+    },
+    "documentary": {
+      "maxPerMinute": 1.5,
+      "strongPerMinute": 0,
+      "minGapSec": 15,
+      "atCut": { "pool": ["blur-through", "dip-black"], "fraction": 0.08 },
+      "atStat": { "pool": [], "fraction": 0 },
+      "atOpen": { "pool": [], "fraction": 0 },
+      "atPunch": [{ "effect": "slow-push", "fraction": 0.3 }]
+    }
+  },
+  "lint": {
+    "maxPerMinuteFactor": 1.5,
+    "maxStrongPerMinuteFactor": 1.5,
+    "minStrongAllowed": 2,
+    "flashPerSecond": 3,
+    "flashWindowSec": 1,
+    "shortMaxDurFactor": 1.6,
+    "shortMinDurFactor": 0.5
+  }
+}

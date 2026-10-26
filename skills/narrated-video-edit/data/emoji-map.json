@@ -1,0 +1,698 @@
+{
+ "_doc": "Từ khóa trong lời nói (chữ thường, bỏ dấu câu) gợi emoji. Tiếng Việt viết từng âm tiết nên chỉ dùng âm tiết ĐỦ RÕ nghĩa ở 'any'; từ ghép nằm ở 'phrases' (các âm tiết liền nhau cách bằng dấu cách). Mỗi mục trỏ tới một tệp trong templates/emoji (Fluent Emoji 3D, giấy phép MIT). plan-skeleton chọn emoji theo bảng này; tác tử sửa tay trong edit-plan.json khi cần. units: đơn vị đứng sau con số, dùng chọn biểu tượng cho thẻ số liệu (render-overlay).",
+ "map": [
+  {
+   "id": "money",
+   "any": [
+    "tiền",
+    "nghìn",
+    "triệu",
+    "đắt",
+    "mắc",
+    "rẻ",
+    "money",
+    "price",
+    "cost",
+    "expensive",
+    "cheap",
+    "dollar",
+    "dollars"
+   ],
+   "phrases": [
+    "giá cả",
+    "giá tiền"
+   ]
+  },
+  {
+   "id": "moneywings",
+   "any": [
+    "tiêu",
+    "tốn",
+    "spend",
+    "spent",
+    "waste"
+   ],
+   "phrases": [
+    "tốn tiền",
+    "hết tiền"
+   ]
+  },
+  {
+   "id": "card",
+   "any": [
+    "thẻ",
+    "card",
+    "cards"
+   ],
+   "phrases": [
+    "thanh toán"
+   ]
+  },
+  {
+   "id": "shopping",
+   "any": [
+    "mua",
+    "shopee",
+    "order",
+    "buy",
+    "shopping",
+    "shop",
+    "lazada",
+    "tiki"
+   ],
+   "phrases": [
+    "đặt hàng",
+    "đặt shop"
+   ]
+  },
+  {
+   "id": "package",
+   "any": [
+    "kiện",
+    "ship",
+    "shipping",
+    "deliver",
+    "delivery",
+    "parcel",
+    "package"
+   ],
+   "phrases": [
+    "giao hàng"
+   ]
+  },
+  {
+   "id": "bowl",
+   "any": [
+    "phở",
+    "mì",
+    "ramen",
+    "cơm",
+    "lươn",
+    "bún",
+    "noodle",
+    "noodles",
+    "rice",
+    "soup",
+    "unagi"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "food",
+   "any": [
+    "ăn",
+    "món",
+    "ngon",
+    "food",
+    "eat",
+    "dinner",
+    "lunch",
+    "breakfast"
+   ],
+   "phrases": [
+    "đồ ăn"
+   ]
+  },
+  {
+   "id": "burger",
+   "any": [
+    "burger",
+    "hamburger",
+    "pizza"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "tea",
+   "any": [
+    "cafe",
+    "coffee",
+    "trà",
+    "tea",
+    "uống",
+    "drink"
+   ],
+   "phrases": [
+    "cà phê",
+    "quán cà"
+   ]
+  },
+  {
+   "id": "cake",
+   "any": [
+    "bánh",
+    "cake",
+    "dessert"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "camera",
+   "any": [
+    "selfie",
+    "quay",
+    "chụp",
+    "camera",
+    "photo",
+    "vlog"
+   ],
+   "phrases": [
+    "quay phim"
+   ]
+  },
+  {
+   "id": "phone",
+   "any": [
+    "phone",
+    "app",
+    "smartphone"
+   ],
+   "phrases": [
+    "điện thoại"
+   ]
+  },
+  {
+   "id": "car",
+   "any": [
+    "taxi",
+    "grab",
+    "car",
+    "drive",
+    "xe"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "plane",
+   "any": [
+    "plane",
+    "flight",
+    "airport"
+   ],
+   "phrases": [
+    "máy bay",
+    "du lịch"
+   ]
+  },
+  {
+   "id": "train",
+   "any": [
+    "tàu",
+    "train",
+    "metro"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "city",
+   "any": [
+    "saigon",
+    "sài",
+    "skyline",
+    "city"
+   ],
+   "phrases": [
+    "thành phố",
+    "hồ chí",
+    "sài gòn",
+    "hà nội"
+   ]
+  },
+  {
+   "id": "building",
+   "any": [
+    "landmark",
+    "tower",
+    "lotte",
+    "vincom",
+    "tòa"
+   ],
+   "phrases": [
+    "tòa nhà"
+   ]
+  },
+  {
+   "id": "sparkles",
+   "any": [
+    "xinh",
+    "đẹp",
+    "lấp",
+    "lánh",
+    "beautiful",
+    "pretty",
+    "shiny",
+    "magic"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "heart-eyes",
+   "any": [
+    "yêu",
+    "cute",
+    "love",
+    "adorable"
+   ],
+   "phrases": [
+    "dễ thương",
+    "rất thích"
+   ]
+  },
+  {
+   "id": "heart",
+   "any": [
+    "tim",
+    "heart"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "fire",
+   "any": [
+    "fire",
+    "cháy",
+    "đỉnh",
+    "tuyệt",
+    "hot"
+   ],
+   "phrases": [
+    "nóng quá"
+   ]
+  },
+  {
+   "id": "wow",
+   "any": [
+    "wow",
+    "omg",
+    "amazing",
+    "surprise"
+   ],
+   "phrases": [
+    "trời ơi",
+    "bất ngờ"
+   ]
+  },
+  {
+   "id": "mindblown",
+   "any": [
+    "sốc",
+    "choáng",
+    "shock",
+    "mindblown",
+    "khủng"
+   ],
+   "phrases": [
+    "kinh khủng"
+   ]
+  },
+  {
+   "id": "scream",
+   "any": [
+    "sợ",
+    "hoảng",
+    "scary",
+    "scared"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "joy",
+   "any": [
+    "haha",
+    "lol",
+    "hài",
+    "funny"
+   ],
+   "phrases": [
+    "buồn cười"
+   ]
+  },
+  {
+   "id": "cry",
+   "any": [
+    "khóc",
+    "tiếc",
+    "sad",
+    "cry"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "think",
+   "any": [
+    "think",
+    "maybe",
+    "wonder",
+    "phân",
+    "vân"
+   ],
+   "phrases": [
+    "phân vân",
+    "không biết"
+   ]
+  },
+  {
+   "id": "eyes",
+   "any": [
+    "ngắm",
+    "look",
+    "watch"
+   ],
+   "phrases": [
+    "xem thử"
+   ]
+  },
+  {
+   "id": "party",
+   "any": [
+    "tiệc",
+    "party",
+    "celebrate"
+   ],
+   "phrases": [
+    "sinh nhật"
+   ]
+  },
+  {
+   "id": "cool",
+   "any": [
+    "ngầu",
+    "cool"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "pleading",
+   "any": [
+    "please",
+    "pls"
+   ],
+   "phrases": [
+    "làm ơn"
+   ]
+  },
+  {
+   "id": "wand",
+   "any": [
+    "gậy",
+    "harry",
+    "potter",
+    "malfoy",
+    "hogwarts",
+    "wand",
+    "wizard",
+    "cosplay"
+   ],
+   "phrases": [
+    "gậy phép"
+   ]
+  },
+  {
+   "id": "gem",
+   "any": [
+    "gem",
+    "hiếm",
+    "rare"
+   ],
+   "phrases": [
+    "kim cương"
+   ]
+  },
+  {
+   "id": "crown",
+   "any": [
+    "king",
+    "queen",
+    "crown",
+    "vua"
+   ],
+   "phrases": [
+    "nữ hoàng"
+   ]
+  },
+  {
+   "id": "game",
+   "any": [
+    "game",
+    "figure",
+    "anime",
+    "miku",
+    "mihoyo",
+    "wuthering",
+    "gacha"
+   ],
+   "phrases": [
+    "trò chơi"
+   ]
+  },
+  {
+   "id": "music",
+   "any": [
+    "nhạc",
+    "music",
+    "song"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "gift",
+   "any": [
+    "quà",
+    "tặng",
+    "gift",
+    "present"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "trophy",
+   "any": [
+    "win",
+    "trophy",
+    "champion",
+    "thắng"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "ticket",
+   "any": [
+    "vé",
+    "ticket"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "clock",
+   "any": [
+    "late",
+    "muộn",
+    "trễ"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "hourglass",
+   "any": [
+    "đợi",
+    "chờ",
+    "wait",
+    "waiting"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "calendar",
+   "any": [
+    "monday",
+    "sunday",
+    "weekend"
+   ],
+   "phrases": [
+    "chủ nhật",
+    "cuối tuần"
+   ]
+  },
+  {
+   "id": "chartup",
+   "any": [
+    "growth",
+    "increase",
+    "tăng"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "chartdown",
+   "any": [
+    "decrease",
+    "giảm"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "rocket",
+   "any": [
+    "launch",
+    "nhanh",
+    "fast"
+   ],
+   "phrases": [
+    "bắt đầu"
+   ]
+  },
+  {
+   "id": "bulb",
+   "any": [
+    "tip",
+    "idea",
+    "trick",
+    "mẹo"
+   ],
+   "phrases": [
+    "ý tưởng"
+   ]
+  },
+  {
+   "id": "shirt",
+   "any": [
+    "áo",
+    "shirt",
+    "outfit"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "dress",
+   "any": [
+    "váy",
+    "đầm",
+    "dress"
+   ],
+   "phrases": []
+  },
+  {
+   "id": "warning",
+   "any": [
+    "warning",
+    "careful",
+    "beware"
+   ],
+   "phrases": [
+    "cẩn thận",
+    "lưu ý"
+   ]
+  },
+  {
+   "id": "check",
+   "any": [
+    "done",
+    "xong"
+   ],
+   "phrases": [
+    "hoàn thành"
+   ]
+  },
+  {
+   "id": "thumbsup",
+   "any": [
+    "recommend",
+    "great",
+    "khuyên"
+   ],
+   "phrases": [
+    "rất tốt"
+   ]
+  },
+  {
+   "id": "clap",
+   "any": [
+    "thanks",
+    "thank",
+    "congrats",
+    "chúc",
+    "mừng"
+   ],
+   "phrases": [
+    "cảm ơn"
+   ]
+  },
+  {
+   "id": "clapper",
+   "any": [
+    "phim",
+    "movie",
+    "film"
+   ],
+   "phrases": []
+  }
+ ],
+ "units": [
+  {
+   "id": "calendar",
+   "words": [
+    "năm",
+    "tháng",
+    "ngày",
+    "tuần",
+    "year",
+    "years",
+    "month",
+    "months",
+    "day",
+    "days",
+    "week",
+    "weeks"
+   ]
+  },
+  {
+   "id": "clock",
+   "words": [
+    "phút",
+    "giờ",
+    "giây",
+    "tiếng",
+    "minute",
+    "minutes",
+    "hour",
+    "hours",
+    "second",
+    "seconds"
+   ]
+  },
+  {
+   "id": "money",
+   "words": [
+    "nghìn",
+    "ngàn",
+    "triệu",
+    "tỷ",
+    "đồng",
+    "đô",
+    "vnd",
+    "usd",
+    "dollar",
+    "dollars",
+    "k"
+   ]
+  },
+  {
+   "id": "chartup",
+   "words": [
+    "phần",
+    "percent",
+    "trăm"
+   ]
+  },
+  {
+   "id": "clap",
+   "words": [
+    "người",
+    "people",
+    "users",
+    "follower",
+    "followers"
+   ]
+  }
+ ]
+}

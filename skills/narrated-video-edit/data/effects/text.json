@@ -1,0 +1,149 @@
+{
+  "family": "text",
+  "effects": [
+    {
+      "id": "countdown-321", "name": { "vi": "Đếm ngược 3 2 1", "en": "Countdown 3-2-1" }, "aliases": ["Countdown", "Number countdown", "3 2 1"],
+      "purpose": "retention", "engine": "video",
+      "about": "Số đếm ngược lớn giữa khung, mỗi số mờ dần trước khi sang số kế tiếp. Tạo hồi hộp trước một tiết lộ hoặc mở đầu đoạn mới. Dùng phông Anton gói sẵn.",
+      "chain": "drawtext=fontfile='{fontImpact}':text='%{eif\\:max(1\\,{from}-trunc(t/{step}))\\:d}':x='(w-text_w)/2':y='(h-text_h)/2':fontsize='h*0.22':fontcolor=white:shadowcolor=black@0.6:shadowx=4:shadowy=4:alpha='1-0.6*mod(t,{step})/{step}'",
+      "params": { "from": { "default": 3, "min": 2, "max": 9, "unit": "", "doc": "số bắt đầu đếm" }, "step": { "default": 0.8, "min": 0.4, "max": 1.2, "unit": "s", "doc": "giây cho mỗi số" } },
+      "dur": { "min": 1.2, "default": 2.4, "max": 8 }, "intensity": 2, "beat": "any", "faceSafe": false,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 1, "sfx": ["click-tick"],
+      "pitfalls": ["số che mặt ở giữa khung: dùng khi người nói im hoặc ở cảnh chuyển", "độ dài cửa sổ nên bằng from nhân step", "ffmpeg 2025-09 bị lỗi treo khi fontsize của drawtext đổi theo thời gian: giữ cỡ chữ cố định, chỉ đổi alpha hoặc vị trí"]
+    },
+    {
+      "id": "title-pop", "name": { "vi": "Tiêu đề bật (title pop)", "en": "Title pop card" }, "aliases": ["Title Text", "Pop-in title", "Headline text"],
+      "purpose": "clarity", "engine": "video",
+      "about": "Dòng chữ tiêu đề trên nền tối trong suốt hiện và mờ ra bằng độ trong suốt. Cách nhanh nhất để đặt một ý chính lên màn hình khi không cần thẻ headline đầy đủ.",
+      "chain": "drawtext=fontfile='{fontBold}':text='{title}':x='(w-text_w)/2':y='h*{ypos}':fontsize='h*0.055':fontcolor=white:alpha='min(1,t/0.2)*min(1,({dur}-t)/0.25)':box=1:boxcolor=black@0.45:boxborderw=22:shadowcolor=black@0.5:shadowx=3:shadowy=3",
+      "params": { "title": { "type": "text", "default": "Điểm chính", "doc": "nội dung chữ (phải có trong lời nói hoặc nguồn do người dùng cung cấp)" }, "ypos": { "default": 0.18, "min": 0.08, "max": 0.7, "unit": "H", "doc": "vị trí dọc (tỉ lệ chiều cao)" } },
+      "dur": { "min": 1, "default": 2.4, "max": 8 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 4, "sfx": ["pop"],
+      "pitfalls": ["chữ có số phải có trong lời nói: plan-lint kiểm với thẻ headline, với hiệu ứng này người viết tự chịu trách nhiệm", "dòng dài hơn 28 ký tự sẽ tràn khung dọc: ngắt thành hai hiệu ứng"]
+    },
+    {
+      "id": "lower-third-bar", "name": { "vi": "Thanh tên trượt vào (lower third)", "en": "Sliding lower third" }, "aliases": ["Lower Third", "Name Tag", "Speaker ID"],
+      "purpose": "brand", "engine": "video",
+      "about": "Tên người nói trên nền tối trượt từ mép trái vào, kèm dòng phụ nhỏ bên dưới. Bản ffmpeg đơn giản; bản đầy đủ nằm ở mục lowerThirds của kế hoạch.",
+      "chain": "drawtext=fontfile='{fontBold}':text='{name}':x='w*0.06-(1-min(1,t/0.3))*(text_w+w*0.1)':y='h*{ypos}':fontsize='h*0.035':fontcolor=white:box=1:boxcolor=0x111827@0.85:boxborderw=16,drawtext=fontfile='{font}':text='{role}':x='w*0.06-(1-min(1,t/0.4))*(text_w+w*0.1)':y='h*{ypos}+h*0.06':fontsize='h*0.024':fontcolor=0xe5e7eb:box=1:boxcolor=0x111827@0.7:boxborderw=10",
+      "params": { "name": { "type": "text", "default": "Tên người nói", "doc": "dòng chính" }, "role": { "type": "text", "default": "Chức danh", "doc": "dòng phụ" }, "ypos": { "default": 0.72, "min": 0.4, "max": 0.78, "unit": "H", "doc": "vị trí dọc; video dọc nên dưới 0,74 để tránh giao diện nền tảng" } },
+      "dur": { "min": 2, "default": 3.5, "max": 8 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "sparing", "explainer": "use", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["tên và chức danh phải là thật; không bịa", "không có hiệu ứng thoát: thanh biến mất ngay khi hết cửa sổ"]
+    },
+    {
+      "id": "ticker-scroll", "name": { "vi": "Dải tin chạy ngang (ticker)", "en": "News ticker scroll" }, "aliases": ["Ticker", "Scrolling Text", "News crawl"],
+      "purpose": "retention", "engine": "video",
+      "about": "Một dải chữ đỏ chạy ngang cạnh dưới như bản tin. Hợp tin nhanh, cập nhật, hoặc gag 'tin nóng'.",
+      "chain": "drawtext=fontfile='{fontBold}':text='{msg}   {msg}   {msg}':x='w-mod(t*{speed},w+text_w)':y='h*{ypos}':fontsize='h*0.03':fontcolor=white:box=1:boxcolor=0xcc0000@0.88:boxborderw=14",
+      "params": { "msg": { "type": "text", "default": "Tin nhanh", "doc": "dòng chữ lặp" }, "speed": { "default": 260, "min": 80, "max": 600, "unit": "px/s", "doc": "tốc độ chạy" }, "ypos": { "default": 0.76, "min": 0.1, "max": 0.78, "unit": "H", "doc": "vị trí dọc" } },
+      "dur": { "min": 2, "default": 4, "max": 30 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["chữ chạy khó đọc: nội dung ngắn dưới 25 ký tự", "đỏ thẫm gợi tin giả nếu nội dung không đúng sự thật: chỉ dùng cho gag rõ ràng"]
+    },
+    {
+      "id": "caption-bold", "name": { "vi": "Phụ đề đậm theo từ (bold)", "en": "Bold word caption" }, "aliases": ["TikTok captions", "Bold captions", "Highlight word captions"],
+      "purpose": "retention", "engine": "overlay",
+      "about": "Phụ đề chữ hoa đậm 1 đến 3 từ, từ đang nói đổi màu và nhấp nhô. Preset mặc định của phong cách hype; có sẵn trong lớp phủ.",
+      "ref": { "kind": "caption", "type": "bold", "plan": "captions.preset" },
+      "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 0,
+      "pitfalls": ["phụ đề dài hơn 4 từ một lượt bị lint chặn"]
+    },
+    {
+      "id": "caption-kinetic", "name": { "vi": "Phụ đề kinetic (nghiêng, phóng)", "en": "Kinetic caption" }, "aliases": ["Kinetic Typography", "Animated captions", "Impact captions"],
+      "purpose": "emphasis", "engine": "overlay",
+      "about": "Chữ Anton hoa, từ đang nói phóng lớn và nghiêng xen kẽ. Hợp khẩu hiệu, tiêu đề, nhạc có nhịp rõ.",
+      "ref": { "kind": "caption", "type": "kinetic", "plan": "captions.preset" },
+      "params": {}, "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 0,
+      "pitfalls": ["nghiêng và phóng làm khó đọc câu dài: dùng cho câu ngắn"]
+    },
+    {
+      "id": "caption-pill", "name": { "vi": "Phụ đề trên viên nền (pill)", "en": "Pill background caption" }, "aliases": ["Boxed captions", "Word highlight box", "Karaoke box"],
+      "purpose": "clarity", "engine": "overlay",
+      "about": "Chữ trên viên nền tối bo tròn, từ đang nói có khung màu nhấn bo tròn sau chữ. Dễ đọc trên mọi nền; mặc định của phong cách explainer.",
+      "ref": { "kind": "caption", "type": "pill", "plan": "captions.preset" },
+      "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 0,
+      "pitfalls": ["viên nền che một phần hình: nâng vị trí dải caption nếu cần"]
+    },
+    {
+      "id": "caption-marker", "name": { "vi": "Phụ đề bút dạ (marker)", "en": "Marker highlight caption" }, "aliases": ["Highlighter captions", "Marker swipe"],
+      "purpose": "emphasis", "engine": "overlay",
+      "about": "Chữ đậm hoa, từ đang nói có nét bút dạ nghiêng quét qua phía sau. Hợp video review, mẹo, hướng dẫn nhanh.",
+      "ref": { "kind": "caption", "type": "marker", "plan": "captions.preset" },
+      "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 0,
+      "pitfalls": ["nét bút màu nhấn phải đủ tương phản với chữ trắng"]
+    },
+    {
+      "id": "caption-editorial", "name": { "vi": "Phụ đề biên tập (editorial)", "en": "Editorial caption" }, "aliases": ["Serif accent captions", "Italic keyword captions", "Magazine captions"],
+      "purpose": "retention", "engine": "overlay",
+      "about": "Chữ sans yên tĩnh 1 đến 4 từ mỗi cụm, không nảy và không đổi màu từng từ; chỉ từ nhấn chuyển sang serif nghiêng màu nhấn. Hợp video hướng dẫn, kể chuyện, nội dung cần đọc êm. Cần khai captions.emphasis cho các từ chính.",
+      "ref": { "kind": "caption", "type": "editorial", "plan": "captions.preset" },
+      "params": {}, "styles": { "hype": "sparing", "explainer": "use", "documentary": "use" }, "perMinute": 0,
+      "pitfalls": ["không có từ nhấn thì trông như phụ đề thường: khai captions.emphasis (2 đến 4 từ mỗi 10 giây)", "phông serif chỉ dùng cho từ nhấn; từ nhấn quá dài làm cụm tràn dòng"]
+    },
+    {
+      "id": "caption-minimal", "name": { "vi": "Phụ đề tối giản (minimal)", "en": "Minimal caption" }, "aliases": ["Subtitle", "Clean captions", "Documentary subtitle"],
+      "purpose": "clarity", "engine": "overlay",
+      "about": "Chữ vừa, đổ bóng mềm, từ đang nói đổi màu nhẹ, xuất hiện bằng mờ dần. Hợp phim tài liệu và nội dung nghiêm túc.",
+      "ref": { "kind": "caption", "type": "minimal", "plan": "captions.preset" },
+      "params": {}, "styles": { "hype": "avoid", "explainer": "sparing", "documentary": "use" }, "perMinute": 0,
+      "pitfalls": ["chữ nhỏ trên video dọc dễ khó đọc: kiểm kích thước tối thiểu 5% chiều cao khung"]
+    },
+    {
+      "id": "lower-third-card", "name": { "vi": "Thẻ tên người nói (lowerThirds)", "en": "Lower third (plan item)" }, "aliases": ["Lower Third", "Name Super", "Speaker label"],
+      "purpose": "brand", "engine": "overlay",
+      "about": "Thanh nền tối bo góc, vạch nhấn bên trái, trượt vào từ mép; khai trong kế hoạch ở mục lowerThirds {title, sub, start, end}. Là bản đầy đủ so với lower-third-bar.",
+      "ref": { "kind": "plan", "type": "lowerThirds", "plan": "lowerThirds" },
+      "params": {}, "styles": { "hype": "sparing", "explainer": "use", "documentary": "use" }, "perMinute": 0,
+      "pitfalls": ["chữ có số phải có trong lời nói hoặc userSource"]
+    },
+    {
+      "id": "card-title", "name": { "vi": "Thẻ tiêu đề hai tầng", "en": "Two-line title card" }, "aliases": ["Title Card", "Headline", "Opening title"],
+      "purpose": "clarity", "engine": "overlay",
+      "about": "Chữ lớn hai tầng ở vùng trên khung, lộ dần, có sparkle. Khai trong kế hoạch ở cards với type title {text, sub}.",
+      "ref": { "kind": "card", "type": "title", "plan": "cards" },
+      "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 0,
+      "pitfalls": ["tiêu đề đừng bịa số liệu"]
+    },
+    {
+      "id": "card-compare", "name": { "vi": "Thẻ so sánh hai bên", "en": "Versus comparison card" }, "aliases": ["Comparison", "A vs B", "Versus"],
+      "purpose": "clarity", "engine": "overlay",
+      "about": "Hai thẻ có icon, dấu × ở giữa, dùng khi người nói so sánh hai thứ. Khai ở cards với type compare {left, right}.",
+      "ref": { "kind": "card", "type": "compare", "plan": "cards" },
+      "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 0,
+      "pitfalls": ["icon tìm theo tên tiếng Anh cụ thể (robot, gear): truy vấn trừu tượng ít kết quả"]
+    },
+    {
+      "id": "card-logos", "name": { "vi": "Thẻ logo thương hiệu", "en": "Brand logos chip row" }, "aliases": ["Logo Strip", "Brand chips", "Integrations row"],
+      "purpose": "brand", "engine": "overlay",
+      "about": "Các chip logo thương hiệu nối bằng nét đứt khi người nói nhắc đúng thương hiệu (data/brands.json, logo CC0 từ Iconify). Khai ở cards với type logos {brands}.",
+      "ref": { "kind": "card", "type": "logos", "plan": "cards" },
+      "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 0,
+      "pitfalls": ["chỉ dùng khi lời nói nhắc đúng thương hiệu đó, không ngụ ý hợp tác hay tài trợ"]
+    },
+    {
+      "id": "card-bigtext", "name": { "vi": "Chữ lớn sau người nói (bigtext)", "en": "Big text behind speaker" }, "aliases": ["Text Behind Subject", "Depth text", "Behind-person title"],
+      "purpose": "emphasis", "engine": "overlay",
+      "about": "Chữ cực lớn đặt phía sau người nói, người đè lên chữ nhờ mặt nạ MediaPipe. Cú nhấn quen thuộc của video giới thiệu và tiêu đề. Cần node setup.mjs --with-segmentation.",
+      "ref": { "kind": "card", "type": "bigtext", "plan": "cards" },
+      "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 0, "needs": ["segmentation"],
+      "pitfalls": ["cận mặt gần kín khung thì chữ bị che gần hết; kiểm diện tích người dưới 60% khung"]
+    },
+    {
+      "id": "card-orbit", "name": { "vi": "Thẻ chạy vòng quanh người (orbit)", "en": "Orbit cards around speaker" }, "aliases": ["Orbit", "Cards circling the person", "Orbiting cards"],
+      "purpose": "reveal", "engine": "overlay",
+      "about": "Từ 3 đến 8 thẻ khung dọc (ảnh của người dùng hoặc nhãn chữ) chạy vòng quanh người nói: nửa sau quỹ đạo nằm sau người (mặt nạ che), nửa trước nằm trước người. Cần node setup.mjs --with-segmentation. Khai ở cards với type orbit {items}.",
+      "ref": { "kind": "card", "type": "orbit", "plan": "cards" },
+      "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 0, "needs": ["segmentation"],
+      "pitfalls": ["chỉ dùng ảnh của chính người dùng (các video khác của họ, ảnh sản phẩm của họ); không dùng ảnh người lạ", "cận mặt gần kín khung thì quỹ đạo bị cắt ra ngoài; kiểm diện tích người dưới 60% khung", "một thẻ orbit mỗi video là đủ, kéo dài 3 đến 5 giây"]
+    },
+    {
+      "id": "card-wall", "name": { "vi": "Tường ghép sau người (couch wall)", "en": "Collage wall behind speaker" }, "aliases": ["Couch wall", "Collage background", "Reel wall"],
+      "purpose": "brand", "engine": "overlay",
+      "about": "Nền video được thay bằng tường lưới thẻ (ảnh của người dùng hoặc nhãn chữ) xếp so le, người nói đứng trước tường nhờ mặt nạ người. Cần node setup.mjs --with-segmentation. Khai ở cards với type wall {items, cols}.",
+      "ref": { "kind": "card", "type": "wall", "plan": "cards" },
+      "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 0, "needs": ["segmentation"],
+      "pitfalls": ["tường phủ kín nền gốc: cần mặt nạ người tốt, kiểm khung thử có viền người sạch không", "chỉ dùng ảnh của chính người dùng; tối đa vài giây mỗi lần để không mệt mắt"]
+    }
+  ]
+}

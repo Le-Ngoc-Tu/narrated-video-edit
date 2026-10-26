@@ -1,0 +1,22 @@
+name: Feature or improvement
+description: A new effect, language, asset source, platform fix, or other idea
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What do you want to be able to do?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: How could it work?
+      description: For an asset source, give the API URL and its license. For an effect, describe the look and when to use it.
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Can you help?
+      options:
+        - label: I can send a pull request
+        - label: I can test on macOS or Linux

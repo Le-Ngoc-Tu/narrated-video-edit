@@ -1,0 +1,340 @@
+{
+  "_doc": "Ba phong cách dựng. Con số là mốc hiệu chuẩn, chỉnh được; 'banned' là danh sách cấm mà plan-lint và audit-edit đọc. Phông chỉ dùng phông hệ thống có hỗ trợ tiếng Việt. 'maxPauseToCut': khoảng lặng dài hơn mức này KHÔNG bị cắt vì thường là cảnh quay thị giác không có lời (vlog đang cho xem món đồ, quang cảnh). 'maxEventGap': số giây (tính thời gian CÓ lời nói) tối đa không có sự kiện hình (cutaway, zoom, sticker, thẻ, cắt, cắt cảnh gốc) trước khi lint báo lỗi; ngưỡng cảnh báo là 60% của số này. 'captions.preset': bold, kinetic, pill, marker, minimal (xem references/09-social-edit-design.md); yRatioPortrait là vị trí dải caption với video dọc 9:16 (tránh khu vực giao diện TikTok phía dưới). 'showcase.sequence': luân phiên kiểu trình bày cutaway do plan-skeleton gán (fullbleed phủ kín khung, các kiểu còn lại là vật thể thiết kế trong lớp phủ giữ nguyên mặt người nói); 'emoji': mật độ emoji phản ứng. statVariants: danh sách kiểu thẻ số (ring, sticker, capsule) luân phiên theo thứ tự xuất hiện. accents.statSparkle: lấp lánh quanh thẻ số khi hiện. emoji.animated: dùng emoji động Noto (Lottie, CC BY 4.0) khi có. decor.allowed có thêm sparkle, confetti (hiệu ứng mã) và icon (sticker Iconify, cần query tiếng Anh). showcase.sequence mặc định KHÔNG có fullbleed (editor chuyên nghiệp giữ nguyên video của người nói và chỉ đè decor lên) và không có peek (ảnh ló nửa ngoài khung bị khuất): thêm tay khi người dùng yêu cầu hoặc khi video gốc không có hình đáng xem. decor.auto: ngân sách decor plan-skeleton tự gợi ý từ data/decor-keywords.json (icons và sparkle là số lần mỗi phút, confetti bật hoặc tắt, minGapSec là khoảng cách tối thiểu giữa hai gợi ý).",
+  "styles": {
+    "hype": {
+      "name": "Hype dọc (TikTok, Reels, Shorts)",
+      "mood": [
+        "nhanh",
+        "to",
+        "bật",
+        "trẻ"
+      ],
+      "fits": "clip kể chuyện ngắn, mẹo, tin nhanh, review, 15 đến 60 giây",
+      "colors": {
+        "ink": "#ffffff",
+        "stroke": "#0b0b0f",
+        "accent": "#ffe14d",
+        "accent2": "#ff4d8d",
+        "panel": "#0b0b0f"
+      },
+      "fonts": {
+        "display": "Montserrat,\"Be Vietnam Pro\",Arial,sans-serif",
+        "body": "\"Be Vietnam Pro\",\"Segoe UI\",Arial,sans-serif"
+      },
+      "captions": {
+        "preset": "bold",
+        "maxWords": 3,
+        "sizeRatio": 0.068,
+        "uppercase": true,
+        "activeColor": "accent",
+        "yRatio": 0.68,
+        "yRatioPortrait": 0.6,
+        "popScale": 1.1
+      },
+      "cutPauses": true,
+      "minPauseToCut": 0.45,
+      "punch": {
+        "scale": 1.14,
+        "everySec": 5.5,
+        "durSec": 0.9
+      },
+      "brollMaxShare": 0.5,
+      "cutaway": {
+        "minSec": 1.2,
+        "maxSec": 2.6,
+        "fit": "fill"
+      },
+      "decor": {
+        "allowed": [
+          "arrow",
+          "circle",
+          "underline",
+          "burst",
+          "check",
+          "question",
+          "exclaim",
+          "badge",
+          "sparkle",
+          "confetti",
+          "icon"
+        ],
+        "maxPerMinute": 10,
+        "lifeSec": [
+          0.8,
+          1.8
+        ],
+        "auto": {
+          "icons": 2.5,
+          "sparkle": 2,
+          "confetti": true,
+          "minGapSec": 14
+        }
+      },
+      "transitions": [
+        "cut",
+        "zoom-punch",
+        "whip"
+      ],
+      "sfx": {
+        "whoosh": true,
+        "pop": true
+      },
+      "banned": [
+        "chữ nhỏ hơn 5 phần trăm chiều cao khung",
+        "caption dài hơn 4 từ một lượt",
+        "sticker che mặt người nói",
+        "hơn 2 cutaway liên tiếp cùng kiểu",
+        "nhạc nền to hơn giọng"
+      ],
+      "maxPauseToCut": 4,
+      "maxEventGap": 6,
+      "showcase": {
+        "sequence": [
+          "card",
+          "polaroid",
+          "pip",
+          "stack",
+          "card",
+          "polaroid"
+        ],
+        "entrances": [
+          "pop",
+          "slide",
+          "drop",
+          "flip",
+          "mask"
+        ]
+      },
+      "emoji": {
+        "perMinute": 8,
+        "minGapSec": 5,
+        "lifeSec": 1.4,
+        "size": 0.13,
+        "animated": true
+      },
+      "statVariants": [
+        "sticker",
+        "ring",
+        "capsule"
+      ],
+      "accents": {
+        "statSparkle": true
+      }
+    },
+    "explainer": {
+      "name": "Giải thích gọn (explainer)",
+      "mood": [
+        "rõ",
+        "sạch",
+        "tin cậy"
+      ],
+      "fits": "video hướng dẫn, giới thiệu sản phẩm, kiến thức, 30 đến 120 giây",
+      "colors": {
+        "ink": "#ffffff",
+        "stroke": "#0f172a",
+        "accent": "#4cc9f0",
+        "accent2": "#f72585",
+        "panel": "#0f172a"
+      },
+      "fonts": {
+        "display": "\"Be Vietnam Pro\",\"Segoe UI\",Arial,sans-serif",
+        "body": "\"Be Vietnam Pro\",\"Segoe UI\",Arial,sans-serif"
+      },
+      "captions": {
+        "preset": "pill",
+        "maxWords": 4,
+        "sizeRatio": 0.05,
+        "uppercase": false,
+        "activeColor": "accent",
+        "yRatio": 0.74,
+        "yRatioPortrait": 0.62,
+        "popScale": 1.06
+      },
+      "cutPauses": true,
+      "minPauseToCut": 0.7,
+      "punch": {
+        "scale": 1.1,
+        "everySec": 9,
+        "durSec": 1.2
+      },
+      "brollMaxShare": 0.45,
+      "cutaway": {
+        "minSec": 1.6,
+        "maxSec": 3.5,
+        "fit": "fill"
+      },
+      "decor": {
+        "allowed": [
+          "arrow",
+          "circle",
+          "underline",
+          "check",
+          "question",
+          "badge",
+          "sparkle",
+          "icon"
+        ],
+        "maxPerMinute": 6,
+        "lifeSec": [
+          1,
+          2.2
+        ],
+        "auto": {
+          "icons": 1.5,
+          "sparkle": 1,
+          "confetti": true,
+          "minGapSec": 18
+        }
+      },
+      "transitions": [
+        "cut",
+        "fade",
+        "slide"
+      ],
+      "sfx": {
+        "whoosh": false,
+        "pop": true
+      },
+      "banned": [
+        "rung camera",
+        "glow neon",
+        "ease nảy",
+        "chữ dưới 4,5:1 tương phản",
+        "số liệu không có trong lời nói"
+      ],
+      "maxPauseToCut": 3,
+      "maxEventGap": 9,
+      "showcase": {
+        "sequence": [
+          "card",
+          "pip",
+          "polaroid",
+          "stack"
+        ],
+        "entrances": [
+          "pop",
+          "mask",
+          "slide",
+          "flip"
+        ]
+      },
+      "emoji": {
+        "perMinute": 4,
+        "minGapSec": 9,
+        "lifeSec": 1.4,
+        "size": 0.11,
+        "animated": true
+      },
+      "statVariants": [
+        "capsule",
+        "ring",
+        "sticker"
+      ],
+      "accents": {
+        "statSparkle": true
+      }
+    },
+    "documentary": {
+      "name": "Phim tài liệu nhẹ",
+      "mood": [
+        "chậm",
+        "ấm",
+        "kể chuyện"
+      ],
+      "fits": "câu chuyện, phỏng vấn, review dài, 60 đến 180 giây",
+      "colors": {
+        "ink": "#f5efe6",
+        "stroke": "#14110f",
+        "accent": "#e9c46a",
+        "accent2": "#e76f51",
+        "panel": "#14110f"
+      },
+      "fonts": {
+        "display": "\"Be Vietnam Pro\",\"Segoe UI\",Arial,sans-serif",
+        "body": "\"Be Vietnam Pro\",\"Segoe UI\",Arial,sans-serif"
+      },
+      "captions": {
+        "preset": "minimal",
+        "maxWords": 6,
+        "sizeRatio": 0.045,
+        "uppercase": false,
+        "activeColor": "accent",
+        "yRatio": 0.8,
+        "yRatioPortrait": 0.66,
+        "popScale": 1.04
+      },
+      "cutPauses": false,
+      "minPauseToCut": 1.2,
+      "punch": {
+        "scale": 1.06,
+        "everySec": 14,
+        "durSec": 2.4
+      },
+      "brollMaxShare": 0.55,
+      "cutaway": {
+        "minSec": 2.4,
+        "maxSec": 5,
+        "fit": "fill"
+      },
+      "decor": {
+        "allowed": [
+          "underline",
+          "circle",
+          "check"
+        ],
+        "maxPerMinute": 3,
+        "lifeSec": [
+          1.4,
+          2.6
+        ],
+        "auto": {
+          "icons": 0,
+          "sparkle": 0,
+          "confetti": false,
+          "minGapSec": 30
+        }
+      },
+      "transitions": [
+        "cut",
+        "fade"
+      ],
+      "sfx": {
+        "whoosh": false,
+        "pop": false
+      },
+      "banned": [
+        "sticker hoạt hình",
+        "chữ hiện từng từ kiểu hype",
+        "rung camera",
+        "chuyển cảnh nhanh dưới 0,5 giây"
+      ],
+      "maxPauseToCut": 3,
+      "maxEventGap": 12,
+      "showcase": {
+        "sequence": [
+          "polaroid",
+          "card",
+          "pip"
+        ],
+        "entrances": [
+          "mask",
+          "pop",
+          "flip"
+        ]
+      },
+      "emoji": {
+        "perMinute": 0,
+        "minGapSec": 20,
+        "lifeSec": 1.6,
+        "size": 0.1,
+        "animated": false
+      },
+      "statVariants": [
+        "capsule"
+      ],
+      "accents": {
+        "statSparkle": false
+      }
+    }
+  }
+}

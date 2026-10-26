@@ -1,0 +1,205 @@
+{
+  "family": "graphic",
+  "effects": [
+    {
+      "id": "spotlight-dim", "name": { "vi": "Đèn rọi vào mặt (spotlight)", "en": "Face spotlight dim" }, "aliases": ["Spotlight", "Radial Focus", "Dim Surround"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Vùng quanh mặt (tâm fx, fy) giữ sáng, phần ngoài tối dần. Dồn mắt vào mặt người nói mà không cần mặt nạ tách người.",
+      "graph": "[in]format=gbrp,split[a][b];[b]eq=brightness=-{dim}[c];[a][c]blend=all_expr='A*(1-{trapT}*clip((hypot(X-W*{fx},Y-H*{fy})/(W*{radius})-0.6)*2.5,0,1))+B*{trapT}*clip((hypot(X-W*{fx},Y-H*{fy})/(W*{radius})-0.6)*2.5,0,1)'[out]",
+      "params": { "dim": { "default": 0.5, "min": 0.1, "max": 0.9, "unit": "", "doc": "độ tối bên ngoài" }, "radius": { "default": 0.55, "min": 0.25, "max": 1, "unit": "W", "doc": "bán kính vùng sáng theo chiều rộng" }, "fade": { "default": 0.3, "min": 0.05, "max": 1.5, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 1, "default": 3, "max": 30 }, "intensity": 1, "beat": "none", "faceSafe": true, "needs": ["faces"],
+      "styles": { "hype": "use", "explainer": "use", "documentary": "use" }, "perMinute": 2, "sfx": [],
+      "pitfalls": ["tâm rọi là một điểm cố định: người di chuyển nhiều thì mặt ra khỏi vùng sáng"]
+    },
+    {
+      "id": "light-sweep", "name": { "vi": "Vệt sáng quét (light sweep)", "en": "Light sweep glint" }, "aliases": ["Shine Sweep", "Glint", "Light Streak"],
+      "purpose": "brand", "engine": "video",
+      "about": "Một dải sáng chéo quét qua khung một lần như ánh kim loại. Gây chú ý cho tiêu đề hoặc sản phẩm; một lần là đủ.",
+      "graph": "[in]format=gbrp,split[a][b];[a][b]blend=all_expr='min(255,A+255*{amount}*clip(1-abs(X+Y*0.35-W*1.5*{pT}+W*0.15)/(W*{width}),0,1))'[out]",
+      "params": { "amount": { "default": 0.45, "min": 0.1, "max": 1, "unit": "", "doc": "độ sáng của vệt" }, "width": { "default": 0.12, "min": 0.04, "max": 0.35, "unit": "W", "doc": "độ rộng vệt" } },
+      "dur": { "min": 0.4, "default": 0.9, "max": 3 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "sparing" }, "perMinute": 3, "sfx": ["sparkle-chime"],
+      "pitfalls": ["quét qua mặt người nói làm cháy sáng: dùng khi mặt không ở giữa vệt"]
+    },
+    {
+      "id": "progress-bar", "name": { "vi": "Thanh tiến độ (progress bar)", "en": "Top progress bar" }, "aliases": ["Progress Bar", "Loading bar", "Timeline bar"],
+      "purpose": "retention", "engine": "video",
+      "about": "Thanh mảnh trên đỉnh khung đầy dần từ trái sang phải trong cửa sổ. Báo thời gian còn lại của một đoạn hoặc giữ người xem đến cuối.",
+      "graph": "[in]format=gbrp,split[a][b];[b]drawbox=x=0:y=0:w=iw:h={bar}:color={tint}@0.95:t=fill[c];[a][c]blend=all_expr='if(lt(X,W*{pT}),B,A)'[out]",
+      "params": { "bar": { "default": 12, "min": 4, "max": 40, "unit": "px", "doc": "độ dày thanh" }, "tint": { "type": "text", "default": "yellow", "doc": "màu thanh (tên ffmpeg hoặc 0xRRGGBB)" } },
+      "dur": { "min": 2, "default": 6, "max": 120 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 1, "sfx": [],
+      "pitfalls": ["giữ trong vùng an toàn: thanh sát mép trên bị nền tảng che ở video dọc", "bar nhỏ hơn 6px khó thấy sau khi nén"]
+    },
+    {
+      "id": "focus-ring", "name": { "vi": "Vòng nhấn quanh mặt (focus ring)", "en": "Pulse ring on face" }, "aliases": ["Highlight Circle", "Focus Ring", "Target ring"],
+      "purpose": "emphasis", "engine": "video",
+      "about": "Một vòng trắng mảnh đập nhịp quanh vị trí mặt (fx, fy) trong cửa sổ. Hợp 'đây là người này' hoặc nhấn một chi tiết tròn.",
+      "graph": "[in]format=gbrp,split[a][b];[a][b]blend=all_expr='A+(255-A)*{trapT}*clip(1-abs(hypot(X-W*{fx},Y-H*{fy})-W*{r}*(1+0.05*sin(8*T)))/{th},0,1)'[out]",
+      "params": { "r": { "default": 0.22, "min": 0.05, "max": 0.6, "unit": "W", "doc": "bán kính vòng theo chiều rộng" }, "th": { "default": 6, "min": 2, "max": 20, "unit": "px", "doc": "độ dày vòng" }, "fade": { "default": 0.25, "min": 0.05, "max": 1, "unit": "s", "doc": "thời gian vào và ra" } },
+      "dur": { "min": 0.6, "default": 2, "max": 10 }, "intensity": 2, "beat": "any", "faceSafe": true, "needs": ["faces"],
+      "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 2, "sfx": ["pop"],
+      "pitfalls": ["vòng cố định: nếu mặt di chuyển thì dùng cửa sổ ngắn"]
+    },
+    {
+      "id": "highlight-box", "name": { "vi": "Khung nhấn chữ nhật (call-out box)", "en": "Blinking call-out box" }, "aliases": ["Highlight Box", "Rectangle outline", "Callout"],
+      "purpose": "clarity", "engine": "video",
+      "about": "Khung chữ nhật có viền màu nhấp nháy quanh một vùng (rx, ry, rw, rh theo tỉ lệ khung). Chỉ vào một chi tiết trên màn hình hoặc vật thể.",
+      "chain": "drawbox=x='iw*{rx}':y='ih*{ry}':w='iw*{rw}':h='ih*{rh}':color={tint}@0.95:t={th}:enable='lt(mod(t,0.8),0.55)'",
+      "params": { "rx": { "default": 0.2, "min": 0, "max": 0.9, "unit": "W", "doc": "mép trái" }, "ry": { "default": 0.35, "min": 0, "max": 0.9, "unit": "H", "doc": "mép trên" }, "rw": { "default": 0.5, "min": 0.05, "max": 1, "unit": "W", "doc": "rộng" }, "rh": { "default": 0.2, "min": 0.05, "max": 1, "unit": "H", "doc": "cao" }, "tint": { "type": "text", "default": "yellow", "doc": "màu viền" }, "th": { "default": 6, "min": 2, "max": 20, "unit": "px", "doc": "độ dày viền" } },
+      "dur": { "min": 0.8, "default": 2.5, "max": 20 }, "intensity": 1, "beat": "none", "faceSafe": true,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 3, "sfx": [],
+      "pitfalls": ["vùng là tĩnh: vật thể di chuyển thì khung lệch", "nhấp nháy 1,25 lần mỗi giây, dưới ngưỡng 3"]
+    },
+    {
+      "id": "decor-arrow", "name": { "vi": "Mũi tên chỉ", "en": "Hand-drawn arrow" }, "aliases": ["Arrow", "Pointer", "Callout arrow"],
+      "purpose": "clarity", "engine": "overlay", "about": "Mũi tên vẽ tay chỉ vào chi tiết khi người nói nhắc tới nó. Khai ở decor với type arrow {id, type, anchorWord, start, end}.",
+      "ref": { "kind": "decor", "type": "arrow", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 4,
+      "pitfalls": ["mũi tên phải chỉ vào vật có thật trong khung"]
+    },
+    {
+      "id": "decor-circle", "name": { "vi": "Khoanh tròn", "en": "Circle scribble" }, "aliases": ["Circle highlight", "Ellipse mark", "Scribble circle"],
+      "purpose": "emphasis", "engine": "overlay", "about": "Nét khoanh tròn vẽ tay quanh một từ hoặc chi tiết. Khai ở decor với type circle.",
+      "ref": { "kind": "decor", "type": "circle", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 4,
+      "pitfalls": ["không dùng trên mặt người"]
+    },
+    {
+      "id": "decor-underline", "name": { "vi": "Gạch chân nhấn", "en": "Underline sweep" }, "aliases": ["Underline", "Highlight line", "Marker underline"],
+      "purpose": "emphasis", "engine": "overlay", "about": "Nét gạch chân quét qua một từ khóa. Nhẹ và an toàn nhất trong các ký hiệu. Khai ở decor với type underline.",
+      "ref": { "kind": "decor", "type": "underline", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "use" }, "perMinute": 5,
+      "pitfalls": ["gắn với từ có trong caption để gạch đúng chỗ"]
+    },
+    {
+      "id": "decor-burst", "name": { "vi": "Tia nổ (burst)", "en": "Starburst" }, "aliases": ["Burst", "Pow", "Comic burst"],
+      "purpose": "emphasis", "engine": "overlay", "about": "Hình nổ nhiều tia như truyện tranh nhấn một cú bất ngờ. Khai ở decor với type burst.",
+      "ref": { "kind": "decor", "type": "burst", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 3,
+      "pitfalls": ["lấn vùng mặt nếu đặt không đúng: plan-skeleton tự tránh mặt"]
+    },
+    {
+      "id": "decor-check", "name": { "vi": "Dấu tích xanh", "en": "Check mark" }, "aliases": ["Checkmark", "Tick", "Done mark"],
+      "purpose": "clarity", "engine": "overlay", "about": "Dấu tích bật lên khi một ý được xác nhận, đạt hoặc hoàn tất. Khai ở decor với type check.",
+      "ref": { "kind": "decor", "type": "check", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 4,
+      "pitfalls": ["dùng đúng nghĩa 'đúng, xong'; dấu tích cho ý chưa xác nhận gây hiểu nhầm"]
+    },
+    {
+      "id": "decor-question", "name": { "vi": "Dấu hỏi", "en": "Question mark" }, "aliases": ["Question Mark", "Confusion mark", "? sticker"],
+      "purpose": "humor", "engine": "overlay", "about": "Dấu hỏi lớn bật lên khi người nói đặt câu hỏi hoặc tỏ ra nghi ngờ. Khai ở decor với type question.",
+      "ref": { "kind": "decor", "type": "question", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 4,
+      "pitfalls": ["gắn với câu hỏi thật trong lời nói"]
+    },
+    {
+      "id": "decor-exclaim", "name": { "vi": "Dấu chấm than", "en": "Exclamation mark" }, "aliases": ["Exclamation", "! sticker", "Alert mark"],
+      "purpose": "emphasis", "engine": "overlay", "about": "Dấu chấm than rung nhẹ khi có thông tin quan trọng hoặc bất ngờ. Khai ở decor với type exclaim.",
+      "ref": { "kind": "decor", "type": "exclaim", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 3,
+      "pitfalls": ["dùng ít, nếu không sẽ như cảnh báo giả"]
+    },
+    {
+      "id": "decor-badge", "name": { "vi": "Huy hiệu chữ (badge)", "en": "Text badge" }, "aliases": ["Badge", "Tag", "Label sticker"],
+      "purpose": "brand", "engine": "overlay", "about": "Huy hiệu bo tròn có chữ ngắn (NEW, HOT, TIP). Khai ở decor với type badge.",
+      "ref": { "kind": "decor", "type": "badge", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 3,
+      "pitfalls": ["chữ trên huy hiệu phải có trong lời nói hoặc nguồn người dùng"]
+    },
+    {
+      "id": "decor-sparkle", "name": { "vi": "Lấp lánh (sparkle)", "en": "Sparkle burst" }, "aliases": ["Sparkles", "Glitter", "Twinkle"],
+      "purpose": "mood", "engine": "overlay", "about": "Các ngôi sao nhỏ lấp lánh quanh một điểm, sinh bằng mã. Khai ở decor với type sparkle hoặc tự gợi ý từ data/decor-keywords.json.",
+      "ref": { "kind": "decor", "type": "sparkle", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 3,
+      "pitfalls": ["gắn với khoảnh khắc đẹp hoặc kết quả tốt, không gắn ngẫu nhiên"]
+    },
+    {
+      "id": "decor-confetti", "name": { "vi": "Pháo giấy (confetti)", "en": "Confetti burst" }, "aliases": ["Confetti", "Celebration", "Party popper"],
+      "purpose": "mood", "engine": "overlay", "about": "Mảnh giấy màu rơi xuống ăn mừng thành tích hoặc tin vui, sinh bằng mã. Khai ở decor với type confetti.",
+      "ref": { "kind": "decor", "type": "confetti", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 1,
+      "pitfalls": ["chỉ khi có thành tích hoặc tin vui thật"]
+    },
+    {
+      "id": "decor-icon", "name": { "vi": "Icon minh họa (sticker)", "en": "Icon sticker" }, "aliases": ["Icon", "Sticker", "Emoji-like icon"],
+      "purpose": "clarity", "engine": "overlay", "about": "Sticker icon tìm từ bộ Iconify theo truy vấn tiếng Anh (lọc giấy phép MIT, ISC, Apache-2.0, CC0, CC BY...). Khai ở decor với type icon và query.",
+      "ref": { "kind": "decor", "type": "icon", "plan": "decor" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 4,
+      "pitfalls": ["truy vấn trừu tượng ít kết quả: dùng vật thể cụ thể", "icon CC BY cần ghi công: finalize tự ghi vào credits"]
+    },
+    {
+      "id": "stat-sticker", "name": { "vi": "Thẻ số kiểu nhãn dán", "en": "Number sticker" }, "aliases": ["Stat Sticker", "Counter", "Data callout"],
+      "purpose": "clarity", "engine": "overlay", "about": "Số đếm lên tới giá trị người nói nhắc, trên nhãn dán bo viền trắng kèm biểu tượng theo đơn vị. Khai ở stats {value, label}; kiểu luân phiên theo statVariants của phong cách.",
+      "ref": { "kind": "stat", "type": "sticker", "plan": "stats" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 4,
+      "pitfalls": ["số phải có trong lời nói hoặc userSource; plan-lint kiểm"]
+    },
+    {
+      "id": "stat-ring", "name": { "vi": "Thẻ số vòng tròn", "en": "Number ring" }, "aliases": ["Ring Counter", "Progress ring", "Circular stat"],
+      "purpose": "clarity", "engine": "overlay", "about": "Số đếm lên bên trong vòng tròn tiến độ. Hợp phần trăm và tỉ lệ. Khai ở stats; kiểu ring nằm trong statVariants.",
+      "ref": { "kind": "stat", "type": "ring", "plan": "stats" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 4,
+      "pitfalls": ["vòng đầy theo giá trị: giá trị trên 100 không có nghĩa phần trăm"]
+    },
+    {
+      "id": "stat-capsule", "name": { "vi": "Thẻ số viên nang", "en": "Number capsule" }, "aliases": ["Pill Counter", "Capsule stat", "Metric chip"],
+      "purpose": "clarity", "engine": "overlay", "about": "Số đếm lên trong viên nang bo tròn kèm nhãn. Gọn, sạch, hợp phong cách explainer và documentary. Khai ở stats; kiểu capsule trong statVariants.",
+      "ref": { "kind": "stat", "type": "capsule", "plan": "stats" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "use" }, "perMinute": 4,
+      "pitfalls": ["nhãn ngắn dưới 18 ký tự để không tràn viên nang"]
+    },
+    {
+      "id": "emoji-react", "name": { "vi": "Emoji phản ứng", "en": "Reaction emoji" }, "aliases": ["Emoji Pop", "Reaction", "Animated emoji"],
+      "purpose": "humor", "engine": "overlay", "about": "Emoji động Noto (Lottie, CC BY 4.0) hoặc Fluent 3D (MIT) hiện ngay sau từ khóa trong caption. Khai ở emoji [{id, anchorWord}] hoặc để tự gợi ý từ data/emoji-map.json.",
+      "ref": { "kind": "plan", "type": "emoji", "plan": "emoji" }, "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 8,
+      "pitfalls": ["cùng emoji không lặp trong 25 giây", "emoji động Noto cần ghi công CC BY 4.0: finalize tự ghi"]
+    },
+    {
+      "id": "showcase-card", "name": { "vi": "Thẻ ảnh minh họa (card)", "en": "Showcase card" }, "aliases": ["B-roll Card", "Floating card", "Image card"],
+      "purpose": "reveal", "engine": "overlay", "about": "Ảnh minh họa dạng thẻ bo góc có bóng và ánh kính đè lên video, video gốc vẫn chạy. Khai ở cutaways với presentation card.",
+      "ref": { "kind": "showcase", "type": "card", "plan": "cutaways.presentation" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 4,
+      "pitfalls": ["ảnh phải đúng ngữ cảnh: duyệt ở CỔNG 2"]
+    },
+    {
+      "id": "showcase-polaroid", "name": { "vi": "Ảnh polaroid", "en": "Polaroid photo" }, "aliases": ["Polaroid", "Photo frame", "Taped photo"],
+      "purpose": "reveal", "engine": "overlay", "about": "Ảnh trong khung giấy polaroid có băng dính, tùy chọn chú thích. Hợp kỷ niệm và kể chuyện. Khai ở cutaways với presentation polaroid.",
+      "ref": { "kind": "showcase", "type": "polaroid", "plan": "cutaways.presentation" }, "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "use" }, "perMinute": 4,
+      "pitfalls": ["không dùng ảnh có người xác định được"]
+    },
+    {
+      "id": "showcase-pip", "name": { "vi": "Khung ảnh tròn nhỏ (pip)", "en": "Round PiP photo" }, "aliases": ["PiP image", "Bubble", "Circle photo"],
+      "purpose": "reveal", "engine": "overlay", "about": "Ảnh trong khung bo tròn lớn kèm nhãn nhỏ. Nhẹ, ít chiếm chỗ; hợp khi khung đã đông. Khai ở cutaways với presentation pip.",
+      "ref": { "kind": "showcase", "type": "pip", "plan": "cutaways.presentation" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 4,
+      "pitfalls": ["ảnh nhỏ khó đọc chi tiết: chọn ảnh một vật thể rõ"]
+    },
+    {
+      "id": "showcase-stack", "name": { "vi": "Chồng thẻ (stack)", "en": "Card stack" }, "aliases": ["Stacked cards", "Photo pile", "Deck"],
+      "purpose": "reveal", "engine": "overlay", "about": "Thẻ chính chồng hai thẻ nền lệch góc như một xấp ảnh. Gợi 'nhiều thứ'. Khai ở cutaways với presentation stack.",
+      "ref": { "kind": "showcase", "type": "stack", "plan": "cutaways.presentation" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 3,
+      "pitfalls": ["chiếm diện tích lớn hơn card: kiểm chỗ trống bên cạnh mặt"]
+    },
+    {
+      "id": "showcase-sticker", "name": { "vi": "Ảnh cắt viền nhãn dán", "en": "Die-cut sticker photo" }, "aliases": ["Sticker Photo", "Die-cut", "Cutout sticker"],
+      "purpose": "humor", "engine": "overlay", "about": "Ảnh cắt tròn hoặc bo lớn có viền trắng như nhãn dán, hiện bằng pop hoặc drop. Khai ở cutaways với presentation sticker.",
+      "ref": { "kind": "showcase", "type": "sticker", "plan": "cutaways.presentation" }, "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 4,
+      "pitfalls": ["chỉ hợp ảnh một vật thể gọn"]
+    },
+    {
+      "id": "showcase-peek", "name": { "vi": "Thẻ ló từ mép (peek)", "en": "Edge peek card" }, "aliases": ["Peek", "Slide-in card", "Edge card"],
+      "purpose": "reveal", "engine": "overlay", "about": "Thẻ ló một nửa từ mép khung rồi trượt vào. Không nằm trong chuỗi mặc định vì một nửa ảnh bị khuất; dùng khi người dùng yêu cầu. Khai ở cutaways với presentation peek.",
+      "ref": { "kind": "showcase", "type": "peek", "plan": "cutaways.presentation" }, "params": {}, "styles": { "hype": "sparing", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 2,
+      "pitfalls": ["một nửa ảnh bị khuất: chọn ảnh có nội dung ở nửa còn thấy"]
+    },
+    {
+      "id": "showcase-fullbleed", "name": { "vi": "Ảnh phủ kín khung (fullbleed)", "en": "Full-bleed B-roll" }, "aliases": ["B-roll", "Cutaway", "Full screen image"],
+      "purpose": "retention", "engine": "overlay", "about": "Ảnh hoặc clip phủ kín khung với Ken Burns, rời mặt người nói. Không nằm trong chuỗi mặc định (editor chuyên nghiệp giữ video gốc chạy); dùng khi video gốc không có hình đáng xem. Khai ở cutaways với presentation fullbleed.",
+      "ref": { "kind": "showcase", "type": "fullbleed", "plan": "cutaways.presentation" }, "params": {}, "styles": { "hype": "sparing", "explainer": "sparing", "documentary": "use" }, "perMinute": 2,
+      "pitfalls": ["tính vào brollMaxShare: phong cách hype tối đa 50% thời lượng"]
+    },
+    {
+      "id": "cta-comment", "name": { "vi": "Ô bình luận gõ từ khóa", "en": "Comment-to-get CTA" }, "aliases": ["Comment CTA", "Comment keyword", "Comment to DM"],
+      "purpose": "retention", "engine": "overlay", "about": "Ô bình luận giao diện chung hiện ra: gõ từng chữ từ khóa người nói bảo bình luận, gửi, bình luận đã đăng có tim đầy, và dòng phản hồi tùy chọn. Đặt ở lúc người nói kêu gọi bình luận, thường ở cuối video. Khai ở cards với type comment {text, reply?, name?, placeholder?}; dùng chữ chung, không dùng logo hay giao diện sao chép của nền tảng nào.",
+      "ref": { "kind": "card", "type": "comment", "plan": "cards" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 1,
+      "pitfalls": ["chỉ dùng cho lời kêu gọi người nói thật sự nói ra; không tự thêm lời hứa gửi tài liệu mà người dùng không có", "cần 2,5 giây trở lên (4 giây nếu có reply) để kịp gõ, đăng và hiện phản hồi"]
+    },
+    {
+      "id": "cta-actions", "name": { "vi": "Thanh tim, bình luận, chia sẻ, lưu", "en": "Save and share action bar" }, "aliases": ["Save and share", "Action bar", "Like comment share save"],
+      "purpose": "retention", "engine": "overlay", "about": "Thanh bốn biểu tượng (tim, bình luận, chia sẻ, lưu) hiện ra, biểu tượng được chọn đầy màu và nảy lên đúng lúc người nói nhắc, ví dụ lưu để xem lại. Khai ở cards với type actions {active: like, comment, share hoặc save}.",
+      "ref": { "kind": "card", "type": "actions", "plan": "cards" }, "params": {}, "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 1,
+      "pitfalls": ["đặt đúng lúc nói từ tương ứng (save, share); đặt lệch sẽ thành đồ trang trí vô nghĩa"]
+    },
+    {
+      "id": "proof-counter", "name": { "vi": "Thẻ số liệu đếm lên (bằng chứng)", "en": "Proof counter card" }, "aliases": ["Social proof", "Stats counter", "Views likes comments"],
+      "purpose": "clarity", "engine": "overlay", "about": "Thẻ có tiêu đề và 1 đến 3 dòng số đếm từ giá trị đầu lên giá trị cuối kèm nhãn (lượt xem, thích, bình luận). Số do người dùng cung cấp; plan-lint bắt buộc có nguồn trong userSource hoặc có trong lời nói, không bịa số. Khai ở cards với type counter {title, rows: [{label, from, to}]}.",
+      "ref": { "kind": "card", "type": "counter", "plan": "cards" }, "params": {}, "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 1,
+      "pitfalls": ["không có số thật của người dùng thì không dùng; điền userSource đúng chữ trên thẻ", "tối đa 3 dòng; nhãn ngắn để không tràn"]
+    }
+  ]
+}

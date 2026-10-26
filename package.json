@@ -1,0 +1,14 @@
+{
+  "name": "narrated-video-edit-repo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Repository tooling for the narrated-video-edit agent skill: validation and release packaging. The skill's own dependencies live in skills/narrated-video-edit/scripts/package.json.",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "validate": "node tools/validate-skill.mjs",
+    "build": "node tools/build-release.mjs",
+    "check": "node tools/validate-skill.mjs && node tools/build-release.mjs --out dist"
+  }
+}

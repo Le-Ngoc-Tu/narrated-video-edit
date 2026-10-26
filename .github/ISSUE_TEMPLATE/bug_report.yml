@@ -1,0 +1,50 @@
+name: Bug report
+description: Something failed or produced a wrong result
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time. This project is a starting point that people tune, so many problems are about the environment. The more exact the details, the faster it is solved. Please do not attach footage you do not have the right to share.
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where did you run the skill?
+      options: [Claude Code, Antigravity CLI, Claude desktop or web, Other agent]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version (release tag or commit)
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Operating system, Node version, FFmpeg version
+      placeholder: Windows 11, Node 24, ffmpeg 7.1
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The command that failed, the video length and language, the style you chose.
+  - type: textarea
+    id: selftest
+    attributes:
+      label: Output of `node selftest.mjs` (the last 30 lines are enough)
+      render: text
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error output or audit report
+      render: text

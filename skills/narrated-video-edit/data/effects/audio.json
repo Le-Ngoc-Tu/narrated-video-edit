@@ -1,0 +1,160 @@
+{
+  "family": "audio",
+  "effects": [
+    {
+      "id": "whoosh", "name": { "vi": "Vút (whoosh)", "en": "Whoosh" }, "aliases": ["Whoosh", "Swish", "Transition sweep"],
+      "purpose": "transition", "engine": "audio",
+      "about": "Nhiễu hồng quét lên rồi tắt, tiếng đi cùng chuyển cảnh, trượt, vào ra của vật thể. Tiếng nền tảng của mọi edit nhanh; sinh bằng ffmpeg, không dùng mẫu âm thanh ngoài.",
+      "synth": "anoisesrc=d={dur}:c=pink:a=0.7:r=48000", "post": "highpass=f=250,lowpass=f=4200,afade=t=in:d={={dur}*0.38},afade=t=out:st={={dur}*0.48}:d={={dur}*0.52}", "gainDb": -16, "peakAt": 0.45,
+      "params": {}, "dur": { "min": 0.2, "default": 0.42, "max": 1.2 }, "intensity": 1,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 10,
+      "pitfalls": ["đặt đỉnh tiếng vào đúng điểm cắt hoặc ngay trước đó vài khung", "mỗi cú chuyển cảnh một tiếng; chồng hai tiếng thì ồn"]
+    },
+    {
+      "id": "pop", "name": { "vi": "Bụp (pop)", "en": "Pop" }, "aliases": ["Pop", "Bubble pop", "UI pop"],
+      "purpose": "emphasis", "engine": "audio",
+      "about": "Tiếng sin ngắn nhấn một vật hiện ra: sticker, emoji, thẻ. Rất ngắn và nhẹ.",
+      "synth": "sine=f=680:d={dur}:r=48000", "post": "afade=t=in:d=0.005,afade=t=out:st={={dur}*0.33}:d={={dur}*0.67}", "gainDb": -14,
+      "params": {}, "dur": { "min": 0.05, "default": 0.09, "max": 0.2 }, "intensity": 1,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 12,
+      "pitfalls": ["pop trên mọi sticker thì nghe như trò chơi trẻ em: bỏ bớt ở sticker phụ"]
+    },
+    {
+      "id": "ding", "name": { "vi": "Đing (ding)", "en": "Ding" }, "aliases": ["Ding", "Bell", "Success chime"],
+      "purpose": "emphasis", "engine": "audio",
+      "about": "Tiếng chuông ngắn cao khi một con số hoặc thẻ kết quả hiện ra.",
+      "synth": "sine=f=1320:d={dur}:r=48000", "post": "afade=t=in:d=0.004,afade=t=out:st=0.02:d={={dur}-0.02}", "gainDb": -20,
+      "params": {}, "dur": { "min": 0.15, "default": 0.3, "max": 0.8 }, "intensity": 1,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "sparing" }, "perMinute": 6,
+      "pitfalls": ["gắn với thẻ số liệu, không gắn mọi thẻ"]
+    },
+    {
+      "id": "impact", "name": { "vi": "Va đập (impact)", "en": "Impact hit" }, "aliases": ["Impact", "Hit", "Boom hit"],
+      "purpose": "emphasis", "engine": "audio",
+      "about": "Tiếng trầm rơi tần số kèm cú nhiễu ngắn như va đập. Đi cùng crash zoom, flash trắng, rung va chạm, câu chốt.",
+      "synth": "aevalsrc='0.85*sin(2*PI*(95*t-70*t*t))*exp(-3.5*t)+0.5*(2*random(0)-1)*exp(-40*t)':d={dur}:s=48000", "gainDb": -12,
+      "params": {}, "dur": { "min": 0.4, "default": 1, "max": 2 }, "intensity": 3,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 3,
+      "pitfalls": ["tiếng trầm ăn vào giọng: hạ âm lượng hoặc ghép với ducking khi người nói đang nói"]
+    },
+    {
+      "id": "riser", "name": { "vi": "Tiếng dâng (riser)", "en": "Riser" }, "aliases": ["Riser", "Build-up", "Tension sweep"],
+      "purpose": "rhythm", "engine": "audio",
+      "about": "Âm quét cao dần kèm nhiễu tăng, báo hiệu một cú drop hoặc câu chốt sắp tới. Kết thúc đúng lúc điểm nhấn xảy ra.",
+      "synth": "aevalsrc='0.55*sin(2*PI*(180*t+{sweep}*t*t/(2*{dur})))*pow(t/{dur},1.5)+0.2*(2*random(0)-1)*pow(t/{dur},2)':d={dur}:s=48000", "gainDb": -16, "peakAt": 1,
+      "params": { "sweep": { "default": 1800, "min": 400, "max": 4000, "unit": "Hz", "doc": "độ cao tăng thêm trong suốt riser" } },
+      "dur": { "min": 0.6, "default": 1.5, "max": 4 }, "intensity": 2,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 2,
+      "pitfalls": ["riser phải kết thúc đúng ở điểm nhấn: tính ngược từ điểm đó (bắt đầu = điểm nhấn - độ dài)"]
+    },
+    {
+      "id": "sub-boom", "name": { "vi": "Trầm sâu (sub boom)", "en": "Sub boom" }, "aliases": ["Sub Drop", "Bass drop hit", "Low boom"],
+      "purpose": "emphasis", "engine": "audio",
+      "about": "Một nốt trầm rất thấp tắt dần, tạo sức nặng cho câu chốt hoặc tiêu đề. Nghe rõ trên tai nghe, ít nghe trên loa điện thoại.",
+      "synth": "aevalsrc='0.9*sin(2*PI*55*t)*exp(-3*t)':d={dur}:s=48000", "gainDb": -14,
+      "params": {}, "dur": { "min": 0.5, "default": 1.2, "max": 2.5 }, "intensity": 3,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "sparing" }, "perMinute": 2,
+      "pitfalls": ["loa điện thoại không phát xuống 55 Hz: kèm impact để vẫn có cú nhấn"]
+    },
+    {
+      "id": "glitch", "name": { "vi": "Tiếng glitch (zap)", "en": "Glitch zap" }, "aliases": ["Glitch SFX", "Digital zap", "Data burst"],
+      "purpose": "emphasis", "engine": "audio",
+      "about": "Chùm tiếng điện tử ngắt quãng với cao độ ngẫu nhiên, đi cùng glitch cut, tách RGB, nhiễu tivi.",
+      "synth": "aevalsrc='0.35*sin(2*PI*(500+2500*abs(sin(t*53)))*t)*gt(sin(t*{rate}),-0.2)':d={dur}:s=48000", "gainDb": -16,
+      "params": { "rate": { "default": 90, "min": 30, "max": 200, "unit": "rad/s", "doc": "tốc độ ngắt quãng" } },
+      "dur": { "min": 0.1, "default": 0.25, "max": 0.8 }, "intensity": 2,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 4,
+      "pitfalls": ["chói tai ở tần số cao: giữ âm lượng thấp hơn giọng ít nhất 18 dB"]
+    },
+    {
+      "id": "click-tick", "name": { "vi": "Tách (click)", "en": "Click tick" }, "aliases": ["Click", "Tick", "UI click"],
+      "purpose": "clarity", "engine": "audio",
+      "about": "Tiếng tách khô rất ngắn cho thao tác bấm, chuyển bước, dấu chấm hiện lên.",
+      "synth": "anoisesrc=d={dur}:c=white:a=0.6:r=48000", "post": "highpass=f=2500,afade=t=out:st=0.004:d={={dur}-0.004}", "gainDb": -18,
+      "params": {}, "dur": { "min": 0.015, "default": 0.03, "max": 0.08 }, "intensity": 1,
+      "styles": { "hype": "sparing", "explainer": "use", "documentary": "sparing" }, "perMinute": 8,
+      "pitfalls": ["quá ngắn thì nghe như lỗi âm thanh: giữ từ 0,02 giây"]
+    },
+    {
+      "id": "camera-shutter", "name": { "vi": "Màn trập máy ảnh (shutter)", "en": "Camera shutter" }, "aliases": ["Shutter", "Photo click", "Snap"],
+      "purpose": "emphasis", "engine": "audio",
+      "about": "Hai tiếng tách của màn trập, đi cùng khung đóng băng như chụp ảnh hoặc cú đổi ảnh polaroid.",
+      "synth": "aevalsrc='0.6*(2*random(0)-1)*(exp(-90*t)+0.8*exp(-90*(t-0.09))*gt(t,0.09))':d={dur}:s=48000", "gainDb": -14,
+      "params": {}, "dur": { "min": 0.15, "default": 0.2, "max": 0.5 }, "intensity": 1,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "sparing" }, "perMinute": 4,
+      "pitfalls": ["gắn với khung hình dừng hoặc ảnh polaroid, không gắn ngẫu nhiên"]
+    },
+    {
+      "id": "record-stop", "name": { "vi": "Dừng đĩa (record stop)", "en": "Record stop" }, "aliases": ["Vinyl Stop", "Tape stop", "Power down"],
+      "purpose": "humor", "engine": "audio",
+      "about": "Cao độ tụt nhanh về không như đĩa than bị hãm. Đi cùng freeze frame hoặc khoảnh khắc 'khựng lại' trong video hài.",
+      "synth": "aevalsrc='0.6*sin(2*PI*140*{dur}*(1-pow(1-t/{dur},3)))*(1-t/{dur})':d={dur}:s=48000", "gainDb": -14,
+      "params": {}, "dur": { "min": 0.3, "default": 0.7, "max": 1.5 }, "intensity": 2,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 2,
+      "pitfalls": ["đặt cùng lúc đóng băng hình, không trễ"]
+    },
+    {
+      "id": "rewind", "name": { "vi": "Tua lại (rewind)", "en": "Rewind zip" }, "aliases": ["Rewind", "Tape rewind", "Reverse zip"],
+      "purpose": "humor", "engine": "audio",
+      "about": "Chuỗi tiếng vút lặp nhanh như băng tua ngược. Đi cùng reverse hoặc cú quay lại đoạn trước.",
+      "synth": "aevalsrc='0.4*sin(2*PI*(900*t+9000*pow(mod(t,0.1),2)))*(1-0.5*t/{dur})':d={dur}:s=48000", "gainDb": -16,
+      "params": {}, "dur": { "min": 0.3, "default": 0.6, "max": 1.5 }, "intensity": 2,
+      "styles": { "hype": "use", "explainer": "avoid", "documentary": "avoid" }, "perMinute": 2,
+      "pitfalls": ["chói; giữ âm lượng thấp"]
+    },
+    {
+      "id": "heartbeat", "name": { "vi": "Nhịp tim", "en": "Heartbeat" }, "aliases": ["Heartbeat", "Thump thump", "Tension pulse"],
+      "purpose": "mood", "engine": "audio",
+      "about": "Hai tiếng thịch trầm kề nhau như nhịp tim. Tăng căng thẳng, hồi hộp, hoặc báo hiệu một khoảnh khắc nguy hiểm.",
+      "synth": "aevalsrc='0.85*sin(2*PI*60*t)*exp(-14*t)+0.6*sin(2*PI*55*(t-0.22))*exp(-14*(t-0.22))*gt(t,0.22)':d={dur}:s=48000", "gainDb": -14,
+      "params": {}, "dur": { "min": 0.4, "default": 0.6, "max": 1.2 }, "intensity": 2,
+      "styles": { "hype": "sparing", "explainer": "avoid", "documentary": "use" }, "perMinute": 2,
+      "pitfalls": ["lặp theo chu kỳ 1 giây để ra nhịp tim thật; một lần đơn lẻ nghe như hai tiếng gõ"]
+    },
+    {
+      "id": "chime", "name": { "vi": "Chuông báo (chime)", "en": "Notification chime" }, "aliases": ["Chime", "Notification", "Two-note ping"],
+      "purpose": "clarity", "engine": "audio",
+      "about": "Hai nốt đi lên ngắn như thông báo tin nhắn. Hợp tin mới, kết quả, hoặc cảnh liên quan điện thoại.",
+      "synth": "aevalsrc='0.45*sin(2*PI*880*t)*exp(-7*t)+0.45*sin(2*PI*1320*(t-0.12))*exp(-7*(t-0.12))*gt(t,0.12)':d={dur}:s=48000", "gainDb": -18,
+      "params": {}, "dur": { "min": 0.3, "default": 0.6, "max": 1.2 }, "intensity": 1,
+      "styles": { "hype": "use", "explainer": "use", "documentary": "avoid" }, "perMinute": 4,
+      "pitfalls": ["nghe giống âm báo thật: tránh khi người xem có thể tưởng điện thoại mình rung"]
+    },
+    {
+      "id": "swoosh-soft", "name": { "vi": "Vút nhẹ (soft swoosh)", "en": "Soft swoosh" }, "aliases": ["Soft Whoosh", "Air sweep", "Low whoosh"],
+      "purpose": "transition", "engine": "audio",
+      "about": "Whoosh trầm và mềm hơn, hợp chuyển cảnh chậm, dissolve, kéo máy nhẹ.",
+      "synth": "anoisesrc=d={dur}:c=brown:a=0.8:r=48000", "post": "highpass=f=120,lowpass=f=1800,afade=t=in:d={={dur}*0.5},afade=t=out:st={={dur}*0.5}:d={={dur}*0.5}", "gainDb": -18, "peakAt": 0.5,
+      "params": {}, "dur": { "min": 0.3, "default": 0.6, "max": 1.5 }, "intensity": 1,
+      "styles": { "hype": "sparing", "explainer": "use", "documentary": "use" }, "perMinute": 6,
+      "pitfalls": ["trầm nên dễ che giọng nam: hạ âm lượng khi trùng lời nói"]
+    },
+    {
+      "id": "sparkle-chime", "name": { "vi": "Lấp lánh (sparkle)", "en": "Sparkle chime" }, "aliases": ["Sparkle", "Magic chime", "Glimmer"],
+      "purpose": "emphasis", "engine": "audio",
+      "about": "Ba nốt cao đi lên rất nhanh như lấp lánh. Đi cùng sparkle, confetti, cú tiết lộ đẹp.",
+      "synth": "aevalsrc='0.3*(sin(2*PI*1568*t)*exp(-12*t)+sin(2*PI*2093*(t-0.07))*exp(-12*(t-0.07))*gt(t,0.07)+sin(2*PI*2637*(t-0.14))*exp(-12*(t-0.14))*gt(t,0.14))':d={dur}:s=48000", "gainDb": -16,
+      "params": {}, "dur": { "min": 0.3, "default": 0.5, "max": 1 }, "intensity": 1,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 4,
+      "pitfalls": ["ngọt gắt khi lặp nhiều: tối đa vài lần mỗi video"]
+    },
+    {
+      "id": "error-buzz", "name": { "vi": "Tiếng sai (buzz)", "en": "Error buzz" }, "aliases": ["Buzzer", "Wrong answer", "Error tone"],
+      "purpose": "humor", "engine": "audio",
+      "about": "Tiếng vuông trầm ngắt quãng như đáp án sai. Hợp câu hỏi trắc nghiệm, 'sai rồi', hoặc gag.",
+      "synth": "aevalsrc='0.35*sgn(sin(2*PI*150*t))*lt(mod(t,0.25),0.15)':d={dur}:s=48000", "post": "lowpass=f=1800", "gainDb": -16,
+      "params": {}, "dur": { "min": 0.3, "default": 0.5, "max": 1 }, "intensity": 2,
+      "styles": { "hype": "use", "explainer": "sparing", "documentary": "avoid" }, "perMinute": 2,
+      "pitfalls": ["âm vuông thô: hạ âm lượng"]
+    },
+    {
+      "id": "keyboard-typing", "name": { "vi": "Gõ phím (typing)", "en": "Keyboard typing" }, "aliases": ["Typing", "Keyboard clicks", "Typewriter"],
+      "purpose": "clarity", "engine": "audio",
+      "about": "Chuỗi tiếng tách đều đặn như gõ bàn phím, đi cùng chữ hiện ra từng ký tự hoặc đoạn gõ lệnh.",
+      "synth": "aevalsrc='0.5*(2*random(0)-1)*exp(-200*mod(t,0.085))':d={dur}:s=48000", "post": "highpass=f=1500", "gainDb": -18,
+      "params": {}, "dur": { "min": 0.3, "default": 0.8, "max": 3 }, "intensity": 1,
+      "styles": { "hype": "sparing", "explainer": "use", "documentary": "avoid" }, "perMinute": 3,
+      "pitfalls": ["nhịp đều 85 ms: dùng khi chữ hiện cũng đều; nếu lệch nhịp sẽ thấy giả"]
+    }
+  ]
+}

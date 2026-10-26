@@ -1,0 +1,44 @@
+{
+  "_doc": "Ngôn ngữ mô tả hiệu ứng của thư viện. Mỗi tệp cùng thư mục (trừ tệp này) là một họ hiệu ứng: { family, effects: [...] }. Công thức (chain, graph, synth...) là chuỗi bộ lọc ffmpeg có chỗ trống {tên}. Thứ tự tra cứu chỗ trống: params, let (biểu thức đặt tên của riêng hiệu ứng), ctx, macros. Thời gian trong công thức là GIỜ CỤC BỘ của cửa sổ hiệu ứng: t (giây, cho bộ lọc có biểu thức) và T (cho blend all_expr), bắt đầu từ 0 và kết thúc ở {dur}. Biểu thức chứa dấu phẩy phải đặt trong nháy đơn. Thêm hiệu ứng = thêm một mục JSON vào tệp họ, không sửa mã; node scripts/effects-selftest.mjs kiểm từng hiệu ứng.",
+  "families": {
+    "camera": "máy quay và zoom: nhấn, đẩy, rung, nghiêng",
+    "transition": "chuyển cảnh tại điểm cắt hoặc giữa hai cảnh",
+    "time": "thời gian: đóng băng, tua, lặp, tốc độ",
+    "color": "màu và phong cách (grade): tông, tương phản, ánh sáng",
+    "retro": "hoài cổ và ống kính: hạt phim, VHS, camcorder, rò sáng",
+    "glitch": "glitch và biến dạng: tách kênh, khối, pixel, gương",
+    "text": "chữ và phụ đề",
+    "graphic": "đồ họa phủ: sticker, thẻ, ký hiệu",
+    "layout": "bố cục khung hình",
+    "subject": "chủ thể và mặt nạ người",
+    "audio": "âm thanh và hiệu ứng tiếng"
+  },
+  "purposes": ["emphasis", "transition", "mood", "retention", "reveal", "rhythm", "clarity", "brand", "humor"],
+  "engines": {
+    "video": "một luồng hình vào, một luồng hình ra cùng kích thước và độ dài; áp dụng trong cửa sổ thời gian",
+    "mask": "như video nhưng nhận thêm mặt nạ người [mask] (xám, trắng là người); cần node setup.mjs --with-segmentation",
+    "xfade": "chuyển cảnh thật giữa hai clip [a] [b] bằng xfade; dùng cho cutaway toàn khung, không phải chỗ nối trong một luồng",
+    "retime": "đổi tốc độ nên đổi độ dài; có chuỗi hình và chuỗi tiếng; chưa nối vào compose-base",
+    "audio": "tiếng tổng hợp bằng ffmpeg lavfi, không dùng tệp âm thanh ngoài",
+    "overlay": "đã có sẵn trong lớp phủ GSAP (render-overlay); mục này chỉ trỏ tới kiểu đã cài (ref)"
+  },
+  "usage": ["use", "sparing", "avoid"],
+  "styles": ["hype", "explainer", "documentary"],
+  "ctx": ["W", "H", "fps", "dur", "durpad", "frames", "fx", "fy", "font", "fontBold", "fontImpact"],
+  "macros": {
+    "p": "min(1,max(0,t/{dur}))",
+    "pT": "min(1,max(0,T/{dur}))",
+    "bell": "sin(PI*{p})",
+    "bellT": "sin(PI*{pT})",
+    "eo": "(1-pow(1-{p},3))",
+    "eoT": "(1-pow(1-{pT},3))",
+    "ei": "pow({p},3)",
+    "eio": "({p}*{p}*(3-2*{p}))",
+    "eioT": "({pT}*{pT}*(3-2*{pT}))",
+    "trap": "min(1,min(t/{fade},({dur}-t)/{fade}))",
+    "trapT": "min(1,min(T/{fade},({dur}-T)/{fade}))",
+    "zoomcrop": "scale=eval=frame:w='trunc({W}*({Z})/2)*2':h='trunc({H}*({Z})/2)*2',crop={W}:{H}:x='(trunc({W}*({Z})/2)*2-{W})*{fx}':y='(trunc({H}*({Z})/2)*2-{H})*{fy}'",
+    "zoomctr": "scale=eval=frame:w='trunc({W}*({Z})/2)*2':h='trunc({H}*({Z})/2)*2',crop={W}:{H}:x='(trunc({W}*({Z})/2)*2-{W})/2':y='(trunc({H}*({Z})/2)*2-{H})/2'",
+    "shakecrop": "scale=trunc({W}*{margin}/2)*2:trunc({H}*{margin}/2)*2,crop={W}:{H}:x='(iw-ow)/2+({DX})':y='(ih-oh)/2+({DY})'"
+  }
+}

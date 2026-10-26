@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate the skill
+        run: node tools/validate-skill.mjs
+      - name: Build the release zip
+        run: node tools/build-release.mjs --out dist
+      - name: Check the zip layout
+        run: |
+          python3 - <<'PY'
+          import glob, zipfile
+          path = glob.glob('dist/narrated-video-edit-v*.zip')[0]
+          z = zipfile.ZipFile(path)
+          assert z.testzip() is None, 'bad CRC'
+          names = z.namelist()
+          assert all(n.startswith('narrated-video-edit/') for n in names), 'entries must start with narrated-video-edit/'
+          assert 'narrated-video-edit/SKILL.md' in names, 'SKILL.md missing'
+          print(len(names), 'entries, layout ok')
+          PY
+      - name: Install skill dependencies
+        run: npm install --no-audit --no-fund
+        working-directory: skills/narrated-video-edit/scripts
+      - name: Check the effects library data (no rendering)
+        run: node fx-apply.mjs validate
+        working-directory: skills/narrated-video-edit/scripts
