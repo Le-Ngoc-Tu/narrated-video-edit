@@ -79,7 +79,7 @@ Every downloaded file gets a line in `assets/credits.json`. When a file is CC BY
 | --- | --- |
 | Background music in the showreel and tutorial videos | "Music Promotion" by MiroMaxMusic, from [Pixabay](https://pixabay.com/music/corporate-music-promotion-513944/), used under the [Pixabay Content License](https://pixabay.com/service/license-summary/). The track is not included on its own and may not be redistributed on its own |
 | Video design | drawn in HTML and GSAP for this project. The pacing was guided by a short product-explainer video the maintainer supplied as a reference; no footage, text or brand assets from it were reused |
-| Claude, Anthropic and other product names | trademarks of their owners; the tutorial redraws a simplified interface for teaching, with no official logos, and implies no endorsement by Anthropic |
+| Claude, Anthropic and other product names | trademarks of their owners; the tutorial shows only abstract icons and motion graphics, never a screen or logo of any product, and implies no endorsement by Anthropic |
 
 ## 8. A note on trademarks
 

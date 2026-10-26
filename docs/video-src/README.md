@@ -1,49 +1,54 @@
-# Video sources
+# Mã nguồn video
 
-The banner, the showreel and the tutorial video in `docs/media/` are built from this folder. Nothing here is needed to use the skill; it is kept so the videos can be rebuilt, translated or restyled.
+[Tiếng Việt](README.md) | [English](README.en.md)
 
-## What is real and what is drawn
+Banner, showreel và video hướng dẫn trong `docs/media/` được dựng từ thư mục này. Dùng skill không cần đến nó; nó được giữ lại để dựng lại, dịch hoặc đổi phong cách các video.
 
-- **Real:** the phone clip in the showreel and banner (`assets/selftest-out.mp4`) is the finished video produced by the skill's own `selftest.mjs` on a synthetic speaker. The six effect tiles (`assets/fx/*.mp4`) were made by running `fx-apply.mjs apply` on that clip. The three gate thumbnails (`plan-board.jpg`, `assets-sheet.jpg`, `out-sheet.jpg`) are the skill's real storyboard, image sheet and result sheet from the same run.
-- **Drawn:** everything else (titles, cards, the simplified Claude and GitHub screens, the terminals) is HTML, CSS and GSAP written for this project. The screens are redrawn for teaching and use no official logos.
+## Phần nào thật, phần nào vẽ
 
-## Files
+- **Thật:** clip điện thoại trong showreel và banner (`assets/selftest-out.mp4`) là video thành phẩm do chính `selftest.mjs` của skill dựng trên một người nói giả lập. Sáu ô hiệu ứng (`assets/fx/*.mp4`) được tạo bằng cách chạy `fx-apply.mjs apply` trên clip đó. Ba hình thu nhỏ của các cổng duyệt (`plan-board.jpg`, `assets-sheet.jpg`, `out-sheet.jpg`) là storyboard, bảng ảnh và bảng kết quả thật của skill trong cùng lần chạy.
+- **Vẽ:** mọi thứ còn lại là motion graphic viết bằng HTML, CSS và GSAP cho dự án này: tiêu đề chuyển động, bản đồ tuyến đường, vòng tiến độ, bộ đếm, biểu tượng. Video hướng dẫn không chiếu màn hình hay logo của sản phẩm nào; các bước trong Claude được kể bằng biểu tượng trừu tượng và đúng nhãn người dùng sẽ thấy.
 
-| File | Role |
+## Các tệp
+
+| Tệp | Vai trò |
 | --- | --- |
-| `index.html`, `style.css` | the stage and its look (pastel blue, Be Vietnam Pro from the skill's bundled fonts) |
-| `i18n.js` | all on-screen text in English and Vietnamese |
-| `scenes.js` | one paused GSAP timeline per video (`guide`, `reel`, `banner`); scene cuts are placed on the beat grid of the music (118 BPM, 0.509 s) |
-| `render.mjs` | seeks the timeline frame by frame, screenshots it with Chrome, pipes the frames to FFmpeg, mixes and normalises the music |
-| `assets/` | the real clips and sheets described above |
+| `index.html`, `style.css` | sân khấu và diện mạo (xanh pastel, Be Vietnam Pro lấy từ phông kèm theo skill) |
+| `i18n.js` | toàn bộ chữ trên màn hình bằng tiếng Việt và tiếng Anh |
+| `scenes.js` | hàm dùng chung, cảnh mở đầu, cảnh kết, showreel (`reel`) và banner |
+| `guide.js` | video hướng dẫn (`guide`): tải zip, đi tới Skills, thả và quét, Claude Code, yêu cầu đầu tiên, bộ đếm chuẩn bị máy |
+| `render.mjs` | tua timeline từng khung, chụp bằng Chrome, đẩy khung vào FFmpeg, trộn và chuẩn hóa nhạc |
+| `assets/` | các clip và bảng ảnh thật nói ở trên |
 
-## Rebuild
+Điểm đổi cảnh nằm trên lưới nhịp của bài nhạc (118 BPM, một nhịp dài 0,509 s) và được che bằng một tấm màu quét ngang.
 
-From the repository root, after `npm install` in `skills/narrated-video-edit/scripts` (it provides `playwright-core`) with Chrome and FFmpeg installed:
+## Dựng lại
+
+Từ thư mục gốc kho, sau khi chạy `npm install` trong `skills/narrated-video-edit/scripts` (cung cấp `playwright-core`) và đã cài Chrome, FFmpeg:
 
 ```bash
-MUSIC=/path/to/miromaxmusic-music-promotion-513944.mp3
+MUSIC=/đường/dẫn/miromaxmusic-music-promotion-513944.mp3
 
 node docs/video-src/render.mjs --video banner --out docs/media/banner.gif
-node docs/video-src/render.mjs --video guide --lang en --music "$MUSIC" --out docs/media/install-guide-en.mp4
 node docs/video-src/render.mjs --video guide --lang vi --music "$MUSIC" --out docs/media/install-guide-vi.mp4
-node docs/video-src/render.mjs --video reel  --lang en --music "$MUSIC" --out docs/media/showreel-en.mp4
+node docs/video-src/render.mjs --video guide --lang en --music "$MUSIC" --out docs/media/install-guide-en.mp4
 node docs/video-src/render.mjs --video reel  --lang vi --music "$MUSIC" --out docs/media/showreel-vi.mp4
+node docs/video-src/render.mjs --video reel  --lang en --music "$MUSIC" --out docs/media/showreel-en.mp4
 
-# preview a few frames without encoding
-node docs/video-src/render.mjs --video guide --lang en --stills 2.7,13.9,27.6
+# xem thử vài khung, không dựng video
+node docs/video-src/render.mjs --video guide --lang vi --stills 2.6,14.5,36
 ```
 
-The music is not in this repository. Download "Music Promotion" by MiroMaxMusic from [Pixabay](https://pixabay.com/music/corporate-music-promotion-513944/) (Pixabay Content License) or pass any track you may use; the scene timing assumes 118 BPM.
+Tệp nhạc không nằm trong kho. Tải "Music Promotion" của MiroMaxMusic ở [Pixabay](https://pixabay.com/music/corporate-music-promotion-513944/) (Pixabay Content License) hoặc dùng bài khác bạn được phép dùng; thời điểm các cảnh giả định 118 BPM.
 
-Frames are extracted to `.cache/` on the first run (ignored by git). Rendering is deterministic: the same inputs give the same frames.
+Khung ảnh được tách vào `.cache/` ở lần chạy đầu (git bỏ qua). Việc dựng có tính xác định: cùng đầu vào cho cùng khung hình.
 
-## Regenerating the real clips
+## Tạo lại các clip thật
 
 ```bash
 cd skills/narrated-video-edit/scripts
-node selftest.mjs                       # writes .selftest/run/out.mp4, plan-board, assets-sheet, out-sheet
+node selftest.mjs                       # ghi .selftest/run/out.mp4, plan-board, assets-sheet, out-sheet
 node fx-apply.mjs apply --in clip.mp4 --effect crash-zoom --at 0.6 --dur 1.2 --out crash-zoom.mp4
 ```
 
-Scale `out.mp4` to 540x960 for `assets/selftest-out.mp4`, and re-encode the effect clips the same way.
+Thu `out.mp4` về 540x960 để thành `assets/selftest-out.mp4`, và mã hóa lại các clip hiệu ứng theo cách tương tự.

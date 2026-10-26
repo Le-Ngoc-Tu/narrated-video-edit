@@ -79,7 +79,7 @@ Mỗi tệp tải về có một dòng trong `assets/credits.json`. Nếu tệp 
 | --- | --- |
 | Nhạc nền video showreel và video hướng dẫn | "Music Promotion" của MiroMaxMusic, từ [Pixabay](https://pixabay.com/music/corporate-music-promotion-513944/), dùng theo [Pixabay Content License](https://pixabay.com/service/license-summary/). Bài nhạc không kèm riêng và không được phân phối lại riêng |
 | Thiết kế video | vẽ bằng HTML và GSAP cho dự án này. Nhịp dựng được định hướng bởi một video giới thiệu sản phẩm ngắn do người duy trì cung cấp làm tham chiếu; không dùng lại cảnh quay, chữ hay tài sản thương hiệu nào của video đó |
-| Claude, Anthropic và tên sản phẩm khác | nhãn hiệu của chủ sở hữu; video hướng dẫn vẽ lại giao diện đơn giản để dạy, không dùng logo chính thức, và không ngụ ý được Anthropic bảo trợ |
+| Claude, Anthropic và tên sản phẩm khác | nhãn hiệu của chủ sở hữu; video hướng dẫn chỉ dùng biểu tượng trừu tượng và motion graphic, không tái hiện màn hình hay logo của sản phẩm nào, và không ngụ ý được Anthropic bảo trợ |
 
 ## 8. Về nhãn hiệu
 

@@ -135,3 +135,27 @@ body { font-family: 'BVP', 'Segoe UI', Arial, sans-serif; color: var(--ink); -we
 .bn-title { position: absolute; left: 70px; top: 86px; font-weight: 900; font-size: 74px; letter-spacing: -2px; line-height: 1; }
 .bn-sub { position: absolute; left: 72px; top: 182px; font-weight: 700; font-size: 34px; color: var(--accent); }
 .bn-chip { position: absolute; padding: 9px 20px; background: #fff; border: 2px solid var(--line); border-radius: 999px; font-weight: 800; font-size: 22px; color: var(--accent); white-space: nowrap; box-shadow: 0 6px 16px rgba(47, 127, 193, .14); }
+
+/* motion graphic: nền, chuyển cảnh, thanh bước, nút tuyến, công tắc */
+.blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .55; }
+.wipe { position: absolute; top: 0; bottom: 0; width: 100%; z-index: 90; }
+.wipe.a { background: var(--accent); }
+.wipe.b { background: var(--yellow); }
+.trk { position: absolute; left: 0; right: 0; bottom: 34px; display: flex; justify-content: center; gap: 14px; z-index: 30; }
+.trk .p { padding: 10px 26px; border-radius: 999px; border: 2px solid var(--line); background: rgba(255, 255, 255, .7); font-weight: 800; font-size: 24px; color: var(--muted); display: flex; gap: 12px; align-items: center; }
+.trk .p i { width: 30px; height: 30px; border-radius: 50%; background: var(--line); color: #fff; font-style: normal; font-size: 18px; display: grid; place-items: center; }
+.node { position: absolute; width: 150px; height: 150px; border-radius: 50%; background: #fff; border: 6px solid var(--line); display: grid; place-items: center; color: var(--accent); box-shadow: 0 16px 40px rgba(30, 42, 59, .12); }
+.node svg { width: 76px; height: 76px; }
+.nlabel { position: absolute; width: 330px; text-align: center; font-weight: 800; font-size: 32px; color: var(--ink); }
+.seg { position: absolute; height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; }
+.seg i { position: absolute; inset: 0; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); display: block; }
+.toggle { position: absolute; width: 240px; height: 120px; border-radius: 60px; background: #c9d6e4; }
+.toggle i { position: absolute; left: 10px; top: 10px; width: 100px; height: 100px; border-radius: 50%; background: #fff; box-shadow: 0 6px 16px rgba(0, 0, 0, .2); display: block; }
+.big { position: absolute; border-radius: 40px; background: #fff; box-shadow: 0 24px 60px rgba(30, 42, 59, .16); display: grid; place-items: center; }
+.codechip { position: absolute; background: var(--term); color: #d6e3f2; border-radius: 22px; padding: 22px 34px; font-family: 'Cascadia Mono', Consolas, monospace; font-size: 34px; box-shadow: 0 20px 50px rgba(20, 32, 46, .3); white-space: nowrap; }
+.codechip .pr { color: #f6b800; }
+.codechip .ok { color: #5fd49a; }
+.mask { display: inline-block; overflow: hidden; vertical-align: top; padding: .16em .06em .3em; margin: -.16em 0 -.3em; }
+.mask > span { display: inline-block; }
+.bar { position: absolute; height: 18px; border-radius: 9px; background: #1d2c3f; overflow: hidden; }
+.bar i { position: absolute; inset: 0; background: #5fd49a; transform-origin: 0 50%; transform: scaleX(0); display: block; }
