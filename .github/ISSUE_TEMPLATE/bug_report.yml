@@ -1,50 +1,52 @@
-name: Bug report
-description: Something failed or produced a wrong result
+name: Báo lỗi / Bug report
+description: Có gì đó hỏng hoặc cho kết quả sai / Something failed or produced a wrong result
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
+        Cảm ơn bạn đã dành thời gian. Dự án này là điểm khởi đầu để mỗi người tinh chỉnh, nên nhiều vấn đề nằm ở môi trường; chi tiết càng chính xác càng nhanh có lời giải. Xin đừng đính kèm cảnh quay bạn không có quyền chia sẻ.
+
         Thanks for taking the time. This project is a starting point that people tune, so many problems are about the environment. The more exact the details, the faster it is solved. Please do not attach footage you do not have the right to share.
   - type: dropdown
     id: where
     attributes:
-      label: Where did you run the skill?
-      options: [Claude Code, Antigravity CLI, Claude desktop or web, Other agent]
+      label: Bạn chạy skill ở đâu? / Where did you run the skill?
+      options: [Claude Code, Antigravity CLI, Claude desktop hoặc web / Claude desktop or web, Khác / Other]
     validations:
       required: true
   - type: input
     id: version
     attributes:
-      label: Version (release tag or commit)
+      label: Phiên bản (thẻ phát hành hoặc commit) / Version (release tag or commit)
       placeholder: v1.0.0
     validations:
       required: true
   - type: input
     id: system
     attributes:
-      label: Operating system, Node version, FFmpeg version
+      label: Hệ điều hành, phiên bản Node, phiên bản FFmpeg / OS, Node version, FFmpeg version
       placeholder: Windows 11, Node 24, ffmpeg 7.1
     validations:
       required: true
   - type: textarea
     id: what
     attributes:
-      label: What happened, and what did you expect?
+      label: Điều gì xảy ra, và bạn mong đợi gì? / What happened, and what did you expect?
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Steps to reproduce
-      description: The command that failed, the video length and language, the style you chose.
+      label: Các bước tái hiện / Steps to reproduce
+      description: Lệnh bị lỗi, độ dài và ngôn ngữ video, phong cách đã chọn. / The command that failed, the video length and language, the style you chose.
   - type: textarea
     id: selftest
     attributes:
-      label: Output of `node selftest.mjs` (the last 30 lines are enough)
+      label: Kết quả của `node selftest.mjs` (30 dòng cuối là đủ) / Output of `node selftest.mjs` (last 30 lines)
       render: text
   - type: textarea
     id: logs
     attributes:
-      label: Error output or audit report
+      label: Thông báo lỗi hoặc báo cáo kiểm toán / Error output or audit report
       render: text

@@ -1,73 +1,73 @@
-# Customize the skill
+# Tinh chỉnh skill
 
-[English](CUSTOMIZE.md) | [Tiếng Việt](CUSTOMIZE.vi.md)
+[Tiếng Việt](CUSTOMIZE.md) | [English](CUSTOMIZE.en.md)
 
-The skill was shaped around one maintainer's footage, language and taste. Yours will differ, so expect to tune it. Almost everything you would want to change is **data**, not code, and the instructions are plain Markdown. This page is a map of the knobs, from the cheapest change to the deepest.
+Skill được nặn theo cảnh quay, ngôn ngữ và gu của một người duy trì. Của bạn sẽ khác, nên hãy chuẩn bị tinh chỉnh. Gần như mọi thứ bạn muốn đổi là **dữ liệu**, không phải mã, và hướng dẫn là Markdown thường. Trang này là bản đồ các núm vặn, từ thay đổi rẻ nhất đến sâu nhất.
 
-Golden rule: **change one thing, then run `node selftest.mjs`** (and `node effects-selftest.mjs` if you touched effects). If the self-test still ends with every line `ok`, the change is safe to keep.
+Quy tắc vàng: **đổi một thứ, rồi chạy `node selftest.mjs`** (và `node effects-selftest.mjs` nếu đụng hiệu ứng). Nếu self-test vẫn kết thúc với mọi dòng `ok`, thay đổi đó giữ được.
 
-Work on a copy. After you unzip the skill, either edit it in place and keep your own git history, or point the skill at your own files with environment variables (`NVE_STYLES`, `NVE_EFFECTS`) so that updating the skill never overwrites your edits.
+Hãy làm trên bản sao. Sau khi giải nén skill, bạn có thể sửa trực tiếp và giữ lịch sử git riêng, hoặc trỏ skill tới tệp của bạn bằng biến môi trường (`NVE_STYLES`, `NVE_EFFECTS`) để cập nhật skill không bao giờ ghi đè bản sửa của bạn.
 
-## 1. Per video, no file edits at all
+## 1. Theo từng video, không cần sửa tệp nào
 
-The plan file `work/edit-plan.json` overrides almost everything for a single video: the caption preset (`captions.preset`), size and vertical position (`sizeRatio`, `yRatio`), cutaway presentation and queries, stickers, cards, effects (`effects`, or `--look id,id` on `plan-skeleton`), lower thirds. Ask your assistant to change the plan, or open `node edit-plan-ui.mjs --work work`, a local page for editing captions, images, stickers and cards directly, with a preview frame.
+Tệp kế hoạch `work/edit-plan.json` ghi đè gần như mọi thứ cho một video: preset caption (`captions.preset`), cỡ và vị trí dọc (`sizeRatio`, `yRatio`), kiểu trình bày và truy vấn cutaway, sticker, thẻ, hiệu ứng (`effects`, hoặc `--look id,id` ở `plan-skeleton`), lower third. Nhờ trợ lý sửa kế hoạch, hoặc mở `node edit-plan-ui.mjs --work work`: trang cục bộ để sửa trực tiếp caption, ảnh, sticker, thẻ kèm khung xem thử.
 
-## 2. Look and feel: `data/styles.json`
+## 2. Diện mạo: `data/styles.json`
 
-Three styles (`hype`, `explainer`, `documentary`). Each defines:
+Ba phong cách (`hype`, `explainer`, `documentary`). Mỗi phong cách định nghĩa:
 
-| Field | What it controls |
+| Trường | Điều khiển |
 | --- | --- |
-| `colors` (`ink`, `stroke`, `accent`, `accent2`, `panel`) | caption, sticker and card colors. Keep text-to-background contrast at 4.5:1 or better; the audit checks it |
-| `fonts` | font stacks. Only fonts installed on the render machine or bundled in `templates/fonts` work |
-| `captions` | preset (`bold`, `kinetic`, `pill`, `marker`, `minimal`, `editorial`), `maxWords` per line, `sizeRatio`, `uppercase`, `yRatio` |
-| `minPauseToCut`, `maxPauseToCut`, `punch`, `brollMaxShare` | how aggressively pauses are trimmed, zoom on emphasis, how much of the video B-roll may cover |
-| `cutaway`, `showcase.sequence`, `showcase.entrances` | B-roll length and the rotation of card, polaroid, pip, stack, sticker, peek |
-| `decor`, `emoji`, `transitions`, `sfx` | density and allowed kinds of stickers and emoji, transitions, sound effects |
-| `banned` | rules that `plan-lint` and `audit-edit` enforce. Add your own house rules here |
+| `colors` (`ink`, `stroke`, `accent`, `accent2`, `panel`) | màu caption, sticker, thẻ. Giữ tương phản chữ và nền từ 4,5:1; bước kiểm toán có đo |
+| `fonts` | chuỗi phông. Chỉ phông cài trên máy dựng hoặc kèm trong `templates/fonts` mới dùng được |
+| `captions` | preset (`bold`, `kinetic`, `pill`, `marker`, `minimal`, `editorial`), `maxWords` mỗi dòng, `sizeRatio`, `uppercase`, `yRatio` |
+| `minPauseToCut`, `maxPauseToCut`, `punch`, `brollMaxShare` | mức cắt khoảng ngắt, zoom nhấn, phần video tối đa B-roll được phủ |
+| `cutaway`, `showcase.sequence`, `showcase.entrances` | độ dài B-roll và vòng luân phiên card, polaroid, pip, stack, sticker, peek |
+| `decor`, `emoji`, `transitions`, `sfx` | mật độ và loại sticker, emoji được phép, chuyển cảnh, hiệu ứng âm thanh |
+| `banned` | quy tắc `plan-lint` và `audit-edit` thực thi. Thêm luật riêng của bạn ở đây |
 
-To add a style, copy one block, rename it, and use it with `plan-skeleton.mjs --style yourname`. To keep your edits outside the skill folder: copy `styles.json` somewhere and set `NVE_STYLES` to its path.
+Muốn thêm phong cách: chép một khối, đổi tên, dùng với `plan-skeleton.mjs --style tênbạn`. Muốn giữ bản sửa ngoài thư mục skill: chép `styles.json` ra nơi khác và đặt `NVE_STYLES` tới đường dẫn đó.
 
-New caption look: presets live in `templates/overlay.js` (`PRESETS`). Add an entry, give it a font that is bundled, set the style's `captions.preset` to it, and view the result with `render-overlay.mjs --times 1,4`.
+Kiểu caption mới: các preset nằm ở `templates/overlay.js` (`PRESETS`). Thêm một mục, cho nó một phông đã kèm sẵn, đặt `captions.preset` của phong cách thành tên đó, rồi xem kết quả bằng `render-overlay.mjs --times 1,4`.
 
-## 3. Brand colors and fonts
+## 3. Màu và phông thương hiệu
 
-Edit `colors` and `fonts` in your style (section 2). To add a font, put the `.ttf` in `templates/fonts/` **together with its license text**, reference it from `templates/overlay.html` or `overlay.js`, and add a line to `CREDITS.md` if you redistribute. Prefer open-licensed fonts with the Vietnamese character set if you caption Vietnamese.
+Sửa `colors` và `fonts` trong phong cách của bạn (mục 2). Thêm phông: đặt tệp `.ttf` vào `templates/fonts/` **cùng văn bản giấy phép của nó**, tham chiếu từ `templates/overlay.html` hoặc `overlay.js`, và thêm một dòng vào `CREDITS.md` nếu bạn phân phối lại. Ưu tiên phông giấy phép mở có bộ ký tự tiếng Việt nếu bạn làm caption tiếng Việt.
 
-## 4. Effects: `data/effects/*.json`
+## 4. Hiệu ứng: `data/effects/*.json`
 
-190 effects in 11 families: `camera`, `transition`, `time`, `color`, `retro`, `glitch`, `text`, `graphic`, `layout`, `subject` and `audio` (17 sound effects). An effect is a JSON entry with an FFmpeg recipe that has named blanks; the small language is described in `data/effects/_dsl.json`. The effect budget per style (how many per minute, how many strong ones, minimum gap) is `data/effects-rules.json`.
+190 hiệu ứng, 11 họ: `camera`, `transition`, `time`, `color`, `retro`, `glitch`, `text`, `graphic`, `layout`, `subject` và `audio` (17 hiệu ứng âm thanh). Một hiệu ứng là một mục JSON chứa công thức FFmpeg có chỗ trống đặt tên; ngôn ngữ nhỏ này mô tả ở `data/effects/_dsl.json`. Ngân sách hiệu ứng cho từng phong cách (bao nhiêu cái mỗi phút, bao nhiêu cái mạnh, khoảng cách tối thiểu) nằm ở `data/effects-rules.json`.
 
-To add one: write the entry, then run
+Thêm một hiệu ứng: viết mục JSON, rồi chạy
 
 ```bash
-node effects-selftest.mjs --id your-effect --sheet
+node effects-selftest.mjs --id hieu-ung-cua-ban --sheet
 ```
 
-It runs the effect for real and measures it (frames outside the window stay identical, frames inside change, no black corners, flicker under three per second) and builds a contact sheet. **Passing the measurement does not mean it looks good: always open the sheet and look.** Pitfalls collected the hard way are in `references/12-effects.md`. Set `NVE_EFFECTS` to use your own effects folder.
+Lệnh chạy hiệu ứng thật và đo (khung ngoài cửa sổ giữ nguyên, khung trong đổi, không lộ góc đen, chớp sáng dưới ba lần mỗi giây) rồi dựng bảng ảnh. **Đạt phép đo chưa chắc đẹp: luôn mở bảng ảnh ra xem.** Các bẫy đã gặp nằm ở `references/12-effects.md`. Đặt `NVE_EFFECTS` để dùng thư mục hiệu ứng riêng.
 
-## 5. Decor and word triggers: `data/decor-keywords.json`
+## 5. Decor và từ khóa: `data/decor-keywords.json`
 
-Maps spoken words to icons, sparkles, confetti and to the English scene concept used to search images. It is how the skill decides that someone saying "growth" gets an upward-arrow icon. **This table is the main thing to extend for another language**: add the words people say in your language under `concepts` (word to English scene description) and `icons`.
+Ánh xạ từ được nói sang icon, lấp lánh, pháo giấy, và sang khái niệm cảnh tiếng Anh dùng để tìm ảnh. Đó là cách skill quyết định người nói "tăng trưởng" thì hiện icon mũi tên đi lên. **Bảng này là thứ chính cần mở rộng khi dùng ngôn ngữ khác**: thêm các từ người ta nói bằng ngôn ngữ của bạn vào `concepts` (từ sang mô tả cảnh tiếng Anh) và `icons`.
 
-`data/emoji-map.json` maps words to the bundled emoji; `data/noto-lottie.json` maps those to animated Noto Emoji; `data/brands.json` lists the 26 brand logos shown when a brand is named (only when spoken).
+`data/emoji-map.json` ánh xạ từ sang emoji kèm sẵn; `data/noto-lottie.json` ánh xạ chúng sang Noto Emoji động; `data/brands.json` liệt kê 26 logo thương hiệu hiện khi thương hiệu được nhắc tên (chỉ khi được nói ra).
 
-## 6. Where images come from
+## 6. Ảnh lấy từ đâu
 
-- **Your own folder first:** `resolve-assets.mjs --user-assets <dir>`. Files named after a cutaway id (`c03.jpg`) or containing its words are used before any search.
-- **Add a public source without code:** add a `jsonApi` entry to `data/asset-sources.json` (URL with `{query}`, a path to the result array, a field map, optional fixed license). Test with `--sources your-id --dry` and check `candidates.json`. Details: `references/04-assets-licenses.md`.
-- **Licenses accepted:** CC0, public domain and CC BY. Do not widen this list unless you have read the terms; the skill refuses NC, ND, BY-SA and unknown licenses on purpose, because they can contaminate or forbid your video.
+- **Thư mục của bạn trước:** `resolve-assets.mjs --user-assets <thư mục>`. Tệp đặt tên theo id cutaway (`c03.jpg`) hoặc chứa từ của nó được dùng trước mọi lượt tìm.
+- **Thêm nguồn công khai không cần mã:** thêm mục `jsonApi` vào `data/asset-sources.json` (URL có `{query}`, đường tới mảng kết quả, bản đồ trường, giấy phép cố định nếu có). Thử bằng `--sources id-của-bạn --dry` và xem `candidates.json`. Chi tiết: `references/04-assets-licenses.md`.
+- **Giấy phép được nhận:** CC0, miền công cộng và CC BY. Đừng nới danh sách này khi chưa đọc điều khoản; skill từ chối NC, ND, BY-SA và giấy phép không rõ có chủ ý, vì chúng có thể lây sang hoặc cấm video của bạn.
 
-## 7. The instructions themselves
+## 7. Bản thân hướng dẫn
 
-`SKILL.md` is the entry point the assistant reads; `references/*.md` are loaded when a step calls for them. They are written in **Vietnamese**. To change behavior (which questions are asked, which gates exist, how the report reads) edit these files. Keep `SKILL.md` under 500 lines and the front-matter `description` short and specific (under 400 characters keeps it visible to Antigravity CLI). If you translate them to English, please send a pull request.
+`SKILL.md` là điểm vào trợ lý đọc; `references/*.md` được nạp khi một bước cần. Chúng viết bằng **tiếng Việt**. Muốn đổi hành vi (hỏi câu nào, có những cổng nào, báo cáo viết ra sao) hãy sửa các tệp này. Giữ `SKILL.md` dưới 500 dòng và `description` trong frontmatter ngắn, cụ thể (dưới 400 ký tự để Antigravity CLI còn thấy). Nếu bạn dịch sang tiếng Anh, xin gửi pull request.
 
-The three user gates and the hard rules at the top of `SKILL.md` exist so the assistant cannot silently download unlicensed material or invent text. Loosen them only if you accept those risks.
+Ba cổng người dùng và các quy tắc cứng ở đầu `SKILL.md` tồn tại để trợ lý không thể lặng lẽ tải tài nguyên không phép hay bịa chữ. Chỉ nới khi bạn chấp nhận các rủi ro đó.
 
-## 8. Pipeline code
+## 8. Mã đường ống
 
-`scripts/*.mjs` and the Python helpers are ordinary, commented code. `common.mjs` holds shared helpers, `plan-lib.mjs` the plan schema and rules, `fx-lib.mjs` the effects interpreter, `compose-base.mjs` and `render-overlay.mjs` the two layers. When you change code, extend `selftest.mjs` with a check that fails before your change and passes after.
+`scripts/*.mjs` và các trợ giúp Python là mã bình thường, có chú thích. `common.mjs` giữ các hàm dùng chung, `plan-lib.mjs` giữ lược đồ và quy tắc kế hoạch, `fx-lib.mjs` là bộ thông dịch hiệu ứng, `compose-base.mjs` và `render-overlay.mjs` là hai lớp. Khi đổi mã, hãy thêm vào `selftest.mjs` một phép kiểm trượt trước thay đổi và đạt sau thay đổi.
 
-## Before you share your fork
+## Trước khi chia sẻ bản fork
 
-Keep the license texts that sit next to bundled files, keep `CREDITS.md` and `NOTICE` accurate for anything you add, and remember that the skill's rules about image licenses are there to protect the people who use your videos.
+Giữ nguyên các văn bản giấy phép nằm cạnh tệp kèm theo, giữ `CREDITS.md` và `NOTICE` chính xác cho mọi thứ bạn thêm, và nhớ rằng quy tắc về giấy phép ảnh của skill có đó để bảo vệ những người dùng video của bạn.

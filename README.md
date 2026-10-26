@@ -1,138 +1,138 @@
 <p align="center">
-  <img src="docs/media/banner.gif" alt="narrated-video-edit: captions, B-roll, stickers, effects and an independent audit, built from your own voice" width="100%">
+  <img src="docs/media/banner.gif" alt="narrated-video-edit: caption, B-roll, sticker, hiệu ứng và kiểm toán độc lập, dựng từ chính giọng nói của bạn" width="100%">
 </p>
 
 <h1 align="center">narrated-video-edit</h1>
 
 <p align="center">
-  An agent skill that turns a clip with a voice in it into a designer-style social video.<br>
-  Local transcription, per-word captions, licensed B-roll, stickers, 190 effects, an independent audit.
+  Skill cho trợ lý AI: biến một clip có giọng nói thành video social kiểu editor thiết kế.<br>
+  Phiên âm cục bộ, caption từng từ, B-roll có giấy phép, sticker, 190 hiệu ứng, kiểm toán độc lập.
 </p>
 
 <p align="center">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="../../releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Le-Ngoc-Tu/narrated-video-edit?display_name=tag"></a>
-  <a href="https://agentskills.io/specification"><img alt="Agent Skills format" src="https://img.shields.io/badge/format-Agent%20Skills-8A63D2.svg"></a>
-  <img alt="Tested on Windows 11" src="https://img.shields.io/badge/tested%20on-Windows%2011-informational.svg">
+  <a href="LICENSE"><img alt="Giấy phép: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <a href="../../releases/latest"><img alt="Bản phát hành mới nhất" src="https://img.shields.io/github/v/release/Le-Ngoc-Tu/narrated-video-edit?display_name=tag"></a>
+  <a href="https://agentskills.io/specification"><img alt="Định dạng Agent Skills" src="https://img.shields.io/badge/format-Agent%20Skills-8A63D2.svg"></a>
+  <img alt="Đã thử trên Windows 11" src="https://img.shields.io/badge/tested%20on-Windows%2011-informational.svg">
 </p>
 
 <p align="center">
-  <b>English</b> | <a href="README.vi.md">Tiếng Việt</a>
+  <b>Tiếng Việt</b> | <a href="README.en.md">English</a>
 </p>
 
 ---
 
-## Read this first
+## Đọc trước khi dùng
 
-This is a **starting point, not a finished product, and it is not guaranteed to work on the first try.** It chains many tools (FFmpeg, Chrome, Python models, public image APIs) and the machine, the footage and the language you bring will all differ from the ones it was developed on. Expect to run the self-test, read an error or two, and adjust.
+Đây là **điểm khởi đầu, không phải sản phẩm hoàn chỉnh, và không bảo đảm chạy được ngay lần đầu.** Nó nối nhiều công cụ (FFmpeg, Chrome, mô hình Python, API ảnh công khai), còn máy, video và ngôn ngữ của bạn sẽ khác máy nơi nó được phát triển. Hãy chuẩn bị chạy self-test, đọc một hai thông báo lỗi và chỉnh lại.
 
-That is by design. The skill is plain files: Markdown instructions, JSON data tables and small Node scripts. Take it home and **tune it to your own needs**: change the caption styles, the effect budget, the fonts and colors, the asset sources, the questions it asks. [docs/CUSTOMIZE.md](docs/CUSTOMIZE.md) shows where each knob lives.
+Điều đó là chủ ý. Skill chỉ là tệp thường: hướng dẫn Markdown, bảng dữ liệu JSON và vài script Node nhỏ. Hãy mang về và **tinh chỉnh theo nhu cầu của bạn**: đổi kiểu caption, ngân sách hiệu ứng, phông và màu, nguồn tài nguyên, các câu nó hỏi. [docs/CUSTOMIZE.md](docs/CUSTOMIZE.md) chỉ chỗ từng núm vặn nằm ở đâu.
 
-It was developed and tested on **Windows 11**. macOS and Linux have not been tried.
+Skill được phát triển và thử trên **Windows 11**. macOS và Linux chưa thử.
 
-## Watch
+## Xem
 
-| | English | Tiếng Việt |
+| | Tiếng Việt | English |
 | --- | --- | --- |
-| **What it makes** (showreel, 30 s, with music) | [Watch](docs/media/showreel-en.mp4) | [Xem](docs/media/showreel-vi.mp4) |
-| **Add it to Claude in three steps** (tutorial, 45 s, with music) | [Watch](docs/media/install-guide-en.mp4) | [Xem](docs/media/install-guide-vi.mp4) |
+| **Nó làm ra gì** (showreel 30 giây, có nhạc) | [Xem](docs/media/showreel-vi.mp4) | [Watch](docs/media/showreel-en.mp4) |
+| **Thêm vào Claude trong ba bước** (hướng dẫn 45 giây, có nhạc) | [Xem](docs/media/install-guide-vi.mp4) | [Watch](docs/media/install-guide-en.mp4) |
 
-[![Install guide: add the skill to Claude](docs/media/install-guide-en.jpg)](docs/media/install-guide-en.mp4)
+[![Hướng dẫn cài: thêm skill vào Claude](docs/media/install-guide-vi.jpg)](docs/media/install-guide-vi.mp4)
 
-## What it does
+## Skill làm được gì
 
-You give it a video with someone speaking, or a voice-over. It produces a vertical (9:16) or horizontal video with:
+Bạn đưa một video có người nói hoặc giọng đọc. Skill trả về video dọc (9:16) hoặc ngang với:
 
-- **Word-by-word captions** that highlight the word being spoken, in six presets (`bold`, `kinetic`, `pill`, `marker`, `minimal`, `editorial`). Fonts with Vietnamese diacritics are bundled.
-- **B-roll that matches what is said**, shown as designed objects (card, polaroid, picture-in-picture, sticker, peek, stack) over a speaker who keeps moving. Images come only from sources with a license the skill accepts (CC0, public domain, CC BY), and every file gets a credit line.
-- **Stickers, animated emoji, number cards, lower thirds, zoom on emphasis, sound effects**, chosen from the words actually spoken. Numbers on screen must appear in the speech; nothing is invented.
-- **A library of 190 effects in 11 families**, each one run and measured by `effects-selftest.mjs` (outside the effect window the frame must stay identical, inside it must change, no black corners, no more than three flashes per second).
-- **Face-aware layouts**: a face detector keeps cards off the speaker; `--layout follow` crops 9:16 around the face; text can sit *behind* the speaker through person segmentation.
-- **Loudness normalised to -14 LUFS**, an `.srt` file and an `out.credits.txt` to paste into the video description.
-- **An independent audit** that re-transcribes the finished audio, checks caption coverage and timing, flicker, safe zones and overlay completeness, and exits non-zero if something is wrong.
+- **Caption từng từ** nhấn từ đang được nói, sáu preset (`bold`, `kinetic`, `pill`, `marker`, `minimal`, `editorial`). Có sẵn phông hỗ trợ dấu tiếng Việt.
+- **B-roll khớp lời nói**, hiện như vật thể thiết kế (thẻ, polaroid, hình trong hình, sticker, thẻ ló, chồng thẻ) đè lên người nói vẫn chạy liên tục. Ảnh chỉ lấy từ nguồn có giấy phép skill chấp nhận (CC0, miền công cộng, CC BY), và mỗi tệp có một dòng ghi công.
+- **Sticker, emoji động, thẻ số liệu, lower third, zoom nhấn, hiệu ứng âm thanh**, chọn theo đúng lời đã nói. Số trên màn hình phải có trong lời nói; không bịa gì.
+- **Thư viện 190 hiệu ứng, 11 họ**, từng cái được `effects-selftest.mjs` chạy thật và đo (ngoài cửa sổ hiệu ứng khung phải giữ nguyên, trong cửa sổ phải đổi, không lộ góc đen, không quá ba lần chớp sáng mỗi giây).
+- **Bố cục nhận biết khuôn mặt**: bộ dò mặt giữ thẻ ra khỏi người nói; `--layout follow` cắt 9:16 bám theo mặt; chữ có thể nằm *sau* người nói nhờ tách người.
+- **Độ to chuẩn hóa -14 LUFS**, tệp `.srt` và `out.credits.txt` để dán vào mô tả video.
+- **Kiểm toán độc lập**: phiên âm lại âm thanh thành phẩm, kiểm độ phủ và thời điểm caption, chớp sáng, vùng an toàn, lớp phủ có đủ khung; thoát mã khác 0 nếu có gì sai.
 
-Everything runs on your machine except the image search, which sends short English keywords taken from your speech to public APIs. The skill tells you this before it does it. Your video and audio are never uploaded.
+Mọi thứ chạy trên máy bạn, trừ bước tìm ảnh: bước này gửi vài từ khóa tiếng Anh rút từ lời nói tới các API công khai. Skill báo bạn điều này trước khi làm. Video và âm thanh của bạn không bao giờ được tải lên.
 
-## How it works
+## Cách hoạt động
 
-| Stage | What happens | You decide |
+| Giai đoạn | Việc xảy ra | Bạn quyết định |
 | --- | --- | --- |
-| 1. Intake and analysis | up to four questions with defaults; local transcription with `faster-whisper`; face, pause and shot detection | language, platform, style |
-| 2. Plan | a skeleton plan (cuts, zooms, stickers, cards, B-roll queries, effects) is written and linted | **Gate 1:** you approve a storyboard image with timestamps |
-| 3. Assets | licensed images are searched, downloaded and recorded in `credits.json` | **Gate 2:** you approve a contact sheet of the chosen images |
-| 4. Build | FFmpeg builds the base layer; headless Chrome renders a transparent overlay; both are merged | |
-| 5. Audit and delivery | independent measurements; the assistant must look at the result sheet | **Gate 3:** you get the video, subtitles and credits |
+| 1. Hỏi và phân tích | tối đa bốn câu hỏi kèm mặc định; phiên âm cục bộ bằng `faster-whisper`; dò mặt, khoảng ngắt, đổi cảnh | ngôn ngữ, nền tảng, phong cách |
+| 2. Lập kế hoạch | viết và kiểm bộ khung kế hoạch (cắt, zoom, sticker, thẻ, truy vấn B-roll, hiệu ứng) | **Cổng 1:** bạn duyệt ảnh storyboard có mốc giờ |
+| 3. Tài nguyên | tìm, tải ảnh có giấy phép và ghi vào `credits.json` | **Cổng 2:** bạn duyệt ảnh tổng hợp các hình đã chọn |
+| 4. Dựng | FFmpeg dựng lớp nền; Chrome không giao diện dựng lớp phủ trong suốt; ghép hai lớp | |
+| 5. Kiểm toán và giao | đo độc lập; trợ lý phải xem ảnh kết quả | **Cổng 3:** bạn nhận video, phụ đề và ghi công |
 
-The three gates are mandatory: the assistant stops and asks. Only if you say "quick" or "choose for me" does it continue, and then it writes its assumptions into the report.
+Ba cổng là bắt buộc: trợ lý dừng lại và hỏi. Chỉ khi bạn nói "nhanh" hoặc "tự chọn giúp tôi" nó mới đi tiếp, và khi đó phải ghi giả định vào báo cáo.
 
-Three styles ship with the skill: `hype` (short, loud, 15 to 60 s), `explainer` (clean, 30 to 120 s) and `documentary` (calm, 60 to 180 s). Details are in [`references/`](skills/narrated-video-edit/references/).
+Skill có ba phong cách: `hype` (ngắn, mạnh, 15 đến 60 giây), `explainer` (sạch, 30 đến 120 giây) và `documentary` (êm, 60 đến 180 giây). Chi tiết ở [`references/`](skills/narrated-video-edit/references/).
 
-## Install
+## Cài đặt
 
-Full steps, with troubleshooting: **[docs/INSTALL.md](docs/INSTALL.md)**. In short:
+Các bước đầy đủ kèm xử lý lỗi: **[docs/INSTALL.md](docs/INSTALL.md)**. Tóm tắt:
 
-1. Download `narrated-video-edit-v1.0.0.zip` from the [latest release](../../releases/latest).
-2. Add it where your assistant looks for skills:
-   - **Claude (claude.ai or the desktop app):** open your account menu, then *Settings* (shown as *Customize*, then *Skills*, in some versions), then *Add*, then *Upload skill*, and drop the zip. Turn the skill on.
-   - **Claude Code:** unzip into `~/.claude/skills/` so that `~/.claude/skills/narrated-video-edit/SKILL.md` exists, or into `.claude/skills/` inside a project.
-   - **Antigravity CLI and other Agent Skills clients:** copy the `narrated-video-edit` folder into that client's skills folder.
-3. Prepare the machine once (the skill cannot do this for you inside a chat sandbox):
+1. Tải `narrated-video-edit-v1.0.0.zip` ở [bản phát hành mới nhất](../../releases/latest).
+2. Thêm vào nơi trợ lý của bạn tìm skill:
+   - **Claude (claude.ai hoặc ứng dụng máy tính):** mở menu tài khoản, chọn *Cài đặt* (ở một số phiên bản là *Customize*, rồi *Skills*), chọn *Thêm*, chọn *Tải Skill lên*, thả tệp zip vào. Bật skill.
+   - **Claude Code:** giải nén vào `~/.claude/skills/` sao cho có `~/.claude/skills/narrated-video-edit/SKILL.md`, hoặc vào `.claude/skills/` trong một dự án.
+   - **Antigravity CLI và các ứng dụng khách Agent Skills khác:** chép thư mục `narrated-video-edit` vào thư mục skill của ứng dụng đó.
+3. Chuẩn bị máy một lần (skill không tự làm được việc này bên trong sandbox của một cuộc chat):
 
    ```bash
    cd narrated-video-edit/scripts
    npm install
-   node setup.mjs          # checks Node, ffmpeg, Chrome; creates an isolated Python .venv
-   node selftest.mjs       # 68 checks on synthetic data; a few minutes, longer the first time (model download)
+   node setup.mjs          # kiểm Node, ffmpeg, Chrome; tạo .venv Python riêng
+   node selftest.mjs       # 68 kiểm tra bằng dữ liệu tổng hợp; vài phút, lâu hơn ở lần đầu (tải mô hình)
    ```
 
-4. Ask your assistant: *"Use narrated-video-edit on ~/Videos/talk.mp4 for Reels, English, explainer style."*
+4. Nhờ trợ lý: *"Dùng narrated-video-edit dựng video ~/Videos/talk.mp4 cho Reels, tiếng Việt, phong cách explainer."*
 
-### Requirements
+### Yêu cầu
 
-| Needs | Why |
+| Cần | Để làm gì |
 | --- | --- |
-| Node.js 20 or newer | every script |
-| `ffmpeg` and `ffprobe` on `PATH` | cutting, effects, loudness, encoding |
-| Google Chrome (or set `CHROME_PATH`) | renders the overlay layer |
-| Python 3.11 or newer (or `uv`) | isolated `.venv` with `faster-whisper` and `opencv-python-headless` |
-| About 3 GB of disk for the first run | the Whisper `large-v3` model is downloaded once |
-| A GPU (optional) | faster transcription; the CPU path works |
+| Node.js 20 trở lên | mọi script |
+| `ffmpeg` và `ffprobe` trong `PATH` | cắt, hiệu ứng, độ to, xuất video |
+| Google Chrome (hoặc đặt `CHROME_PATH`) | dựng lớp phủ |
+| Python 3.11 trở lên (hoặc `uv`) | `.venv` riêng có `faster-whisper` và `opencv-python-headless` |
+| Khoảng 3 GB đĩa cho lần chạy đầu | mô hình Whisper `large-v3` tải một lần |
+| GPU (tùy chọn) | phiên âm nhanh hơn; CPU vẫn chạy được |
 
-> **Where it can run.** The skill must run commands and open Chrome on a machine you control. It has been used with **Claude Code** and **Antigravity CLI**. In a plain claude.ai chat or the desktop app the skill uploads and loads, but whether its tools can run depends on what the code-execution sandbox offers (Chrome, FFmpeg, a model download, network access). That path has not been tested.
+> **Chạy được ở đâu.** Skill phải chạy lệnh và mở Chrome trên một máy bạn kiểm soát. Nó đã được dùng với **Claude Code** và **Antigravity CLI**. Trong một cuộc chat claude.ai thường hoặc ứng dụng máy tính, skill tải lên và nạp được, nhưng công cụ của nó có chạy nổi hay không còn tùy sandbox thực thi mã có gì (Chrome, FFmpeg, tải mô hình, truy cập mạng). Đường này chưa được thử.
 
-## Known limits
+## Giới hạn đã biết
 
-- Tested on Windows 11 only.
-- Vietnamese was tried on a real 13-minute vlog; English on synthetic narration. Other languages depend on Whisper and have not been tried.
-- No active-speaker detection when several faces are on screen.
-- On extreme close-ups the "text behind the speaker" effect is mostly hidden.
-- Public image sources are not commercial stock: expect thin results for abstract topics, and 480p clips from Wikimedia. The skill drops a B-roll slot instead of pasting a wrong image.
-- The skill's own instructions (`SKILL.md` and `references/`) are written in **Vietnamese**. The assistant talks to you in your language, but if you want to edit those instructions in English, you will be translating them. An English version is a good first contribution.
-- It does not download videos from YouTube, TikTok or Instagram, and refuses to. That is a rule, not a bug.
+- Chỉ thử trên Windows 11.
+- Tiếng Việt đã thử trên một vlog thật 13 phút; tiếng Anh thử trên giọng đọc tổng hợp. Ngôn ngữ khác phụ thuộc Whisper và chưa thử.
+- Chưa nhận biết ai đang nói khi có nhiều khuôn mặt trong khung.
+- Ở cận cảnh quá gần, hiệu ứng "chữ sau người nói" gần như bị che hết.
+- Kho ảnh công khai không phải stock thương mại: chủ đề trừu tượng thường ít kết quả, clip Wikimedia hay chỉ 480p. Skill bỏ ô B-roll thay vì dán ảnh sai.
+- Hướng dẫn của chính skill (`SKILL.md` và `references/`) viết bằng **tiếng Việt**, ngôn ngữ mặc định của dự án. Trợ lý vẫn nói chuyện với bạn bằng ngôn ngữ của bạn. Chưa có bản tiếng Anh của các hướng dẫn đó; đây là một đóng góp đầu tiên rất tốt.
+- Skill không tải video từ YouTube, TikTok hay Instagram và từ chối làm việc đó. Đó là quy tắc, không phải lỗi.
 
-## Repository layout
+## Cấu trúc kho
 
 ```
-skills/narrated-video-edit/   the skill itself (this folder is what the release zip contains)
-  SKILL.md                    entry point the assistant reads
-  references/                 12 guides: intake, planning, licenses, audit, pitfalls, effects...
-  data/                       styles, effects (JSON), brands, decor and asset sources
-  scripts/                    Node tools and Python helpers
-  templates/                  overlay page, fonts, emoji, models, vendored GSAP and lottie
-  fixtures/                   narration used by the self-test
-docs/                         install, customise, media, and the sources of the videos
-tools/                        validate-skill.mjs and build-release.mjs
-.github/                      issue and pull request templates, CI
+skills/narrated-video-edit/   bản thân skill (thư mục này chính là nội dung zip phát hành)
+  SKILL.md                    điểm vào để trợ lý đọc
+  references/                 12 tài liệu: đầu vào, kế hoạch, giấy phép, kiểm toán, bẫy, hiệu ứng...
+  data/                       phong cách, hiệu ứng (JSON), thương hiệu, nguồn decor và tài nguyên
+  scripts/                    công cụ Node và trợ giúp Python
+  templates/                  trang lớp phủ, phông, emoji, mô hình, GSAP và lottie kèm sẵn
+  fixtures/                   giọng đọc dùng cho self-test
+docs/                         cài đặt, tinh chỉnh, phương tiện và mã nguồn các video
+tools/                        validate-skill.mjs và build-release.mjs
+.github/                      mẫu issue và pull request
 ```
 
-## Credits and thanks
+## Ghi công và lời cảm ơn
 
-This project stands on FFmpeg, OpenAI Whisper, faster-whisper, OpenCV and YuNet, MediaPipe, Playwright, GSAP, lottie-web, Noto Emoji, Fluent Emoji, Iconify, five open-licensed typefaces, public image collections from Wikimedia, Openverse, NASA and the Cleveland Museum of Art, and the work of creators who teach editing in public. **Names, licenses and exactly what each is used for are in [CREDITS.md](CREDITS.md)**; license texts of bundled files are next to the files, and a summary is in [NOTICE](NOTICE). Background music in the videos: "Music Promotion" by MiroMaxMusic on Pixabay.
+Dự án đứng trên vai FFmpeg, OpenAI Whisper, faster-whisper, OpenCV và YuNet, MediaPipe, Playwright, GSAP, lottie-web, Noto Emoji, Fluent Emoji, Iconify, năm bộ phông giấy phép mở, các kho ảnh công khai của Wikimedia, Openverse, NASA và Bảo tàng Nghệ thuật Cleveland, cùng công sức của những người dạy dựng video công khai. **Tên, giấy phép và đúng việc mỗi nguồn được dùng vào nằm ở [CREDITS.md](CREDITS.md)**; văn bản giấy phép của tệp kèm theo nằm cạnh tệp, bản tóm tắt ở [NOTICE](NOTICE). Nhạc nền trong video: "Music Promotion" của MiroMaxMusic trên Pixabay.
 
-## Contributing, security, license
+## Đóng góp, bảo mật, giấy phép
 
-Pull requests are welcome, especially: an English translation of the skill instructions, macOS and Linux fixes, new effects, new asset sources. See [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities as described in [SECURITY.md](SECURITY.md). Everyone taking part is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+Rất hoan nghênh pull request, đặc biệt: bản dịch tiếng Anh cho hướng dẫn của skill, sửa lỗi macOS và Linux, hiệu ứng mới, nguồn tài nguyên mới. Xem [CONTRIBUTING.md](CONTRIBUTING.md). Báo lỗ hổng bảo mật theo [SECURITY.md](SECURITY.md). Mọi người tham gia vui lòng tuân thủ [Quy tắc ứng xử](CODE_OF_CONDUCT.md).
 
-Released under the [MIT License](LICENSE). Third-party material keeps its own license (see [CREDITS.md](CREDITS.md)).
+Phát hành theo [Giấy phép MIT](LICENSE). Tài liệu bên thứ ba giữ giấy phép riêng (xem [CREDITS.md](CREDITS.md)).
 
-This project is independent. It is not affiliated with or endorsed by Anthropic, Google or any other company named in it.
+Dự án này độc lập, không liên kết hay được bảo trợ bởi Anthropic, Google hay bất kỳ công ty nào được nhắc tới.

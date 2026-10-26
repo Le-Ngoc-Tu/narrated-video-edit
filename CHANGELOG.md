@@ -1,27 +1,29 @@
-# Changelog
+# Nhật ký thay đổi
 
-All notable changes are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
+[Tiếng Việt](CHANGELOG.md) | [English](CHANGELOG.en.md)
+
+Mọi thay đổi đáng chú ý được ghi ở đây. Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/), đánh phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
 ## [1.0.0] - 2026-10-26
 
-First public release, split out of the Motion Atlas repository so that the skill can be installed on its own.
+Bản phát hành công khai đầu tiên, tách từ kho Motion Atlas để skill cài được riêng.
 
-### Added
+### Thêm
 
-- The `narrated-video-edit` agent skill: local word-by-word transcription (faster-whisper), face detection (YuNet), optional person segmentation (MediaPipe), per-word captions in six presets, B-roll from licensed sources (Wikimedia Commons, Openverse, NASA, Cleveland Museum of Art) shown as designed objects, stickers, animated emoji, number cards, lower thirds, 190 measured effects in 11 families, loudness normalisation to -14 LUFS, an independent audit, three mandatory user gates.
-- `tools/validate-skill.mjs` (frontmatter, references, JSON, syntax, secrets, license files) and `tools/build-release.mjs` (reproducible zip with the `narrated-video-edit/` folder at the top, as Claude requires).
-- English and Vietnamese documentation: README, installation, customisation, credits.
-- A showreel and a three-step tutorial video in English and Vietnamese, and an animated banner.
-- Community files: contributing guide, security policy, code of conduct, issue and pull request templates, CI.
+- Skill `narrated-video-edit`: phiên âm cục bộ từng từ (faster-whisper), dò mặt (YuNet), tách người tùy chọn (MediaPipe), caption từng từ với sáu preset, B-roll từ nguồn có giấy phép (Wikimedia Commons, Openverse, NASA, Cleveland Museum of Art) hiện như vật thể thiết kế, sticker, emoji động, thẻ số liệu, lower third, 190 hiệu ứng đã đo trong 11 họ, chuẩn hóa độ to -14 LUFS, kiểm toán độc lập, ba cổng người dùng bắt buộc.
+- `tools/validate-skill.mjs` (frontmatter, tệp được nhắc tới, JSON, cú pháp, khóa bí mật, tệp giấy phép) và `tools/build-release.mjs` (zip lặp lại được, thư mục `narrated-video-edit/` ở cấp trên cùng như Claude yêu cầu).
+- Tài liệu song ngữ, tiếng Việt là mặc định: README, cài đặt, tinh chỉnh, ghi công.
+- Showreel, video hướng dẫn thêm skill vào Claude và banner động, có bản tiếng Việt và tiếng Anh.
+- Tệp cộng đồng: hướng dẫn đóng góp, chính sách bảo mật, quy tắc ứng xử, mẫu issue và pull request. Kho cố ý không có CI; cách phát hành bằng tay nằm ở `CONTRIBUTING.md`.
 
-### Verified
+### Đã kiểm
 
-- `node selftest.mjs` passes 68 of 68 checks from a clean copy of `skills/narrated-video-edit` on Windows 11.
+- `node selftest.mjs` đạt 68/68 từ bản sao sạch của `skills/narrated-video-edit` trên Windows 11; `effects-selftest.mjs` đạt 190/190.
 
-### Known limits
+### Giới hạn đã biết
 
-- Tested on Windows 11 only. Vietnamese tried on a real 13-minute vlog, English on synthetic narration.
-- Skill instructions are written in Vietnamese. An English translation is welcome.
-- Whether the tools can run inside a plain claude.ai chat sandbox has not been tested.
+- Chỉ thử trên Windows 11. Tiếng Việt thử trên một vlog thật 13 phút, tiếng Anh trên giọng đọc tổng hợp.
+- Hướng dẫn của skill viết bằng tiếng Việt; chưa có bản tiếng Anh.
+- Chưa thử việc công cụ có chạy được trong sandbox của một cuộc chat claude.ai thường hay không.
 
 [1.0.0]: https://github.com/Le-Ngoc-Tu/narrated-video-edit/releases/tag/v1.0.0

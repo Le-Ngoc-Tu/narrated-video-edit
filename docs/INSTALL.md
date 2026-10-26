@@ -1,46 +1,46 @@
-# Installation
+# Cài đặt
 
-[English](INSTALL.md) | [Tiếng Việt](INSTALL.vi.md)
+[Tiếng Việt](INSTALL.md) | [English](INSTALL.en.md)
 
-Two things have to happen, and they are independent:
+Có hai việc phải xảy ra, và chúng độc lập với nhau:
 
-1. **Give your assistant the skill** (the instructions). Section 2.
-2. **Prepare the machine** that will do the work (FFmpeg, Chrome, Python, the models). Sections 1 and 3.
+1. **Đưa skill cho trợ lý của bạn** (phần hướng dẫn). Mục 2.
+2. **Chuẩn bị chiếc máy sẽ làm việc** (FFmpeg, Chrome, Python, các mô hình). Mục 1 và 3.
 
-The skill is only the recipe. FFmpeg, Chrome and the speech model run on your computer; the skill cannot install them for you from inside a chat sandbox.
+Skill chỉ là công thức. FFmpeg, Chrome và mô hình giọng nói chạy trên máy tính của bạn; skill không tự cài chúng được từ bên trong sandbox của một cuộc chat.
 
-> Developed and tested on **Windows 11**. The scripts choose `Scripts/python.exe` or `bin/python` by platform, so macOS and Linux may work, but they have not been tried. Commands for them below are the usual ones, not verified here.
+> Phát triển và thử trên **Windows 11**. Script tự chọn `Scripts/python.exe` hay `bin/python` theo hệ điều hành nên macOS và Linux có thể chạy, nhưng chưa thử. Lệnh cho hai hệ này bên dưới là lệnh thông dụng, chưa được kiểm ở đây.
 
-## 1. What your machine needs
+## 1. Máy cần gì
 
-| Tool | Version | Check | Install (typical) |
+| Công cụ | Phiên bản | Kiểm | Cài (thông dụng) |
 | --- | --- | --- | --- |
-| Node.js | 20 or newer | `node -v` | [nodejs.org](https://nodejs.org) |
-| FFmpeg and ffprobe | a recent full build | `ffmpeg -version` | Windows: `winget install Gyan.FFmpeg`. macOS: `brew install ffmpeg`. Linux: your package manager |
-| Google Chrome | any current | opens normally | [google.com/chrome](https://www.google.com/chrome/). Or set `CHROME_PATH` to a Chromium executable |
-| Python | 3.11 or newer, or `uv` | `python --version` | [python.org](https://www.python.org) or [uv](https://docs.astral.sh/uv/) |
-| Disk | about 1 GB for the self-test, about 3 GB more for the `large-v3` model on the first real run | | |
+| Node.js | 20 trở lên | `node -v` | [nodejs.org](https://nodejs.org) |
+| FFmpeg và ffprobe | bản đầy đủ gần đây | `ffmpeg -version` | Windows: `winget install Gyan.FFmpeg`. macOS: `brew install ffmpeg`. Linux: trình quản lý gói của bạn |
+| Google Chrome | bản hiện hành | mở bình thường | [google.com/chrome](https://www.google.com/chrome/). Hoặc đặt `CHROME_PATH` tới một tệp chạy Chromium |
+| Python | 3.11 trở lên, hoặc `uv` | `python --version` | [python.org](https://www.python.org) hoặc [uv](https://docs.astral.sh/uv/) |
+| Đĩa | khoảng 1 GB cho self-test, thêm khoảng 3 GB cho mô hình `large-v3` ở lần chạy thật đầu tiên | | |
 
-`ffmpeg` and `ffprobe` must be on `PATH`. Open a **new** terminal after installing them.
+`ffmpeg` và `ffprobe` phải nằm trong `PATH`. Cài xong hãy mở terminal **mới**.
 
-## 2. Give your assistant the skill
+## 2. Đưa skill cho trợ lý
 
-Download **`narrated-video-edit-v1.0.0.zip`** from the [Releases page](../../../releases/latest). The zip contains one folder, `narrated-video-edit/`, with `SKILL.md` inside it. That layout is what Claude requires: a zip with `SKILL.md` loose at the top is not recognised.
+Tải **`narrated-video-edit-v1.0.0.zip`** ở [trang Releases](../../../releases/latest). Zip chứa đúng một thư mục `narrated-video-edit/`, bên trong có `SKILL.md`. Cấu trúc đó là yêu cầu của Claude: zip để `SKILL.md` lẻ ngay gốc sẽ không được nhận.
 
-### A. Claude on the web or in the desktop app
+### A. Claude trên web hoặc ứng dụng máy tính
 
-1. Click your account name or avatar (bottom left), then **Settings**. In some versions the same place is called **Customize**, then **Skills**.
-2. Open **Skills**. Click **Add**, then **Upload skill**.
-3. Drag the zip into the dashed box, or browse for it. A security scan runs on upload.
-4. Click **Upload**, then turn the skill **on**.
+1. Bấm tên tài khoản hoặc ảnh đại diện (góc dưới bên trái), chọn **Cài đặt**. Ở một số phiên bản chỗ này tên là **Customize**, rồi **Skills**.
+2. Mở **Skills**. Bấm **Thêm**, rồi **Tải Skill lên**.
+3. Kéo zip vào khung nét đứt, hoặc duyệt tìm. Một lượt quét bảo mật chạy khi tải lên.
+4. Bấm **Tải lên**, rồi **bật** skill.
 
-Skills require code execution to be enabled in your account; see Anthropic's [help article](https://support.claude.com/en/articles/12512198). Watch the [45-second tutorial](media/install-guide-en.mp4) if you prefer to see it.
+Skill cần tài khoản bật thực thi mã; xem [bài hướng dẫn](https://support.claude.com/en/articles/12512198) của Anthropic. Nếu muốn xem tận mắt, có [video hướng dẫn 45 giây](media/install-guide-vi.mp4).
 
-> Reminder: uploading makes the skill *known* to Claude. Whether its scripts can run depends on the environment. See "Where it can run" in the [README](../README.md#install).
+> Nhắc lại: tải lên chỉ làm Claude *biết* skill. Script của nó có chạy được hay không tùy môi trường. Xem mục "Chạy được ở đâu" trong [README](../README.md#cài-đặt).
 
 ### B. Claude Code
 
-Personal install, available in every project:
+Cài cho cá nhân, dùng ở mọi dự án:
 
 ```bash
 # macOS, Linux
@@ -54,26 +54,26 @@ New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
 Expand-Archive .\narrated-video-edit-v1.0.0.zip -DestinationPath "$HOME\.claude\skills"
 ```
 
-Check that `~/.claude/skills/narrated-video-edit/SKILL.md` exists. For one project only, use `<project>/.claude/skills/` instead. Start `claude` and either describe the task or type `/narrated-video-edit`.
+Kiểm có tệp `~/.claude/skills/narrated-video-edit/SKILL.md`. Chỉ cho một dự án thì dùng `<dự án>/.claude/skills/`. Chạy `claude` rồi mô tả việc cần làm, hoặc gõ `/narrated-video-edit`.
 
 ### C. Antigravity CLI
 
-Copy the `narrated-video-edit` folder into `~/.gemini/antigravity-cli/skills/`. If you restrict skills with `include_only` in `~/.gemini/config/skills.json`, add `narrated-video-edit` there. Keep the skill `description` short (this one is 329 characters): Antigravity CLI skips skills with a long description.
+Chép thư mục `narrated-video-edit` vào `~/.gemini/antigravity-cli/skills/`. Nếu bạn giới hạn skill bằng `include_only` trong `~/.gemini/config/skills.json`, thêm `narrated-video-edit` vào đó. Giữ `description` của skill ngắn (skill này 329 ký tự): Antigravity CLI bỏ qua skill có mô tả dài.
 
-### D. Any other Agent Skills client
+### D. Ứng dụng khách Agent Skills khác
 
-The folder follows the open [Agent Skills specification](https://agentskills.io/specification). Put `narrated-video-edit/` where your client reads skills from.
+Thư mục theo đặc tả mở [Agent Skills](https://agentskills.io/specification). Đặt `narrated-video-edit/` vào nơi ứng dụng của bạn đọc skill.
 
-### Or from a clone, without the zip
+### Hoặc từ bản clone, không cần zip
 
 ```bash
 git clone https://github.com/Le-Ngoc-Tu/narrated-video-edit.git
 cp -r narrated-video-edit/skills/narrated-video-edit ~/.claude/skills/
 ```
 
-## 3. Prepare the tools (once)
+## 3. Chuẩn bị công cụ (một lần)
 
-Run this in the **installed skill folder**, for example `~/.claude/skills/narrated-video-edit`:
+Chạy trong **thư mục skill đã cài**, ví dụ `~/.claude/skills/narrated-video-edit`:
 
 ```bash
 cd scripts
@@ -82,46 +82,46 @@ node setup.mjs
 node selftest.mjs
 ```
 
-- `node setup.mjs` checks Node, FFmpeg and Chrome and creates an isolated `.venv` with `faster-whisper` and `opencv-python-headless`. It never touches your system Python. Flags: `--skip-python` (you provide Python yourself, set `NVE_PYTHON` to its path), `--with-segmentation` (adds MediaPipe, about 300 MB, only needed for text placed behind the speaker).
-- `node selftest.mjs` runs the whole pipeline on a bundled synthetic narration with the Whisper `small` model (downloaded on first use, roughly half a gigabyte). Add `--online` to include one real image search. A healthy run ends with every line `ok`. Please include the output when you open an issue.
-- Real editing uses Whisper `large-v3` by default; it downloads once on the first real clip.
+- `node setup.mjs` kiểm Node, FFmpeg và Chrome, rồi tạo `.venv` riêng có `faster-whisper` và `opencv-python-headless`. Nó không đụng vào Python của hệ thống. Cờ: `--skip-python` (bạn tự cung cấp Python, đặt `NVE_PYTHON` tới nó), `--with-segmentation` (thêm MediaPipe, khoảng 300 MB, chỉ cần cho chữ đặt phía sau người nói).
+- `node selftest.mjs` chạy cả đường ống trên một giọng đọc tổng hợp kèm sẵn, với mô hình Whisper `small` (tải ở lần dùng đầu, khoảng nửa gigabyte). Thêm `--online` để có thêm một lượt tìm ảnh thật. Lần chạy khỏe mạnh kết thúc với mọi dòng đều `ok`. Khi mở issue, xin dán kèm kết quả này.
+- Dựng thật mặc định dùng Whisper `large-v3`; nó tải một lần ở clip thật đầu tiên.
 
-Environment variables you may want: `CHROME_PATH` (browser executable), `NVE_PYTHON` (Python with faster-whisper and OpenCV), `NVE_SEG_PYTHON`, `NVE_CACHE` (download cache), `NVE_STYLES` and `NVE_EFFECTS` (use your own copy of the style table or effects folder, see [CUSTOMIZE.md](CUSTOMIZE.md)). On Windows, set `PYTHONUTF8=1` if you run the Python helpers by hand.
+Biến môi trường có thể cần: `CHROME_PATH` (tệp chạy trình duyệt), `NVE_PYTHON` (Python có faster-whisper và OpenCV), `NVE_SEG_PYTHON`, `NVE_CACHE` (nơi lưu tệp tải về), `NVE_STYLES` và `NVE_EFFECTS` (dùng bản riêng của bảng phong cách hoặc thư mục hiệu ứng, xem [CUSTOMIZE.md](CUSTOMIZE.md)). Trên Windows, đặt `PYTHONUTF8=1` nếu bạn tự chạy các trợ giúp Python.
 
-## 4. First run
+## 4. Lần chạy đầu
 
-Tell the assistant where the skill is if it does not find it (for example, "the skill is in `~/.claude/skills/narrated-video-edit`"), then:
+Nếu trợ lý không tìm thấy skill, hãy chỉ chỗ (ví dụ "skill nằm ở `~/.claude/skills/narrated-video-edit`"), rồi:
 
-> Use narrated-video-edit on `~/Videos/talk.mp4`. English, vertical for Reels, explainer style.
+> Dùng narrated-video-edit dựng `~/Videos/talk.mp4`. Tiếng Việt, dọc cho Reels, phong cách explainer.
 
-What you should see, in order:
+Thứ tự bạn sẽ thấy:
 
-1. A short list of questions with defaults (video, language, platform, style).
-2. A **storyboard image** with timestamps and a list of what will be added. The assistant stops. Reply to approve or change.
-3. A **contact sheet of the chosen images**. The assistant stops again. Remove any that are wrong.
-4. A built video, `out.mp4`, with `out.srt` and `out.credits.txt`, plus an audit report. Paste `out.credits.txt` into the video description.
+1. Vài câu hỏi ngắn kèm mặc định (video, ngôn ngữ, nền tảng, phong cách).
+2. Một **ảnh storyboard** có mốc giờ và danh sách những gì sẽ thêm vào. Trợ lý dừng lại. Bạn trả lời để duyệt hoặc đổi.
+3. Một **ảnh tổng hợp các hình đã chọn**. Trợ lý dừng lần nữa. Bỏ hình nào sai.
+4. Video đã dựng `out.mp4`, kèm `out.srt` và `out.credits.txt`, cùng báo cáo kiểm toán. Dán `out.credits.txt` vào mô tả video.
 
-Work files go to a `work/` folder outside the skill. Your original video is never modified.
+Tệp làm việc nằm trong thư mục `work/` ngoài thư mục skill. Video gốc không bao giờ bị sửa.
 
-## 5. Update and uninstall
+## 5. Cập nhật và gỡ
 
-- **Update:** download the new zip and replace the folder. Keep your `.venv` and `node_modules` if you want to skip reinstalling (they are not part of the zip). If you edited `data/`, merge your changes first.
-- **Uninstall:** delete the `narrated-video-edit` folder. In Claude: *Skills*, open the skill, remove it.
+- **Cập nhật:** tải zip mới và thay thư mục. Giữ `.venv` và `node_modules` nếu muốn khỏi cài lại (chúng không nằm trong zip). Nếu bạn đã sửa `data/`, hãy gộp thay đổi của bạn trước.
+- **Gỡ:** xóa thư mục `narrated-video-edit`. Trong Claude: *Skills*, mở skill, gỡ nó.
 
-## 6. Troubleshooting
+## 6. Xử lý lỗi
 
-| Symptom | Likely cause and fix |
+| Triệu chứng | Nguyên nhân có khả năng và cách sửa |
 | --- | --- |
-| Claude rejects the zip, or says there is no `SKILL.md` | The zip was made from the folder's contents instead of the folder. Use the release zip, or zip the `narrated-video-edit` folder itself so entries start with `narrated-video-edit/` |
-| The skill does not trigger | Turn it on under Skills; or call it by name (`/narrated-video-edit` in Claude Code); or mention what you want in the words of its description (edit a talking video into a social video) |
-| `setup.mjs`: ffmpeg or ffprobe not found | Install FFmpeg, open a new terminal, check `ffmpeg -version` |
-| `setup.mjs`: no Chrome | Install Chrome or set `CHROME_PATH` to a Chromium or Edge executable |
-| Python errors or `faster-whisper` missing | Run `node setup.mjs` again; or set `NVE_PYTHON` to a Python that has `faster-whisper` and `opencv-python-headless<5` |
-| Garbled text or `UnicodeEncodeError` on Windows | Set `PYTHONUTF8=1` |
-| The first transcription seems stuck | The model is downloading (`small` is roughly 0.5 GB, `large-v3` roughly 3 GB). Check your network and disk space |
-| `NODE_TLS_REJECT_UNAUTHORIZED` warning on every Node run | An environment variable on your machine turns off certificate checking for every Node program. Remove it from your environment |
-| The audit fails | Read `references/06-audit.md`, which lists each check and its fix. Up to three repair rounds are expected |
-| Few or poor B-roll results | Public image sources are limited; the skill drops slots it cannot fill. You can pass your own folder with `--user-assets` |
-| Works in Claude Code but not in claude.ai chat | See "Where it can run" in the README: the chat sandbox may lack Chrome, FFmpeg or network access |
+| Claude từ chối zip, hoặc báo không có `SKILL.md` | Zip làm từ nội dung thư mục thay vì từ chính thư mục. Dùng zip phát hành, hoặc nén chính thư mục `narrated-video-edit` để các mục bắt đầu bằng `narrated-video-edit/` |
+| Skill không tự kích hoạt | Bật nó ở Skills; hoặc gọi theo tên (`/narrated-video-edit` trong Claude Code); hoặc nói việc cần làm bằng lời gần với mô tả của skill (dựng video có giọng nói thành video social) |
+| `setup.mjs`: không thấy ffmpeg hoặc ffprobe | Cài FFmpeg, mở terminal mới, kiểm `ffmpeg -version` |
+| `setup.mjs`: không có Chrome | Cài Chrome hoặc đặt `CHROME_PATH` tới Chromium hay Edge |
+| Lỗi Python hoặc thiếu `faster-whisper` | Chạy lại `node setup.mjs`; hoặc đặt `NVE_PYTHON` tới Python có `faster-whisper` và `opencv-python-headless<5` |
+| Chữ lỗi hoặc `UnicodeEncodeError` trên Windows | Đặt `PYTHONUTF8=1` |
+| Lần phiên âm đầu có vẻ đứng | Mô hình đang tải (`small` khoảng 0,5 GB, `large-v3` khoảng 3 GB). Kiểm mạng và dung lượng đĩa |
+| Cảnh báo `NODE_TLS_REJECT_UNAUTHORIZED` mỗi lần chạy Node | Một biến môi trường trên máy bạn đang tắt kiểm tra chứng chỉ của mọi chương trình Node. Hãy bỏ nó khỏi biến môi trường |
+| Kiểm toán trượt | Đọc `references/06-audit.md`, liệt kê từng mục kiểm và cách sửa. Dự kiến tối đa ba vòng sửa |
+| Ít hoặc kém kết quả B-roll | Nguồn ảnh công khai có hạn; skill bỏ ô nào không lấp được. Bạn có thể đưa thư mục ảnh riêng bằng `--user-assets` |
+| Chạy được ở Claude Code nhưng không chạy ở chat claude.ai | Xem "Chạy được ở đâu" trong README: sandbox của chat có thể thiếu Chrome, FFmpeg hoặc mạng |
 
-Still stuck? [Open an issue](../../../issues/new/choose) with your OS, Node version, the failing command and its output.
+Vẫn vướng? [Mở issue](../../../issues/new/choose) kèm hệ điều hành, phiên bản Node, lệnh lỗi và kết quả của nó.
