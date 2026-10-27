@@ -24,11 +24,12 @@ Biến một video có người nói hoặc giọng đọc thành video đã d�
 | Lệnh | Việc |
 | --- | --- |
 | `setup.mjs` | kiểm Node, ffmpeg, Chrome; tạo `.venv` với faster-whisper và opencv (một lần) |
-| `analyze.mjs <video> --out work/analysis [--lang vi] [--prompt "tên riêng"]` | khâu A: âm thanh, `words.json` (từng từ có mốc giờ), `pauses.json`, `faces.json`, `shots.json`, độ to |
+| `analyze.mjs <video> --out work/analysis [--lang vi] [--prompt "tên riêng"] [--terms "Claude, GSAP"]` | khâu A: âm thanh, `words.json` (từng từ có mốc giờ, đã áp từ điển tên riêng), `words.raw.json` (bản gốc), `glossary-report.json`, `pauses.json`, `faces.json`, `shots.json`, độ to |
+| `glossary-apply.mjs --analysis work/analysis [--terms "Claude"]` | áp lại từ điển tên riêng (`data/glossary.json`, `work/glossary.json`) lên `words.raw.json` mà không phiên âm lại; chạy sau khi người dùng xác nhận tên riêng ở CỔNG 1 |
 | `pick-highlights.mjs --analysis work/analysis --out work/highlights.json [--target 75]` | khâu B0 (video dài): chọn các đoạn quan trọng (số liệu, câu hỏi, từ khóa, đổi cảnh, có người nói), trải đều câu chuyện, ranh giới giữa hai từ |
 | `segment-person.mjs --base work/base.mp4 --overlay work/overlay` | khâu D3 (chỉ khi có thẻ `bigtext`, chữ lớn sau người nói): tách người bằng MediaPipe ra `overlay/mask.mkv` (cần `node setup.mjs --with-segmentation`) |
 | `edit-plan-ui.mjs --work work` | trang cục bộ để sửa trực tiếp phụ đề, ảnh minh họa, sticker, thẻ, emoji và xem khung thử (thay cho việc nhắn AI sửa nhiều lần) |
-| `plan-skeleton.mjs --analysis work/analysis --style hype --out work/edit-plan.json [--keep work/highlights.json] [--layout auto|stack|follow] [--behind-text]` | khâu B: bộ khung kế hoạch (nhịp, cắt khoảng ngắt, cutaway, zoom, sticker, thẻ số, SFX) |
+| `plan-skeleton.mjs --analysis work/analysis --style hype --out work/edit-plan.json [--keep work/highlights.json] [--layout auto|stack|follow] [--behind-text] [--user-footage dir]` | khâu B: bộ khung kế hoạch (nhịp, cắt khoảng ngắt, cutaway, zoom, sticker, thẻ số, SFX); `--user-footage` đọc `footage.json` của người dùng thành cutaway, cảnh demo (kiểu `demo`) và dùng phong cách `creator` nếu không nêu `--style` |
 | `plan-lint.mjs --plan work/edit-plan.json --analysis work/analysis [--stage assets]` | kiểm kế hoạch: ranh giới từ, mật độ, số liệu có nguồn, chống slideshow |
 | `plan-board.mjs --plan work/edit-plan.json --analysis work/analysis` | storyboard bằng ảnh cho CỔNG 1: mỗi sự kiện một hàng gồm khung hình gốc, mốc giờ, câu đang nói, xử lý, âm thanh (ra `plan-board.png`, `plan-board.md`) |
 | `style-menu.mjs --out work/style-menu.html [--demos <thư mục demo>]` | trang HTML ngoại tuyến để người dùng CHỌN và TRỘN hiệu ứng (mã TRA-07...), rồi Copy prompt dán cho tác tử; mẫu và ba ràng buộc cố định ở `data/style-menu.json`. Người dùng đưa video tham chiếu thì dùng `scripts/reference-study.mjs --words` của skill đồng hành `beat-synced-video-edit` (kho Motion Atlas, không kèm theo gói này) (truyền `words.json` của `analyze.mjs`) |
@@ -42,7 +43,7 @@ Biến một video có người nói hoặc giọng đọc thành video đã d�
 | `effects-selftest.mjs [--family f] [--id x] [--sheet] [--source video]` | chạy TỪNG hiệu ứng thật và đo (khung ngoài cửa sổ giữ nguyên, trong cửa sổ đổi rõ, không lộ góc đen, chớp sáng dưới 3 lần mỗi giây); `--sheet` dựng bảng ảnh duyệt |
 | `selftest.mjs [--online]` | thử cả đường ống bằng dữ liệu tổng hợp (khoảng 80 giây) |
 
-Dữ liệu: `data/brands.json` (thương hiệu và logo CC0), `data/decor-sources.json` (nguồn decor và danh sách trắng), `data/styles.json` (3 phong cách: `hype`, `explainer`, `documentary`, mỗi phong cách có màu, caption preset, mật độ, chuỗi kiểu trình bày `showcase`, `emoji`, `banned`), `data/emoji-map.json`, `data/effects/*.json` (thư viện hiệu ứng, 11 họ) và `data/effects-rules.json` (ngân sách và pool hiệu ứng theo phong cách). Mẫu: `templates/overlay.html`, `overlay.js`; gói sẵn `templates/fonts` và `templates/emoji`.
+Dữ liệu: `data/brands.json` (thương hiệu và logo CC0), `data/decor-sources.json` (nguồn decor và danh sách trắng), `data/styles.json` (4 phong cách: `hype`, `explainer`, `documentary`, `creator`; mỗi phong cách có màu, caption preset, mật độ, chuỗi kiểu trình bày `showcase`, `emoji`, `banned`), `data/emoji-map.json`, `data/glossary.json` (từ điển tên riêng áp sau phiên âm), `data/demo-themes.json` (chủ đề nền cảnh demo), `data/effects/*.json` (thư viện hiệu ứng, 11 họ) và `data/effects-rules.json` (ngân sách và pool hiệu ứng theo phong cách). Mẫu: `templates/overlay.html`, `overlay.js`; gói sẵn `templates/fonts` và `templates/emoji`.
 
 ## Quy trình
 
@@ -50,10 +51,10 @@ Dữ liệu: `data/brands.json` (thương hiệu và logo CC0), `data/decor-sour
 
 **Giai đoạn 1: HỎI VÀ PHÂN TÍCH**
 1. Đọc `references/01-intake.md`. Hỏi tối đa bốn câu (video ở đâu, ngôn ngữ, định dạng và nền tảng, phong cách), kèm mặc định. Có nhiều ý mơ hồ thì hỏi trong một lượt.
-2. Tạo thư mục làm việc ngoài thư mục skill: `work/`. Chạy `analyze.mjs`. Đọc `words.json`: có đúng ngôn ngữ, tên riêng, số không (`references/02-analysis.md`). Sai thì chạy lại với `--lang` và `--prompt`.
+2. Tạo thư mục làm việc ngoài thư mục skill: `work/`. Chạy `analyze.mjs`. Đọc `words.json`: có đúng ngôn ngữ, tên riêng, số không (`references/02-analysis.md`). Sai ngôn ngữ thì chạy lại với `--lang`; sai tên riêng thì khai bằng `--terms` hoặc `work/glossary.json` (người dùng xác nhận trước nếu từ đó cũng là từ thật như "cloud"), không sửa tay `words.json`.
 
 **Giai đoạn 2: LẬP KẾ HOẠCH (CỔNG 1)**
-3. `plan-skeleton.mjs` với phong cách đã chọn. Đọc `references/03-planning.md`, rồi sửa `edit-plan.json`: viết lại từng `cutaways[].query` thành KHÁI NIỆM CẢNH bằng tiếng Anh (không chỉ danh từ), bỏ hoặc thêm mục, thêm `lowerThirds` nếu cần. Chạy `plan-lint.mjs` đến khi không còn FAIL.
+3. `plan-skeleton.mjs` với phong cách đã chọn. Đọc `references/03-planning.md`, rồi sửa `edit-plan.json`: viết lại từng `cutaways[].query` thành KHÁI NIỆM CẢNH bằng tiếng Anh (không chỉ danh từ), bỏ hoặc thêm mục, thêm `lowerThirds` nếu cần. Người dùng có bản quay màn hình hoặc ảnh của chính họ: khai ở `footage.json` và chạy với `--user-footage` (cảnh demo, zoom vùng, chú thích: `references/03-planning.md`). Chạy `plan-lint.mjs` đến khi không còn FAIL.
 4. Chạy `plan-board.mjs` rồi gửi người dùng `plan-board.png` kèm storyboard 8 đến 12 dòng: mốc giờ, lời nói, xử lý (cutaway gì, zoom, sticker, thẻ số), phong cách, cắt bao nhiêu giây khoảng ngắt, giả định. Nhắc điều ở quy tắc 4 về truy vấn. DỪNG.
 
 **Giai đoạn 3: TÀI NGUYÊN (CỔNG 2)**
@@ -94,7 +95,7 @@ Dữ liệu: `data/brands.json` (thương hiệu và logo CC0), `data/decor-sour
 
 | Tệp | Nội dung |
 | --- | --- |
-| `references/01-intake.md` | câu hỏi đầu vào, mặc định, ba phong cách, chế độ nhanh |
+| `references/01-intake.md` | câu hỏi đầu vào, mặc định, các phong cách, chế độ nhanh |
 | `references/02-analysis.md` | phiên âm, mô hình, tiếng Việt, số và tên riêng, dò mặt, khoảng ngắt |
 | `references/03-planning.md` | quy tắc dựng, viết truy vấn tốt, sticker, thẻ số, lower third, lược đồ `edit-plan.json` |
 | `references/04-assets-licenses.md` | nguồn, giấy phép, ghi công, khi không có kết quả, cách thêm nguồn |

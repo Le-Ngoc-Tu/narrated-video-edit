@@ -6,13 +6,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { args, ffmpeg, launchChrome, readJson } from './common.mjs';
+import { readReport } from './glossary-lib.mjs';
 
 const { flags } = args();
 if (!flags.plan) { console.error('Dùng: node plan-board.mjs --plan work/edit-plan.json [--analysis work/analysis] [--out work]'); process.exit(2); }
 const planFile = path.resolve(String(flags.plan));
 const plan = readJson(planFile);
 const work = path.resolve(String(flags.out || path.dirname(planFile)));
-const words = readJson(path.join(path.resolve(String(flags.analysis || path.join(path.dirname(planFile), 'analysis'))), 'words.json')).words;
+const analysisDir = path.resolve(String(flags.analysis || path.join(path.dirname(planFile), 'analysis')));
+const words = readJson(path.join(analysisDir, 'words.json')).words;
+// Tên riêng mơ hồ chưa được người dùng xác nhận (vd "Cloud" hay "Claude") hỏi ngay ở CỔNG 1, trước khi dựng
+const questions = (readReport(analysisDir)?.pending ?? []).map((p) => `${p.question} Nếu đúng: node glossary-apply.mjs --analysis ${analysisDir} --terms "${p.canonical}"`);
 fs.mkdirSync(path.join(work, 'plan-board-thumbs'), { recursive: true });
 
 const timeOf = (e) => e.start ?? words[e.anchorWord]?.start ?? 0;
@@ -24,7 +28,7 @@ const events = [
   ...(plan.punches || []).map((e) => ({ t: timeOf(e), what: `zoom x${e.scale}` })),
   ...(plan.stats || []).map((e) => ({ t: timeOf(e), what: `số liệu ${e.value} ${e.label || ''}` })),
   ...(plan.decor || []).map((e) => ({ t: timeOf(e), what: `trang trí ${e.type}` })),
-  ...(plan.cards || []).map((e) => ({ t: timeOf(e), what: `thẻ ${e.type}: ${e.text || ''}` })),
+  ...(plan.cards || []).map((e) => ({ t: timeOf(e), what: `thẻ ${e.type}: ${e.text || (e.lines || []).join(' / ') || e.title || ''}` })),
   ...(plan.lowerThirds || []).map((e) => ({ t: timeOf(e), what: `lower third: ${e.title}` })),
   ...(plan.emoji || []).map((e) => ({ t: timeOf(e), what: `emoji ${e.id}` })),
   ...(plan.cuts || []).map((e) => ({ t: e.start, what: `cắt ${(e.end - e.start).toFixed(2)}s (${e.reason || 'ngắt'})` }))
@@ -42,12 +46,12 @@ const rows = events.map((e, i) => {
 
 const mmss = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}.${Math.floor((t % 1) * 10)}`;
 const head = `Storyboard ${path.basename(plan.source)}: phong cách ${plan.style}, ${plan.orientation}, ${plan.duration.toFixed(1)}s, ${events.length} sự kiện, cắt ${(plan.cuts || []).reduce((a, c) => a + c.end - c.start, 0).toFixed(1)}s khoảng ngắt. Mốc giờ là giờ của video GỐC.`;
-const md = [`# ${head}`, '', '| # | Giờ | Câu đang nói | Xử lý | Âm thanh |', '|---|---|---|---|---|', ...rows.map((r) => `| ${r.i + 1} | ${mmss(r.t)} | ${r.say} | ${r.what} | ${r.sfx || '-'} |`), ''].join('\n');
+const md = [`# ${head}`, '', ...(questions.length ? ['**Cần hỏi người dùng về tên riêng trước khi dựng:**', ...questions.map((q) => `- ${q}`), ''] : []), '| # | Giờ | Câu đang nói | Xử lý | Âm thanh |', '|---|---|---|---|---|', ...rows.map((r) => `| ${r.i + 1} | ${mmss(r.t)} | ${r.say} | ${r.what} | ${r.sfx || '-'} |`), ''].join('\n');
 fs.writeFileSync(path.join(work, 'plan-board.md'), md);
 
 const esc = (x) => String(x).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
 const cells = rows.map((r) => `<div class="r"><b>${r.i + 1}</b><img src="${pathToFileURL(r.thumb).href}"><div><div class="t">${mmss(r.t)}</div><div class="s">${esc(r.say)}</div><div class="w">${esc(r.what)}</div>${r.sfx ? `<div class="x">âm thanh: ${esc(r.sfx)}</div>` : ''}</div></div>`).join('');
-const html = `<html><body style="margin:0;background:#111;color:#eee;font:14px Arial"><div style="padding:10px 12px;font-size:15px">${esc(head)}</div><div class="g">${cells}</div><style>.g{display:grid;grid-template-columns:repeat(2,1fr);gap:0 14px;padding:0 10px 10px}.r{display:grid;grid-template-columns:28px ${tw}px 1fr;gap:10px;align-items:center;border-top:1px solid #333;padding:8px 0}.r b{font-size:20px;color:#7ee787}.t{color:#ffb86b;font-size:13px}.s{margin:4px 0;font-style:italic}.w{color:#7ee787}.x{color:#aaa;font-size:12px;margin-top:3px}</style></body></html>`;
+const html = `<html><body style="margin:0;background:#111;color:#eee;font:14px Arial"><div style="padding:10px 12px;font-size:15px">${esc(head)}</div>${questions.length ? `<div style="padding:6px 12px 10px;color:#ffb86b">${questions.map((q) => `<div>Cần hỏi: ${esc(q.split(' Nếu đúng:')[0])}</div>`).join('')}</div>` : ''}<div class="g">${cells}</div><style>.g{display:grid;grid-template-columns:repeat(2,1fr);gap:0 14px;padding:0 10px 10px}.r{display:grid;grid-template-columns:28px ${tw}px 1fr;gap:10px;align-items:center;border-top:1px solid #333;padding:8px 0}.r b{font-size:20px;color:#7ee787}.t{color:#ffb86b;font-size:13px}.s{margin:4px 0;font-style:italic}.w{color:#7ee787}.x{color:#aaa;font-size:12px;margin-top:3px}</style></body></html>`;
 const tmp = path.join(work, 'plan-board.html');
 fs.writeFileSync(tmp, html);
 const browser = await launchChrome();

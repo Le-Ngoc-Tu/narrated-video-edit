@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { FPS, args, ffmpeg, makeTimeMap, probe, pythonPath, readJson, run, writeJson, here } from './common.mjs';
 import { flashesPerSecond } from './fx-lib.mjs';
+import { captionProblems, readReport } from './glossary-lib.mjs';
 import { facesIn, loadAnalysis, loadStyle, mapFacesForLayout, norm, sizeOf, speechGap, stackGeometry } from './plan-lib.mjs';
 
 const { flags } = args();
@@ -126,6 +127,15 @@ else if (!flags['no-asr']) {
   }
 } else warn('lệch caption so với phiên âm lại', 'bỏ qua theo --no-asr');
 
+// 4b. Tên riêng: đối chiếu caption với báo cáo từ điển, không qua bộ nhận dạng (phiên âm lại nghe sai cùng chiều nên phép đo ở trên không bắt được "Cloud" thay vì "Claude")
+const glossary = readReport(A.dir);
+if (glossary && capWords.length) {
+  const gp = captionProblems(glossary, capWords);
+  const bad = [...gp.changed, ...gp.leftover];
+  bad.length ? fail('caption viết đúng tên riêng theo từ điển', bad.slice(0, 6).join('; ')) : pass('caption viết đúng tên riêng theo từ điển', `${glossary.applied.length} từ đã thay`);
+  glossary.pending.length ? warn('tên riêng mơ hồ chưa được người dùng xác nhận', glossary.pending.map((p) => p.question).join(' | ')) : pass('tên riêng mơ hồ đã được người dùng xác nhận', 'không còn biến thể chờ xác nhận');
+}
+
 // 5. Chồng mặt và lề an toàn: so với các hộp mặt quanh đúng thời điểm đó (đổi giờ thành phẩm về giờ gốc), không dùng một khung cố định
 const hit = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
 const stackGeo = stackGeometry(plan);
@@ -168,7 +178,7 @@ const summary = fs.existsSync(path.join(work, 'overlay', 'overlay-summary.json')
 if (summary) {
   plan.captions?.mode === 'off' ? pass('caption đủ 100% số từ: bỏ qua vì captions.mode off', 'giữ phụ đề của video nguồn') : summary.captionWords === summary.sourceWords ? pass('caption đủ 100% số từ', `${summary.captionWords}/${summary.sourceWords} từ`) : fail('caption đủ 100% số từ', `${summary.captionWords}/${summary.sourceWords} từ`);
   const shows = summary.showcases ?? [];
-  const planned = mapped.cutaways.filter((c) => c.presentation && c.presentation !== 'fullbleed').length;
+  const planned = mapped.cutaways.filter((c) => c.presentation && c.presentation !== 'fullbleed' && c.presentation !== 'demo').length;
   planned > shows.length ? warn('showcase đã lên kế hoạch đều được dựng', `${shows.length}/${planned} (phần còn lại bị bỏ vì hết chỗ trống: xem cảnh báo của render-overlay)`) : pass('showcase đã lên kế hoạch đều được dựng', `${shows.length}/${planned}`);
   if (shows.length >= 3) {
     const modes = new Set(shows.map((x) => x.mode));
@@ -194,7 +204,9 @@ if (plan.orientation === '9x16') {
 }
 
 // 7. Mật độ sự kiện hình (theo giờ thành phẩm)
-const eventTimes = [...[...mapped.cutaways, ...mapped.punches, ...mapped.stats, ...mapped.decor, ...mapped.lowerThirds].map((x) => x.oStart), ...A.shotCuts.map((t) => tmap.toOut(t)).filter((t) => t !== null), ...plan.cuts.filter((c) => c.end < plan.duration).map((c) => tmap.toOut(c.end)).filter((t) => t !== null)].sort((a, b) => a - b);
+// Cảnh demo là clip chạy liên tục: cứ 4s trong cửa sổ demo tính một sự kiện hình
+const demoTicks = mapped.cutaways.filter((c) => c.presentation === 'demo').flatMap((c) => Array.from({ length: Math.max(0, Math.ceil((c.oEnd - c.oStart) / 4)) }, (_, k) => c.oStart + k * 4));
+const eventTimes = [...[...mapped.cutaways, ...mapped.punches, ...mapped.stats, ...mapped.decor, ...mapped.lowerThirds].map((x) => x.oStart), ...demoTicks, ...A.shotCuts.map((t) => tmap.toOut(t)).filter((t) => t !== null), ...plan.cuts.filter((c) => c.end < plan.duration).map((c) => tmap.toOut(c.end)).filter((t) => t !== null)].sort((a, b) => a - b);
 let gap = eventTimes.length ? speechGap(0, eventTimes[0], mapped.wordsOut, 'oStart', 'oEnd') : mapped.outDuration;
 let gapAt = 0;
 eventTimes.forEach((t, i) => { const g = speechGap(t, eventTimes[i + 1] ?? mapped.outDuration, mapped.wordsOut, 'oStart', 'oEnd'); if (g > gap) { gap = g; gapAt = t; } });
@@ -203,6 +215,17 @@ const gapLimit = style.maxEventGap ?? 6;
 gap > gapLimit * 1.25 ? fail('khoảng trống sự kiện hình', `${gap.toFixed(1)}s từ giây ${gapAt.toFixed(1)} (trần ${gapLimit}s)`) : gap > gapLimit * 0.6 ? warn('khoảng trống sự kiện hình', `${gap.toFixed(1)}s từ giây ${gapAt.toFixed(1)} (trần ${gapLimit}s)`) : pass('khoảng trống sự kiện hình', `tối đa ${gap.toFixed(1)}s`);
 const share = mapped.cutaways.filter((c) => !c.presentation || c.presentation === 'fullbleed').reduce((s, c) => s + (c.oEnd - c.oStart), 0) / mapped.outDuration;
 share <= style.brollMaxShare + 0.05 ? pass('tỉ lệ rời mặt người nói', `${(share * 100).toFixed(0)}%`) : fail('tỉ lệ rời mặt người nói', `${(share * 100).toFixed(0)}% > ${(style.brollMaxShare * 100).toFixed(0)}%`);
+
+// 7b. Cảnh demo (voice-over trên màn hình): người nói vắng mặt nên có trần riêng; caption không được đè khung clip
+const demoCuts = mapped.cutaways.filter((c) => c.presentation === 'demo');
+if (demoCuts.length) {
+  const demoShare = demoCuts.reduce((t, c) => t + (c.oEnd - c.oStart), 0) / mapped.outDuration;
+  const demoCap = style.demoMaxShare ?? 0.7;
+  demoShare <= demoCap + 0.05 ? pass('tỉ lệ cảnh demo (người nói vắng mặt)', `${(demoShare * 100).toFixed(0)}% (trần ${(demoCap * 100).toFixed(0)}%)`) : fail('tỉ lệ cảnh demo (người nói vắng mặt)', `${(demoShare * 100).toFixed(0)}% > ${(demoCap * 100).toFixed(0)}%`);
+  const frames = summary?.demos ?? [];
+  const capOnClip = boxes.filter((smp) => smp.boxes.some((b) => b.kind === 'caption' && frames.some((z) => smp.t >= z.s && smp.t <= z.e && hit(b, z) / (b.w * b.h || 1) > 0.05))).length;
+  frames.length ? (capOnClip ? fail('caption không đè khung clip của cảnh demo', `${capOnClip} mẫu`) : pass('caption không đè khung clip của cảnh demo', `${frames.length} cảnh`)) : warn('caption không đè khung clip của cảnh demo', 'overlay-summary.json không có thông tin khung demo: dựng lại lớp phủ');
+}
 
 // 8. Giấy phép và ghi công
 const credits = fs.existsSync(path.join(work, 'assets', 'credits.json')) ? readJson(path.join(work, 'assets', 'credits.json')) : [];

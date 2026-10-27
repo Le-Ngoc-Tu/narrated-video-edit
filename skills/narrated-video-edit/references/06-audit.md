@@ -25,6 +25,10 @@ Mã thoát 0 khi không có FAIL. WARN cần giải thích trong báo cáo. Ghi 
 | giấy phép trong danh sách trắng | `credits.json` | không phải cc0, pd, by | thay tài nguyên |
 | có `out.credits.txt` khi có CC BY | tệp | thiếu | chạy lại `finalize` |
 | số liệu trên màn hình có trong lời nói | so với `words.json` và `userSource` | có số không nguồn | sửa thẻ hoặc bỏ |
+| caption viết đúng tên riêng theo từ điển | so caption với `glossary-report.json`, KHÔNG qua phiên âm lại (phiên âm lại nghe sai cùng chiều nên không bắt được "Cloud" thay vì "Claude") | từ đã thay không hiện đúng, hoặc còn dạng sai | sửa `work/glossary.json`, chạy `glossary-apply.mjs`, dựng lại |
+| tên riêng mơ hồ đã được người dùng xác nhận | `glossary-report.json` | WARN khi còn biến thể chờ xác nhận | hỏi người dùng, khai `--terms` |
+| tỉ lệ cảnh demo (người nói vắng mặt) | tổng thời lượng cutaway `demo` so với `demoMaxShare` của phong cách | vượt trần thêm 0,05 | rút ngắn cảnh demo hoặc cho người nói xuất hiện xen kẽ |
+| caption không đè khung clip của cảnh demo | `overlay-boxes.json` so với khung demo trong `overlay-summary.json` | caption chồng khung trên 5% | dựng lại lớp phủ (caption tự dời xuống dưới khung); chỉnh `areaPortrait` của chủ đề nếu khung quá thấp |
 | ảnh duyệt hình | tile 12 khung | không bao giờ FAIL | NGƯỜI phải đọc |
 
 ## Đọc `out-sheet.png`

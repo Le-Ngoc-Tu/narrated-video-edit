@@ -5,15 +5,16 @@ Mục tiêu: biết người dùng có gì, muốn gì, trước khi tốn thờ
 ## Câu hỏi
 
 1. **Video nào?** Đường dẫn tệp. Nếu chưa có: dừng và xin. Không có người nói hoặc giọng đọc thì skill này không dùng được (nếu chỉ có nhạc, dùng skill đồng hành `beat-synced-video-edit` của kho Motion Atlas, không kèm theo gói này).
-2. **Ngôn ngữ nói?** a) tự nhận [mặc định] b) tiếng Việt c) tiếng Anh d) khác. Tiếng Việt: nêu tên riêng, thuật ngữ và tên sản phẩm sẽ xuất hiện để đưa vào `--prompt` (nhận đúng chính tả).
+2. **Ngôn ngữ nói?** a) tự nhận [mặc định] b) tiếng Việt c) tiếng Anh d) khác. Hỏi video nhắc tên riêng, tên sản phẩm hay thuật ngữ nào (đặc biệt từ trùng với từ thường như Claude và "cloud"); khai bằng `--terms` hoặc `work/glossary.json` để phiên âm sửa đúng chính tả (`references/02-analysis.md`).
 3. **Đăng ở đâu và khung nào?** a) dọc 9:16 cho TikTok, Reels, Shorts [mặc định nếu video gốc dọc] b) ngang 16:9 cho YouTube c) giữ khung gốc. Khung ra theo hướng của video gốc; nếu người dùng muốn đổi hướng, báo trước là sẽ cắt (crop) để lấp đầy.
-4. **Phong cách?** Mô tả ba lựa chọn, đề xuất một theo nội dung:
+4. **Phong cách?** Mô tả các lựa chọn, đề xuất một theo nội dung:
 
 | Phong cách | Hợp với | Đặc trưng | Cấm |
 | --- | --- | --- | --- |
 | `hype` | clip ngắn 15 đến 60s, mẹo, review, tin nhanh | chữ to từng từ, zoom nhấn theo nhịp nói, sticker, SFX whoosh và pop, cắt hết khoảng ngắt từ 0,45s | caption trên 4 từ, sticker che mặt, nhạc to hơn giọng |
 | `explainer` | hướng dẫn, kiến thức, giới thiệu sản phẩm, 30 đến 120s | caption sạch, B-roll Ken Burns, thẻ số liệu, mũi tên và gạch chân, cắt khoảng ngắt từ 0,7s | rung camera, neon, số liệu không có trong lời |
 | `documentary` | câu chuyện, phỏng vấn, review dài, 60 đến 180s | caption nhỏ, B-roll dài, chuyển mờ mềm, không cắt nhịp thở | sticker hoạt hình, caption kiểu hype, chuyển cảnh dưới 0,5s |
+| `creator` | reel hướng dẫn công cụ của người làm nội dung: người nói rồi chuyển sang bản quay màn hình của chính họ, 45 đến 120s | caption nhỏ trắng một dòng, bảng màu pastel, ít hiệu ứng (cắt cứng, không whoosh), cảnh demo có zoom vùng và chú thích; có `--user-footage` thì tự chọn | cú mạnh, glow neon, thẻ số chồng lên cảnh demo |
 
 Chi tiết số trong `data/styles.json`.
 

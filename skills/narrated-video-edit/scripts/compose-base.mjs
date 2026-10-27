@@ -4,8 +4,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { FPS, args, ffmpeg, makeTimeMap, probe, readJson, writeJson } from './common.mjs';
+import { demoLayout, demoTheme, buildPlate, focusFilters, focusList } from './demo-lib.mjs';
 import { loadLibrary, makeCtx, snapWindow, videoStage } from './fx-lib.mjs';
-import { facesIn, followLeftAt, loadAnalysis, loadStyle, mapFacesForLayout, mapPlan, sizeOf, stackGeometry } from './plan-lib.mjs';
+import { clipPlan, facesIn, followLeftAt, loadAnalysis, loadStyle, mapFacesForLayout, mapPlan, sizeOf, stackGeometry } from './plan-lib.mjs';
 
 const { flags } = args();
 if (!flags.plan || !flags.analysis || !flags.out) { console.error('Dùng: node compose-base.mjs --plan work/edit-plan.json --analysis work/analysis --out work/base.mp4'); process.exit(2); }
@@ -70,7 +71,7 @@ const punchTerms = mapped.punches.map((p) => `(${num(p.scale - 1)}*${bump(p)})`)
 const zoomExpr = punchTerms.length ? `1+${punchTerms.join('+')}` : '1';
 const fxExpr = mapped.punches.map((p) => `${bump(p)}*${num(focal(p).fx - 0.5)}`).join('+') || '0';
 const fyExpr = mapped.punches.map((p) => `${bump(p)}*${num(focal(p).fy - 0.35)}`).join('+') || '0';
-const fadeDur = { hype: 0.05, explainer: 0.2, documentary: 0.3 }[style.id] ?? 0.1;
+const fadeDur = { hype: 0.05, explainer: 0.2, documentary: 0.3, creator: 0.15 }[style.id] ?? 0.1;
 const inputs = ['-i', cutVideo];
 const g2 = [];
 g2.push(punchTerms.length
@@ -78,26 +79,46 @@ g2.push(punchTerms.length
   : '[0:v]null[bg]');
 let last = 'bg';
 const isFullbleed = (c) => !c.presentation || c.presentation === 'fullbleed';
-const baseCutaways = mapped.cutaways.filter(isFullbleed);
-mapped.cutaways.filter((c) => !isFullbleed(c)).forEach((c) => { if (!c.asset) throw new Error(`Cutaway ${c.id} chưa có tài nguyên (chạy resolve-assets).`); });
+// Cutaway dựng ở lớp nền: phủ kín khung (fullbleed) hoặc cảnh demo (nền hoa văn, khung quanh clip, zoom vùng); các kiểu còn lại là vật thể của lớp phủ
+const isBaseCutaway = (c) => isFullbleed(c) || c.presentation === 'demo';
+const baseCutaways = mapped.cutaways.filter(isBaseCutaway);
+mapped.cutaways.filter((c) => !isBaseCutaway(c)).forEach((c) => { if (!c.asset) throw new Error(`Cutaway ${c.id} chưa có tài nguyên (chạy resolve-assets).`); });
+let nIn = 1;
+const addInput = (opts, file) => { inputs.push(...opts, '-i', file); return nIn++; };
 baseCutaways.forEach((c, k) => {
   if (!c.asset) throw new Error(`Cutaway ${c.id} chưa có tài nguyên (chạy resolve-assets).`);
   const file = path.resolve(base, c.asset);
   if (!fs.existsSync(file)) throw new Error(`Không thấy ${file}`);
   const dur = c.oEnd - c.oStart;
-  const idx = k + 1;
-  const isVideo = c.kind === 'video' || /\.(mp4|webm|mov)$/i.test(file);
+  const isVideo = c.kind === 'video' || /.(mp4|webm|mov)$/i.test(file);
   const f = Math.min(fadeDur, dur / 4);
   const tail = `format=rgba,fade=t=in:st=0:d=${num(f)}:alpha=1,fade=t=out:st=${num(dur - f)}:d=${num(f)}:alpha=1,setpts=PTS-STARTPTS+${num(c.oStart)}/TB[c${k}]`;
-  if (isVideo) {
-    inputs.push('-stream_loop', '-1', '-t', num(dur), '-i', file);
-    g2.push(`[${idx}:v]fps=${FPS},scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H},setsar=1,${tail}`);
+  const clip = clipPlan(c);
+  const clipIn = () => addInput(isVideo ? [...(clip.once ? ['-ss', num(clip.start)] : ['-stream_loop', '-1']), '-t', num(dur * clip.speed)] : ['-loop', '1', '-framerate', String(FPS), '-t', num(dur)], file);
+  const timing = `${clip.speed !== 1 ? `setpts=PTS/${clip.speed},` : ''}fps=${FPS}`;
+  if (c.presentation === 'demo') {
+    const info = probe(file);
+    const theme = demoTheme(c.theme);
+    const layout = demoLayout({ W, H, theme, clipW: info.width, clipH: info.height });
+    const { plate, mask } = buildPlate({ theme, W, H, rect: layout, dir: path.join(tmp, `demo-${c.id}`) });
+    const still = ['-loop', '1', '-framerate', String(FPS), '-t', num(dur)];
+    const p = addInput(still, plate);
+    const m = addInput(still, mask);
+    const q = clipIn();
+    g2.push(`[${q}:v]${timing},${isVideo && clip.once ? `tpad=stop_mode=clone:stop_duration=${num(dur)},` : ''}${focusFilters(focusList(c), layout)}[dc${k}]`);
+    g2.push(`[${m}:v]format=gray[dm${k}]`);
+    g2.push(`[dc${k}][dm${k}]alphamerge[dr${k}]`);
+    g2.push(`[${p}:v][dr${k}]overlay=${layout.x}:${layout.y}:shortest=1,${tail}`);
+  } else if (isVideo) {
+    const idx = clipIn();
+    const fit = clip.fit === 'contain' ? `scale=${W}:${H}:force_original_aspect_ratio=decrease,pad=${W}:${H}:(ow-iw)/2:(oh-ih)/2:color=black` : `scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H}`;
+    g2.push(`[${idx}:v]${timing},${fit},setsar=1,${clip.once ? `tpad=stop_mode=clone:stop_duration=${num(dur)},` : ''}${tail}`);
   } else {
     const info = probe(file);
     const cover = Math.max(W / info.width, H / info.height);
     const cw = Math.ceil((info.width * cover) / 2) * 2;
     const ch = Math.ceil((info.height * cover) / 2) * 2;
-    inputs.push('-loop', '1', '-framerate', String(FPS), '-t', num(dur), '-i', file);
+    const idx = clipIn();
     const kb = c.zoom === 'drift'
       ? `scale=${Math.ceil(cw * 1.15 / 2) * 2}:${Math.ceil(ch * 1.15 / 2) * 2},crop=${W}:${H}:x='(iw-ow)*t/${num(dur)}':y='(ih-oh)/2'`
       : `scale=eval=frame:w='trunc(${cw}*(1+0.14*t/${num(dur)})/2)*2':h='trunc(${ch}*(1+0.14*t/${num(dur)})/2)*2',crop=${W}:${H}`;

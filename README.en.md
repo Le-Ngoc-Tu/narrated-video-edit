@@ -46,6 +46,8 @@ You give it a video with someone speaking, or a voice-over. It produces a vertic
 - **Word-by-word captions** that highlight the word being spoken, in six presets (`bold`, `kinetic`, `pill`, `marker`, `minimal`, `editorial`). Fonts with Vietnamese diacritics are bundled.
 - **B-roll that matches what is said**, shown as designed objects (card, polaroid, picture-in-picture, sticker, peek, stack) over a speaker who keeps moving. Images come only from sources with a license the skill accepts (CC0, public domain, CC BY), and every file gets a credit line.
 - **Stickers, animated emoji, number cards, lower thirds, zoom on emphasis, sound effects**, chosen from the words actually spoken. Numbers on screen must appear in the speech; nothing is invented.
+- **Demo scenes for tool tutorials** (the `demo` presentation): the speaker gives way to your own screen recording on a self-drawn patterned background, in a rounded frame, with zoom into the area being discussed and circle, arrow and underline marks that follow that area as the clip zooms. Clips inside cutaways now play for real from a start time you choose (no longer a single still frame); `--user-footage` matches your footage to the speech.
+- **A glossary for proper names**: Whisper often hears "Claude" as "Cloud"; the glossary corrects it after transcription, only touches words that are also ordinary words (such as "cloud") once you have declared the term, and asks you at the first gate.
 - **A library of 190 effects in 11 families**, each one run and measured by `effects-selftest.mjs` (outside the effect window the frame must stay identical, inside it must change, no black corners, no more than three flashes per second).
 - **Face-aware layouts**: a face detector keeps cards off the speaker; `--layout follow` crops 9:16 around the face; text can sit *behind* the speaker through person segmentation.
 - **Loudness normalised to -14 LUFS**, an `.srt` file and an `out.credits.txt` to paste into the video description.
@@ -65,13 +67,13 @@ Everything runs on your machine except the image search, which sends short Engli
 
 The three gates are mandatory: the assistant stops and asks. Only if you say "quick" or "choose for me" does it continue, and then it writes its assumptions into the report.
 
-Three styles ship with the skill: `hype` (short, loud, 15 to 60 s), `explainer` (clean, 30 to 120 s) and `documentary` (calm, 60 to 180 s). Details are in [`references/`](skills/narrated-video-edit/references/).
+Four styles ship with the skill: `hype` (short, loud, 15 to 60 s), `explainer` (clean, 30 to 120 s), `documentary` (calm, 60 to 180 s) and `creator` (tool-tutorial reels, few effects, 45 to 120 s). Details are in [`references/`](skills/narrated-video-edit/references/).
 
 ## Install
 
 Full steps, with troubleshooting: **[docs/INSTALL.en.md](docs/INSTALL.en.md)**. In short:
 
-1. Download `narrated-video-edit-v1.0.0.zip` from the [latest release](../../releases/latest).
+1. Download `narrated-video-edit-v1.1.0.zip` from the [latest release](../../releases/latest).
 2. Add it where your assistant looks for skills:
    - **Claude (claude.ai or the desktop app):** open your account menu, then *Settings* (shown as *Customize*, then *Skills*, in some versions), then *Add*, then *Upload skill*, and drop the zip. Turn the skill on.
    - **Claude Code:** unzip into `~/.claude/skills/` so that `~/.claude/skills/narrated-video-edit/SKILL.md` exists, or into `.claude/skills/` inside a project.

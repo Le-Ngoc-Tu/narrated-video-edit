@@ -27,6 +27,15 @@
       "atStat": { "pool": [], "fraction": 0 },
       "atOpen": { "pool": [], "fraction": 0 },
       "atPunch": [{ "effect": "slow-push", "fraction": 0.3 }]
+    },
+    "creator": {
+      "maxPerMinute": 2,
+      "strongPerMinute": 0,
+      "minGapSec": 10,
+      "atCut": { "pool": [], "fraction": 0 },
+      "atStat": { "pool": ["punch-in"], "fraction": 0.4 },
+      "atOpen": { "pool": [], "fraction": 0 },
+      "atPunch": []
     }
   },
   "lint": {

@@ -14,7 +14,7 @@ Tệp kế hoạch `work/edit-plan.json` ghi đè gần như mọi thứ cho m�
 
 ## 2. Diện mạo: `data/styles.json`
 
-Ba phong cách (`hype`, `explainer`, `documentary`). Mỗi phong cách định nghĩa:
+Bốn phong cách (`hype`, `explainer`, `documentary`, `creator`). Mỗi phong cách định nghĩa:
 
 | Trường | Điều khiển |
 | --- | --- |

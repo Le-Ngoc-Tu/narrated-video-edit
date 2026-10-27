@@ -70,3 +70,16 @@ Mở trang `http://127.0.0.1:8765` (chỉ lắng nghe trên máy bạn). Sửa �
 - Nửa dưới khung (dưới video gốc) hiện để trống; chưa có phần tử nào dùng vùng đó.
 - Ảnh minh họa chung chung ở vùng trên vẫn cần mắt người xác nhận ngữ cảnh ở CỔNG 2; tránh ảnh có người xác định được hoặc hồ sơ tài liệu có chữ ký.
 - Icon tìm theo tên emoji tiếng Anh: truy vấn trừu tượng ít kết quả, nên chọn vật thể cụ thể (robot, gear, factory).
+
+## Thẻ chips, headline, textspam và biến thể của title
+
+Bốn thêm vào bộ thẻ headline, theo kiểu reels hướng dẫn công cụ. Mọi chữ trên các thẻ này phải lấy từ lời nói quanh mốc neo (trong khoảng 3 giây, sai lệch cho phép 25% số từ nội dung) hoặc từ `userSource`; `plan-lint` báo FAIL nếu không (`chữ trên thẻ mới có trong lời nói quanh mốc neo`).
+
+| Thẻ | Trường | Hiển thị |
+| --- | --- | --- |
+| `title` thêm | `kicker` (nhãn nhỏ phía trên), `highlight` (danh sách cụm chữ nằm trong `text`, được tô nền như bút dạ quang), `plate` (true thì có nền thẻ bo góc ôm vừa nội dung) | giữ nguyên kiểu cũ khi không có các trường này |
+| `headline` | `lines` (1 đến 3 dòng) | chữ gradient căn trái, vào lần lượt từ dưới lên; đặt ở vùng trống phía dưới (quét từ dưới lên) |
+| `chips` | `title` (tùy chọn), `items` (mỗi mục `{ label, icon, anchorWord }`, tối đa 12; `icon` là truy vấn Iconify bằng tiếng Anh, tùy chọn) | các chip xếp dòng, tự xuống hàng; mỗi chip bật lên đúng lúc từ neo `anchorWord` được nói (không có thì cách nhau 0,18s) |
+| `textspam` | `text`, `count` (3 đến 14, mặc định 8), `coverFace` (mặc định false) | một cụm chữ nhân bản dần trên khung, vị trí và góc theo hạt giống (cùng kế hoạch cho cùng kết quả). Mặc định mọi bản sao tránh mặt, caption và vật thể khác; `coverFace: true` cho các bản từ 60% số lượng được đè mặt (miễn kiểm chồng mặt của `audit-edit` cho riêng các bản đó) |
+
+Dùng tiết kiệm: một thẻ lớn mỗi lần, không chồng lên cảnh demo hay cutaway.

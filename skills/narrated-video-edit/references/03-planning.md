@@ -21,7 +21,7 @@
 
 ## Decor tự gợi ý và quy trình chọn asset
 
-`plan-skeleton` tự gợi ý icon (theo chủ đề), sparkle (lời khen), confetti (lời cảm ơn, kết) và lấp khoảng trống sự kiện hình bằng zoom nhấn, dựa vào `data/decor-keywords.json` và ngân sách `decor.auto` của phong cách trong `data/styles.json`. Muốn thêm từ khóa hay đổi mật độ: sửa hai tệp dữ liệu này, không sửa mã. Tác tử chỉ duyệt và chỉnh kết quả theo các nguyên tắc ở mục dưới.
+`plan-skeleton` tự gợi ý icon (theo chủ đề), sparkle (lời khen), confetti (lời cảm ơn, kết) và lấp khoảng trống sự kiện hình bằng zoom nhấn, dựa vào `data/decor-keywords.json` và ngân sách `decor.auto` của phong cách trong `data/styles.json`. Muốn thêm từ khóa hay đổi mật độ: sửa hai tệp dữ liệu này, không sửa mã. Từ khóa của nhịp phải đủ dài theo ngôn ngữ (`keywordMinLength` trong `data/decor-keywords.json`: 5 chữ cái mặc định, 4 cho tiếng Việt vì tiếng Việt viết tách âm tiết); ngưỡng cao hơn thì lời tiếng Việt gần như không có sticker. Tác tử chỉ duyệt và chỉnh kết quả theo các nguyên tắc ở mục dưới.
 
 ## Viết truy vấn cutaway (quan trọng nhất)
 
@@ -47,7 +47,55 @@ Bộ khung điền `query` bằng các từ khóa dài nhất của nhịp ("roa
 
 ## Bản highlight của video dài
 
-Video dài (vlog vài chục phút) thường không cần dựng đủ. Chạy `pick-highlights.mjs --analysis work/analysis --out work/highlights.json --target 75` để chọn 5 đến 8 đoạn quan trọng (mỗi đoạn 7 đến 15s), rồi `plan-skeleton.mjs ... --keep work/highlights.json` (hoặc `--keep "44-61,175-185"` bằng giây). Phần ngoài các đoạn bị cắt, KHÔNG cắt khoảng lặng bên trong đoạn (giữ nguyên nhịp), mỗi chỗ nối có một tiếng whoosh. Gửi người dùng danh sách đoạn (mốc giờ và lời nói) ở CỔNG 1. Dựng mất vài phút thay vì hàng chục phút. Bộ chọn chỉ là gợi ý theo điểm số: người dùng có thể thay bằng mốc của họ.
+Video dài (vlog vài chục phút) thường không cần dựng đủ. Chạy `pick-highlights.mjs --analysis work/analysis --out work/highlights.json --target 75` để chọn 5 đến 8 đoạn quan trọng (mỗi đoạn 7 đến 15s), rồi `plan-skeleton.mjs ... --keep work/highlights.json` (hoặc `--keep "44-61,175-185"` bằng giây). Biên của `--keep` luôn là chỗ cắt nhịp (đoạn giữ ngắn nằm gọn trong một câu liền mạch vẫn ra nhịp); không có nhịp nào nằm trọn trong đoạn giữ thì `plan-skeleton` báo lỗi. Phần ngoài các đoạn bị cắt, KHÔNG cắt khoảng lặng bên trong đoạn (giữ nguyên nhịp), mỗi chỗ nối có một tiếng whoosh. Gửi người dùng danh sách đoạn (mốc giờ và lời nói) ở CỔNG 1. Dựng mất vài phút thay vì hàng chục phút. Bộ chọn chỉ là gợi ý theo điểm số: người dùng có thể thay bằng mốc của họ.
+
+## Cutaway là clip chạy thật
+
+Cutaway có tệp video (`kind: "video"`) chạy thật chứ không còn là một khung tĩnh, ở cả hai chỗ: lớp nền (`fullbleed`) và thẻ trình bày trong lớp phủ (`card`, `polaroid`, `pip`, `sticker`, `peek`, `stack`; lớp phủ trích chuỗi khung JPG theo 30 khung/giây rồi đổi ảnh theo từng khung, đo thêm khoảng 1 ms mỗi khung so với thẻ tĩnh). Hai trường tùy chọn:
+
+- `clipStart`: giây trong clip nơi cutaway bắt đầu phát (mặc định 0). Cho phép trích đúng đoạn đang nói tới trong một bản quay màn hình dài.
+- `clipFit`: `cover` (mặc định, lấp đầy và cắt) hoặc `contain` (thấy trọn khung, viền đen ở cutaway phủ kín).
+
+Quy tắc phát: clip của người dùng (`userProvided`) hoặc có `clipStart` chạy MỘT lần rồi giữ khung cuối khi cửa sổ dài hơn clip (lặp làm hỏng thứ tự thao tác trong demo); `plan-lint --stage assets` cảnh báo khi clip còn ngắn hơn cửa sổ và báo lỗi khi `clipStart` vượt độ dài clip. Clip tải về từ kho công khai không có `clipStart` thì lặp để lấp cửa sổ.
+
+## Footage của người dùng (`--user-footage`)
+
+Người dùng có bản quay màn hình hoặc ảnh của chính họ: đặt vào một thư mục kèm `footage.json` rồi chạy `plan-skeleton.mjs ... --user-footage <thư mục>`. Không nêu `--style` thì dùng phong cách `creator`.
+
+```json
+{ "files": [
+  { "file": "screen.mp4", "description": "screen recording of the agent generating a storyboard", "keywords": ["storyboard", "sound", "chọn"], "demo": true, "theme": "pastel", "clipStart": 12, "clipSpeed": 4 },
+  { "file": "phone.mp4", "description": "phone screen", "keywords": ["điện", "thoại"] }
+] }
+```
+
+- `keywords`: từ trong lời nói (chữ thường, bỏ dấu câu; tiếng Việt từng âm tiết). Nhịp nào có từ khóa trùng thì dùng footage đó; các nhịp liền nhau cùng footage gộp thành một cutaway, một nhịp ngắn không từ khóa nằm giữa hai nhịp cùng footage cũng được gộp.
+- `demo: true` dựng kiểu demo (mục dưới), không thì dùng kiểu trình bày luân phiên của phong cách. Cảnh demo luôn chừa nhịp mở đầu (hook) và nhịp kết (cta) cho người nói, và tổng thời lượng không vượt 95% trần `demoMaxShare`.
+- Cutaway từ footage đã có `asset` và `userProvided: true` (không cần `resolve-assets`, không cần ghi công). Cảnh demo sinh ra `focus` và `marks` rỗng: tác tử đọc ảnh duyệt rồi thêm vùng zoom và chú thích. Ranh giới cảnh theo ranh giới nhịp (7 đến 10 giây): chỉnh `start` và `end` về đúng từ mở đầu và kết thúc của đoạn thao tác.
+
+### Truy vấn ảnh stock và chồng vật thể
+
+- `plan-skeleton` bỏ cutaway có truy vấn chứa từ trừu tượng (`abstractQuery` trong `data/decor-keywords.json`: effect, animation, agent, comment, video...) hoặc còn tiếng Việt chưa có trong `concepts`, và báo danh sách đã bỏ. Lời nói về công cụ phần mềm hiếm khi có ảnh stock đúng: dùng `--user-footage`, hoặc thêm tay cutaway khi có truy vấn cụ thể. Gặp truy vấn rác mới thì thêm từ vào `abstractQuery`, không sửa mã.
+- `plan-lint` báo FAIL khi hai vật thể lớn trùng cửa sổ: cutaway `fullbleed` hoặc `demo`, thẻ số, thẻ `title`, `compare`, `logos`, `comment`, `counter`, `headline`, `chips`. `plan-skeleton` tự tránh chồng khi gợi ý thẻ số, chữ sau người nói và thẻ logo. Chữ sau người nói, tường, quỹ đạo và chữ nhân bản là lớp nền nên không tính.
+- Cảnh demo chạy clip liên tục nên khoảng trống sự kiện hình tính một sự kiện mỗi 4 giây trong cửa sổ demo.
+
+## Cảnh demo (voice-over trên màn hình thao tác)
+
+Video hướng dẫn công cụ thường chuyển từ người nói sang bản quay màn hình, người nói chỉ còn lời. `presentation: "demo"` dựng cảnh đó: nền hoa văn tự vẽ bằng mã (gradient chéo và lưới chấm; chủ đề ở `data/demo-themes.json`: `pastel` sáng và `night` tối, chọn bằng `theme`), clip đặt trong khung bo góc có viền và bóng, caption ở dải dưới. Cảnh này dựng ở lớp nền (ffmpeg) nên thay hẳn khung người nói trong cửa sổ của nó.
+
+```json
+{ "id": "d01", "start": 24.9, "end": 57.5, "anchorWord": 60, "query": "screen demo", "kind": "video", "presentation": "demo", "theme": "pastel",
+  "asset": "../demo/screen.mp4", "userProvided": true, "clipStart": 12.0, "clipSpeed": 4,
+  "focus": [{ "start": 30.0, "end": 34.0, "rect": { "x": 0.55, "y": 0.10, "w": 0.35, "h": 0.30 } }],
+  "marks": [{ "type": "circle", "rect": { "x": 0.55, "y": 0.10, "w": 0.35, "h": 0.30 }, "start": 30.8, "end": 33.5 }] }
+```
+
+- `clipStart`, `clipSpeed` (4 là tua nhanh gấp 4, hợp bản quay màn hình dài), `clipFit` như mục clip chạy thật; clip dùng `-ss` nên không lặp từ đầu.
+- `focus`: các vùng zoom, mỗi vùng `{ start, end, rect }`. `start` và `end` là giây trong video gốc, nằm trong cửa sổ cutaway; `rect` là `{ x, y, w, h }` theo tọa độ chuẩn hóa của CLIP (0 đến 1). Khung phóng vào rect (mức zoom tối đa 3, chuyển mềm tối đa 0,45s mỗi đầu); các vùng không chồng nhau.
+- `marks`: chú thích `circle`, `arrow`, `underline` quanh một `rect` theo tọa độ clip. Chú thích đi theo vùng đích khi clip zoom (vị trí tính sẵn cho từng khung bằng cùng công thức với zoom) và tự ẩn khi vùng đích ra khỏi vùng nhìn. Màu nét lấy từ chủ đề.
+- Người nói vắng mặt trong lúc demo nên có trần riêng: tổng thời lượng demo không quá `demoMaxShare` của phong cách (`data/styles.json`, hiện 0,7). `plan-lint` báo FAIL khi vượt thêm 0,1, `audit-edit` khi vượt thêm 0,05. Cảnh demo không tính vào `brollMaxShare`.
+- Vùng khung clip là vùng cấm của caption và của mọi vật thể lớp phủ trong lúc demo; `audit-edit` kiểm caption không đè khung.
+- Vùng đặt clip nằm ở `areaPortrait` và `areaLandscape` của chủ đề. Thêm chủ đề: thêm một mục vào `data/demo-themes.json` (màu nền, lưới chấm, bo góc, viền, bóng, màu nét), không sửa mã. Hai chủ đề đầu là gợi ý ban đầu: cho người dùng xem khung thử (`render-overlay.mjs --times`) rồi chỉnh.
 
 ## Mật độ và nhịp (mốc hiệu chuẩn, đã gắn vào `plan-lint`)
 
@@ -66,14 +114,14 @@ Video dài (vlog vài chục phút) thường không cần dựng đủ. Chạy 
   "userSource": ["chuỗi người dùng nói: dùng khi thẻ có số không nằm trong lời nói"],
   "cuts": [{ "start": 3.5, "end": 4.47, "reason": "ngắt 0.97s" }],
   "beats": [{ "id": "b01", "startWord": 0, "endWord": 1, "start": 0, "end": 0.7, "role": "hook", "text": "..." }],
-  "cutaways": [{ "id": "c01", "start": 1.0, "end": 2.3, "anchorWord": 2, "query": "coffee roasting machine", "kind": "auto|image|video", "presentation": "fullbleed|card|polaroid|pip|sticker|peek|stack", "label": "chú thích tùy chọn", "fit": "fill", "zoom": "push-in|drift", "asset": null, "status": "pending" }],
+  "cutaways": [{ "id": "c01", "start": 1.0, "end": 2.3, "anchorWord": 2, "query": "coffee roasting machine", "kind": "auto|image|video", "presentation": "fullbleed|card|polaroid|pip|sticker|peek|stack|demo", "label": "chú thích tùy chọn", "clipStart": 0, "clipFit": "cover|contain", "fit": "fill", "zoom": "push-in|drift", "asset": null, "status": "pending" }],
   "punches": [{ "id": "p1", "start": 0, "end": 0.9, "scale": 1.14, "anchorWord": 0 }],
   "stats": [{ "id": "s1", "anchorWord": 21, "value": "12", "label": "minutes", "start": 9.89, "end": 11.6 }],
   "decor": [{ "id": "d1", "type": "underline", "anchorWord": 8, "start": 2.96, "end": 4.3 }],
   "lowerThirds": [{ "title": "Tên người nói", "sub": "Chức danh", "start": 0.5, "end": 3.5 }],
   "captions": { "mode": "words|off", "preset": "bold|kinetic|pill|marker|minimal|editorial", "maxWords": 3, "emphasis": [2, 8], "yRatio": 0.8, "sizeRatio": 0.06 },
   "emoji": [{ "id": "fire", "anchorWord": 12 }],
-  "cards": [{ "id": "k1", "type": "title|compare|logos|bigtext|comment|actions|counter|orbit|wall", "text": "...", "sub": "...", "start": 0.4, "end": 4.6 }],
+  "cards": [{ "id": "k1", "type": "title|compare|logos|bigtext|comment|actions|counter|orbit|wall|headline|chips|textspam", "text": "...", "sub": "...", "start": 0.4, "end": 4.6 }],
   "layout": "stack", "layoutY": 0.38, "srcSize": { "w": 1280, "h": 720 },
   "sfx": [{ "t": 1.0, "type": "whoosh" }],
   "music": { "file": null, "duckDb": -12, "level": -22 }

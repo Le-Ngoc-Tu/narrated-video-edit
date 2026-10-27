@@ -28,6 +28,9 @@ const useFont = (family, weight, style = 'normal') => fontLoads.push(`${style ==
 // Bóng mềm, không có lớp bóng cứng lệch (trông như viền chữ): chữ vẫn đọc được trên nền sáng mà không vẽ viền
 const SH_STRONG = '0 0.04em 0.16em rgba(0,0,0,.55), 0 0 0.45em rgba(0,0,0,.3)';
 const SH_SOFT = '0 0.04em 0.18em rgba(0,0,0,.6), 0 0 0.5em rgba(0,0,0,.4)';
+// Caption trong cảnh demo nền sáng: chữ tối, quầng sáng thay bóng tối
+const LIGHT_INK = '#1c1a2e';
+const SH_LIGHT = '0 0 0.3em rgba(255,255,255,.9), 0 0 0.7em rgba(255,255,255,.6)';
 const PRESETS = {
   bold: { family: 'Montserrat', weight: 900, upper: true, lh: 1.08, gap: 0.3, shadow: SH_STRONG, active: 'color', enter: 'pop', scale: 1 },
   kinetic: { family: 'Anton', weight: 400, upper: true, lh: 1.02, gap: 0.34, shadow: SH_STRONG, active: 'color', enter: 'pop', scale: 1.18, tilt: true },
@@ -100,6 +103,8 @@ const decorByWord = new Map();
 D.decor.filter((d) => d.anchored && d.type !== 'arrow').forEach((d) => decorByWord.set(d.anchorWord, [...(decorByWord.get(d.anchorWord) ?? []), d]));
 
 D.chunks.forEach((chunk) => {
+  const light = !P.plate && (D.demoLight ?? []).some((z) => chunk.s < z.e && chunk.e > z.s);
+  chunk.ink = light ? LIGHT_INK : C.ink;
   const box = mk('cap');
   box.style.top = `${D.captionY * H}px`;
   const inner = mk('cap-in', box);
@@ -107,9 +112,9 @@ D.chunks.forEach((chunk) => {
   inner.dataset.id = chunk.id;
   inner.style.fontFamily = `"${P.family}", ${FALLBACK}`;
   inner.style.fontWeight = String(P.weight);
-  inner.style.color = C.ink;
+  inner.style.color = chunk.ink;
   inner.style.lineHeight = String(P.lh);
-  inner.style.textShadow = P.shadow;
+  inner.style.textShadow = light ? SH_LIGHT : P.shadow;
   inner.style.textTransform = P.upper ? 'uppercase' : 'none';
   inner.style.columnGap = `${P.gap}em`;
   if (P.plate) {
@@ -125,7 +130,7 @@ D.chunks.forEach((chunk) => {
     el.dataset.i = String(w.i);
     el.textContent = w.text;
     if (w.emph && P.accent) { el.style.fontFamily = `"${P.accent.family}", Georgia, serif`; el.style.fontStyle = 'italic'; el.style.fontWeight = String(P.accent.weight); el.style.fontSize = `${P.accent.size}em`; el.style.color = C.accent; }
-    else if (w.emph && P.active === 'color') { el.style.fontSize = '1.08em'; el.style.color = C.accent2; }
+    else if (w.emph && P.active === 'color') { el.style.fontSize = '1.08em'; el.style.color = light ? C.accent : C.accent2; }
     inner.appendChild(el);
     wordEls.set(w.i, el);
     if (P.active === 'box' || P.active === 'swipe') {
@@ -211,12 +216,12 @@ capBoxes.forEach(({ chunk, inner, size }) => {
     const hl = el.querySelector('.hl');
     if (P.quiet) return;
     if (P.active === 'color') {
-      if (!w.emph) { tl.set(el, { color: C[style.captions.activeColor] ?? C.accent }, w.s); tl.set(el, { color: C.ink }, until); }
+      if (!w.emph) { tl.set(el, { color: C[style.captions.activeColor] ?? C.accent }, w.s); tl.set(el, { color: chunk.ink }, until); }
     } else {
       ft(hl, { opacity: 0, scaleX: 0.6 }, { opacity: 1, scaleX: 1, duration: 0.09, ease: 'power2.out' }, w.s);
       tl.set(hl, { opacity: 0 }, until);
       tl.set(el, { color: C.panel }, w.s);
-      tl.set(el, { color: C.ink }, until);
+      tl.set(el, { color: chunk.ink }, until);
     }
     const peak = P.scale > 1 ? P.scale : style.captions.popScale;
     const tilt = P.tilt ? (k % 2 ? 3 : -3) : 0;
@@ -296,6 +301,9 @@ D.decor.forEach((d) => {
 });
 
 // ---- Showcase: tài nguyên hiện như vật thể thiết kế (thẻ, polaroid, sticker, PiP, ló ra từ mép, chồng thẻ) ----
+// Showcase có clip (sc.clip): khung hình thứ n của chuỗi JPG hiện tại thời điểm t; seek chỉ đổi src, window.settle() đợi giải mã xong trước khi chụp
+const playing = [];
+let decoding = [];
 useFont('Be Vietnam Pro', 800);
 D.showcases.forEach((sc) => {
   const w = sc.w * W;
@@ -311,6 +319,7 @@ D.showcases.forEach((sc) => {
   img.src = sc.src;
   img.alt = '';
   imgs.push(img);
+  if (sc.clip) { img.style.objectFit = sc.clip.fit; playing.push({ img, sc, n: 0 }); }
   inner.appendChild(img);
   let radius = U * 0.034;
   if (sc.mode === 'polaroid') {
@@ -367,12 +376,57 @@ D.showcases.forEach((sc) => {
   } else tl.fromTo(el, { scale: 0.3, rotation: rot - dir * 14, opacity: 0 }, { scale: 1, rotation: rot, opacity: 1, duration: inSpan, ease: 'back.out(1.9)' }, sc.s);
   if (life > inSpan + 0.55) {
     ft(el, { y: 0 }, { y: -U * 0.012, duration: life - inSpan - 0.25, ease: 'sine.inOut' }, sc.s + inSpan);
-    if (sc.mode !== 'sticker') ft(img, { scale: 1 }, { scale: 1.1, duration: life, ease: 'none' }, sc.s);
+    if (sc.mode !== 'sticker' && !sc.clip) ft(img, { scale: 1 }, { scale: 1.1, duration: life, ease: 'none' }, sc.s);
   }
   const exitAt = sc.e - 0.22;
   if (sc.exit === 'slide') ft(el, { x: 0, opacity: 1 }, { x: dir * W * 0.4, opacity: 0, duration: 0.22, ease: 'power2.in' }, exitAt);
   else ft(el, { scale: 1, opacity: 1 }, { scale: 0.84, opacity: 0, duration: 0.22, ease: 'power2.in' }, exitAt);
 });
+
+// ---- Chú thích trên cảnh demo (circle, arrow, underline): hộp đích tính sẵn cho từng khung (m.track) nên chú thích đi theo khi clip zoom; nét hiện dần bằng stroke-dashoffset (không dùng DrawSVG vì độ dài nét đổi theo khung) ----
+const FPS = 30;
+const MARK_D = {
+  circle: ([x, y, w, h]) => {
+    const pad = U * 0.014;
+    const rx = w / 2 * 1.12 + pad;
+    const ry = h / 2 * 1.2 + pad;
+    const cx = x + w / 2;
+    const cy = y + h / 2;
+    return `M${cx - rx} ${cy} A${rx} ${ry} 0 1 1 ${cx + rx} ${cy} A${rx} ${ry} 0 1 1 ${cx - rx} ${cy}`;
+  },
+  underline: ([x, y, w, h]) => { const yy = y + h + U * 0.012; return `M${x} ${yy} Q${x + w / 2} ${yy + U * 0.014} ${x + w} ${yy - U * 0.004}`; },
+  arrow: ([x, y, w, h]) => {
+    const len = U * 0.13;
+    const hs = U * 0.032;
+    const tipx = x + w / 2;
+    const tipy = y + h + U * 0.014;
+    const sx = tipx + (tipx > W * 0.6 ? -1 : 1) * len * 0.55;
+    const sy = tipy + len;
+    const a = Math.atan2(tipy - sy, tipx - sx);
+    const arm = (d) => `L${tipx - hs * Math.cos(a + d)} ${tipy - hs * Math.sin(a + d)}`;
+    return `M${sx} ${sy} L${tipx} ${tipy} M${tipx} ${tipy} ${arm(0.5)} M${tipx} ${tipy} ${arm(-0.5)}`;
+  }
+};
+const marks = (D.demoMarks ?? []).map((m) => {
+  const wrap = mk('deco');
+  wrap.style.cssText += `left:0;top:0;width:${W}px;height:${H}px;filter:drop-shadow(0 ${U * 0.004}px ${U * 0.008}px rgba(0,0,0,.3));`;
+  const el = svg(W, H, `<path d="" ${lineAttrs(m.color, Math.max(7, U * 0.011))}/>`);
+  wrap.appendChild(el);
+  stage.appendChild(wrap);
+  const mark = { ...m, path: el.firstChild, st: { p: 0 } };
+  show(wrap, m.s, m.e);
+  ft(mark.st, { p: 0 }, { p: 1, duration: Math.min(0.5, (m.e - m.s) * 0.5), ease: 'power2.out' }, m.s + 0.05);
+  ft(wrap, { opacity: 1 }, { opacity: 0, duration: 0.15, ease: 'power1.in' }, m.e - 0.15);
+  return mark;
+});
+const placeMark = (m, t) => {
+  const b = m.track[Math.max(0, Math.min(m.track.length - 1, Math.round((t - m.s) * FPS)))];
+  if (!b) { m.path.setAttribute('d', ''); return; }
+  m.path.setAttribute('d', MARK_D[m.type]([b[0] * W, b[1] * H, b[2] * W, b[3] * H]));
+  const len = m.path.getTotalLength();
+  m.path.style.strokeDasharray = len;
+  m.path.style.strokeDashoffset = len * (1 - m.st.p);
+};
 
 // ---- Thẻ số liệu: đếm lên tới giá trị nói trong video ----
 const counter = (value) => {
@@ -565,20 +619,109 @@ const fmtCount = (v) => Math.round(v).toLocaleString('vi-VN');
     });
     out.push(...lineEls);
   } else if (c.type === 'title') {
-    const size = h0 * 0.5;
+    // Biến thể: plate (nền thẻ bo góc), kicker (nhãn nhỏ phía trên), highlight (cụm chữ được tô nền như bút dạ quang); thiếu các trường này thì giữ kiểu hai tầng như cũ
+    const pad = c.plate ? h0 * 0.11 : 0;
+    const inW = w0 - 2 * pad;
+    const size = ((h0 - 2 * pad) * 0.5) / (c.kicker ? 1.3 : 1);
+    let plate = null;
+    if (c.plate) {
+      plate = mk('chip', el);
+      plate.style.cssText += `left:0;top:0;width:${w0}px;height:${h0}px;border-radius:${h0 * 0.16}px;background:${HEX(C.panel, 0.9)};box-shadow:0 ${h0 * 0.06}px ${h0 * 0.2}px rgba(0,0,0,.38);`;
+      tl.fromTo(plate, { scale: 0.92, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: 'back.out(1.6)' }, c.s);
+      out.push(plate);
+    }
+    let top = pad;
+    if (c.kicker) {
+      const kc = mk('chip', el);
+      kc.textContent = c.kicker;
+      kc.style.cssText += `left:${pad}px;top:${top}px;font-family:"Be Vietnam Pro",${FALLBACK};font-size:${size * 0.4}px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;line-height:1.2;color:${C.accent};text-shadow:${c.plate ? 'none' : SH_STRONG};`;
+      shrinkToFit(kc, inW);
+      top += size * 0.62;
+      tl.fromTo(kc, { y: size * 0.2, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: 'power3.out' }, c.s + 0.05);
+      out.push(kc);
+    }
     const t1 = mk('chip', el);
-    t1.textContent = c.text;
-    t1.style.cssText += `left:0;top:0;font-size:${size}px;font-weight:900;line-height:1.05;color:${C.ink};text-shadow:${SH_STRONG};`;
-    shrinkToFit(t1, w0);
+    t1.style.cssText += `left:${pad}px;top:${top}px;font-size:${size}px;font-weight:900;line-height:1.05;color:${C.ink};text-shadow:${c.plate ? 'none' : SH_STRONG};`;
+    const phrases = (c.highlight ?? []).filter(Boolean).sort((a, b) => b.length - a.length);
+    const marks = [];
+    if (phrases.length) {
+      const re = new RegExp(`(${phrases.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})`, 'gi');
+      c.text.split(re).forEach((part, k) => {
+        if (!part) return;
+        if (k % 2) {
+          const span = document.createElement('span');
+          span.textContent = part;
+          span.style.cssText = `display:inline-block;padding:0 0.16em;border-radius:0.2em;background:${HEX(C.accent, 0.95)};color:${C.panel};text-shadow:none;`;
+          marks.push(span);
+          t1.appendChild(span);
+        } else t1.appendChild(document.createTextNode(part));
+      });
+    } else t1.textContent = c.text;
+    shrinkToFit(t1, inW);
     const s1 = parseFloat(t1.style.fontSize);
     const t2 = mk('chip', el);
     t2.textContent = c.sub;
-    t2.style.cssText += `left:0;top:${s1 * 1.12}px;font-family:"Be Vietnam Pro",${FALLBACK};font-size:${s1 * 0.5}px;font-weight:700;line-height:1.2;color:${C.ink};text-shadow:${SH_STRONG};`;
-    shrinkToFit(t2, w0);
+    t2.style.cssText += `left:${pad}px;top:${top + s1 * 1.12}px;font-family:"Be Vietnam Pro",${FALLBACK};font-size:${s1 * 0.5}px;font-weight:700;line-height:1.2;color:${C.ink};text-shadow:${c.plate ? 'none' : SH_STRONG};`;
+    shrinkToFit(t2, inW);
+    // Nền thẻ ôm vừa nội dung (kicker, tiêu đề, dòng phụ nếu có), không chiếm cả khung đã dành cho dòng phụ
+    if (plate) plate.style.height = `${top + s1 * 1.12 + (c.sub ? s1 * 0.62 : 0) + pad - (c.sub ? 0 : s1 * 0.05)}px`;
     tl.fromTo(t1, { clipPath: 'inset(-30% 100% -30% -10%)', y: s1 * 0.25, opacity: 0 }, { clipPath: 'inset(-30% -10% -30% -10%)', y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }, c.s);
+    marks.forEach((m, k) => tl.fromTo(m, { scale: 0.7, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(2)' }, c.s + 0.45 + k * 0.15));
     if (c.sub) tl.fromTo(t2, { y: s1 * 0.3, opacity: 0 }, { y: 0, opacity: 1, duration: 0.35, ease: 'power3.out' }, c.s + 0.2);
-    sparkles({ x: c.x * W, y: c.y * H, w: Math.min(w0, t1.scrollWidth), h: s1 * 1.3 }, c.s + 0.4, 5, 0.02);
+    if (!c.plate) sparkles({ x: c.x * W, y: c.y * H, w: Math.min(w0, t1.scrollWidth), h: s1 * 1.3 }, c.s + 0.4, 5, 0.02);
     out.push(t1, t2);
+  } else if (c.type === 'headline') {
+    // Ba dòng chữ gradient căn trái, vào lần lượt từ dưới lên
+    const font = Math.min(U * 0.1, (w0 * 0.95) / (Math.max(...c.lines.map((l) => l.length)) * 0.6));
+    c.lines.forEach((line, i) => {
+      const t = mk('chip', el);
+      t.textContent = line;
+      t.style.cssText += `left:0;top:${i * font * 1.12}px;font-size:${font}px;font-weight:900;line-height:1.05;letter-spacing:-0.01em;background:linear-gradient(90deg,${C.ink} 0%,${C.accent} 60%,${C.accent2} 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 ${font * 0.05}px ${font * 0.12}px rgba(0,0,0,.5));`;
+      shrinkToFit(t, w0, 0.4);
+      tl.fromTo(t, { y: font * 0.5, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: 'power3.out' }, c.s + i * 0.14);
+      out.push(t);
+    });
+  } else if (c.type === 'chips') {
+    const f = w0 / 22;
+    let cursor = 0;
+    if (c.title) {
+      const tt = mk('chip', el);
+      tt.textContent = c.title;
+      tt.style.cssText += `left:0;top:0;font-family:"Be Vietnam Pro",${FALLBACK};font-size:${f * 0.95}px;font-weight:800;color:${C.ink};text-shadow:${SH_STRONG};`;
+      shrinkToFit(tt, w0);
+      tl.fromTo(tt, { y: f * 0.3, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: 'power3.out' }, c.s);
+      out.push(tt);
+      cursor = 1.8 * f;
+    }
+    let x = 0;
+    let y = cursor;
+    c.items.forEach((it) => {
+      const cw = (0.6 * it.label.length + 1.6 + (it.src ? 1.5 : 0)) * f;
+      if (x && x + cw > w0) { x = 0; y += 2.7 * f; }
+      const chip = mk('chip', el);
+      chip.style.cssText += `left:${x}px;top:${y}px;height:${2.2 * f}px;padding:0 ${0.8 * f}px;border-radius:${1.1 * f}px;background:${HEX(C.panel, 0.92)};box-shadow:0 ${0.2 * f}px ${0.5 * f}px rgba(0,0,0,.35);display:flex;align-items:center;gap:${0.5 * f}px;font-family:"Be Vietnam Pro",${FALLBACK};font-size:${f}px;font-weight:700;color:${C.ink};white-space:nowrap;`;
+      if (it.src) cardImg(chip, it.src, `position:static;width:${f * 1.1}px;height:${f * 1.1}px;object-fit:contain;`);
+      const lab = document.createElement('span');
+      lab.textContent = it.label;
+      chip.appendChild(lab);
+      tl.fromTo(chip, { scale: 0.4, y: f * 0.4, opacity: 0 }, { scale: 1, y: 0, opacity: 1, duration: 0.4, ease: 'back.out(2)' }, Math.max(c.s, it.s));
+      out.push(chip);
+      x += cw + 0.5 * f;
+    });
+  } else if (c.type === 'textspam') {
+    // Chữ nhân bản: mỗi bản sao là một phần tử riêng (audit kiểm từng bản có che mặt không); coverFace thì các bản sau thuộc lớp "backdrop", được miễn kiểm mặt
+    el.removeAttribute('data-kind');
+    c.copies.forEach((cp, k) => {
+      const t = mk('chip', stage);
+      t.style.visibility = 'hidden';
+      t.dataset.kind = cp.late ? 'backdrop' : 'card';
+      t.dataset.id = c.id;
+      t.textContent = c.text;
+      t.style.cssText += `left:${cp.x * W}px;top:${cp.y * H}px;font-family:"Montserrat",${FALLBACK};font-size:${cp.size}px;font-weight:900;line-height:1.2;letter-spacing:-0.01em;color:${k % 2 ? C.accent : C.ink};text-shadow:${SH_STRONG};transform:rotate(${cp.rot}deg);`;
+      show(t, cp.s, c.e);
+      tl.fromTo(t, { scale: 0.5, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, ease: 'back.out(2.2)' }, cp.s);
+      ft(t, { opacity: 1 }, { opacity: 0, duration: 0.2, ease: 'power1.in' }, c.e - 0.2);
+    });
   } else if (c.type === 'compare') {
     const gap = w0 * 0.1;
     const cw = (w0 - gap) / 2;
@@ -835,8 +978,18 @@ window.setLayer = (layer) => { stage.dataset.layer = layer; };
 stage.dataset.layer = 'front';
 window.seek = (t) => {
   tl.time(t, false);
+  for (const m of marks) if (t >= m.s - 0.02 && t <= m.e + 0.02) placeMark(m, t);
+  for (const p of playing) {
+    if (t < p.sc.s - 0.05 || t > p.sc.e + 0.05) continue;
+    const n = Math.min(p.sc.clip.frames, Math.max(1, Math.floor((t - p.sc.s) * p.sc.clip.fps + 1e-6) + 1));
+    if (n === p.n) continue;
+    p.n = n;
+    p.img.src = `${p.sc.clip.dir}/c_${String(n).padStart(5, '0')}.jpg`;
+    decoding.push(p.img.decode().catch(() => null));
+  }
   for (const L of lotties) if (t >= L.s - 0.05 && t <= L.e + 0.05) L.anim.goToAndStop(Math.max(0, ((t - L.s) * L.fr) % (L.op - 1)), true);
 };
+window.settle = () => { const wait = decoding; decoding = []; return Promise.all(wait); };
 window.duration = () => tl.duration();
 // Hộp bao (tỉ lệ 0..1, cắt theo khung hình) của mọi phần tử đang hiện: audit dùng để kiểm chồng mặt và lề an toàn
 window.boxes = () => [...stage.querySelectorAll('[data-kind]')].flatMap((el) => {

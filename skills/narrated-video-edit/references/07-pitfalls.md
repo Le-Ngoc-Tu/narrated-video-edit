@@ -23,7 +23,7 @@
 
 | Phát hiện | Cách skill xử lý |
 | --- | --- |
-| Whisper large-v3 tiếng Việt: 2385 từ, độ tin cậy trung bình 0,92, 129s trên RTX 3050; sai tên riêng và từ mượn ("Hố Chí Minh", "Wingway") | đọc `words.json`, đưa tên riêng vào `--prompt`, sửa tay `text` nếu cần; caption lấy chữ từ đây |
+| Whisper large-v3 tiếng Việt: 2385 từ, độ tin cậy trung bình 0,92, 129s trên RTX 3050; sai tên riêng và từ mượn ("Hố Chí Minh", "Wingway") | đọc `words.json`, khai tên riêng bằng `--terms` hoặc `work/glossary.json` (từ điển áp sau phiên âm, `--prompt` một mình không đủ: "Claude" vẫn thành "Cloud" 6 lần trên 9); caption lấy chữ từ đây |
 | Whisper không đặt dấu câu khi giọng kể liền mạch: nhịp dài tới 60s | `plan-skeleton` cắt nhịp khi quá 6s tại chỗ nghỉ nhỏ và bắt buộc ở 10s |
 | Mặt chỉ dò thấy ở 30% mẫu (quay nghiêng, tóc giả, cầm máy tay) và hộp bao của mọi mặt phủ gần cả khung | không dùng một khung mặt cố định: sticker và thẻ tránh các hộp mặt trong chính cửa sổ thời gian của chúng (`facesIn`); dải caption chọn vị trí ít đè mặt nhất; audit kiểm theo từng thời điểm |
 | Khoảng lặng dài (10 đến 40s) trong vlog là cảnh quay không lời (đang cho xem đồ, chơi bài), cắt đi là mất nội dung | `maxPauseToCut` của phong cách (mặc định 3s, hype 4s): khoảng lặng dài hơn không bị cắt |
@@ -37,6 +37,8 @@
 | Caption cũ dùng viền dày và chỉ hiện từng từ nên trông thô, người xem thấy câu thiếu | băng chữ đầy đủ, bóng mềm, nhấn từ đang nói (`09-social-edit-design.md`); audit đòi đủ 100% từ |
 | Cutaway chỉ phủ kín giữa khung, vị trí đơn điệu | `presentation` đa dạng; vật thể trong lớp phủ có đặt chỗ tránh mặt và caption |
 | Vật thể rộng không còn chỗ cạnh khuôn mặt to ở video dọc, bị bỏ | cảnh báo của `render-overlay`; đổi sang `sticker` hoặc `pip`, hoặc `fullbleed` |
+| Caption chữ trắng trên nền pastel của cảnh `demo` gần như không đọc được | `render-overlay` ghi `demoLight` cho cảnh demo có nền sáng; caption trong cửa sổ đó dùng chữ tối có quầng sáng (kiểu `pill` có sẵn tấm nền nên giữ nguyên) |
+| Video ngắn (9 đến 12 giây) bị `plan-lint` chặn vì một sticker thành 5 đến 6 sticker mỗi phút | trần mật độ tính theo số sticker, tối thiểu 1, khớp với sàn chống slideshow |
 | `clip-path` cắt mất bóng đổ của thẻ | áp `clip-path` cho phần ảnh bên trong, không áp cho khung có bóng |
 | Vòng thu nhỏ chữ theo `scrollWidth` làm caption co nhỏ vì emoji tràn khỏi dòng | chỉ đo chiều cao và độ rộng từng từ |
 

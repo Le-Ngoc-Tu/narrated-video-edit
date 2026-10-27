@@ -14,7 +14,7 @@ The plan file `work/edit-plan.json` overrides almost everything for a single vid
 
 ## 2. Look and feel: `data/styles.json`
 
-Three styles (`hype`, `explainer`, `documentary`). Each defines:
+Four styles (`hype`, `explainer`, `documentary`, `creator`). Each defines:
 
 | Field | What it controls |
 | --- | --- |

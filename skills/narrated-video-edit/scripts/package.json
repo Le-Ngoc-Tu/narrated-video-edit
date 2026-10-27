@@ -1,6 +1,6 @@
 {
   "name": "narrated-video-edit-scripts",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Công cụ dòng lệnh cho skill narrated-video-edit: phân tích video có giọng nói, tìm tài nguyên có giấy phép, dựng lớp nền bằng ffmpeg, lớp phủ bằng trình duyệt, kiểm toán.",

@@ -6,7 +6,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { FPS, args, ffmpeg, launchChrome, pad, probe, readJson, skillRoot, writeJson } from './common.mjs';
-import { facesIn, loadStyle, mapFacesForLayout, norm, sizeOf, stackGeometry } from './plan-lib.mjs';
+import { MARK_TYPES, demoLayout, demoTheme, markTrack, validRect } from './demo-lib.mjs';
+import { clipPlan, facesIn, loadStyle, mapFacesForLayout, norm, sizeOf, stackGeometry } from './plan-lib.mjs';
 import { brandLogo, iconifyFind, notoLottie } from './decor-lib.mjs';
 
 const { flags } = args();
@@ -83,7 +84,18 @@ const faceBoxesFor = (t0, t1) => (stack ? [stack.box] : hasFaces ? facesIn(faces
 const zone = stack ? { x0: 0.05, x1: 0.95, y0: 0.06, y1: stack.box.y - 0.01 } : portrait ? { x0: 0.05, x1: 0.92, y0: 0.1, y1: 0.74 } : { x0: 0.04, x1: 0.96, y0: 0.06, y1: 0.94 };
 // Dải caption đứng yên cả video: chọn vị trí ít đè mặt nhất trong các ứng viên (ưu tiên vị trí của phong cách)
 const preferY = stack ? stack.box.y + stack.box.h - bandH - 0.03 : portrait ? captionCfg.yRatioPortrait ?? captionCfg.yRatio : captionCfg.yRatio;
-const bandCandidates = (stack ? [preferY, preferY - 0.04, preferY - 0.08] : [preferY, 0.8, 0.88, 0.06, 0.66, 0.56]).filter((y, k, arr) => arr.indexOf(y) === k && y + bandH <= (portrait ? 0.75 : 0.98));
+// Cảnh demo (dựng ở lớp nền): khung clip là vùng cấm của caption và của mọi vật thể; chú thích (marks) vẽ ở lớp phủ theo tọa độ clip
+const demos = mapped.cutaways.filter((c) => c.presentation === 'demo').flatMap((c) => {
+  const file = c.asset ? path.resolve(planDir, c.asset) : null;
+  if (!file || !fs.existsSync(file)) { warnings.push(`demo ${c.id} chưa có tài nguyên, bỏ chú thích`); return []; }
+  const theme = demoTheme(c.theme);
+  const dims = probe(file);
+  return [{ c, theme, layout: demoLayout({ W, H, theme, clipW: dims.width, clipH: dims.height }) }];
+});
+const demoBoxes = demos.map(({ layout }) => ({ x: layout.x / W, y: layout.y / H, w: layout.w / W, h: layout.h / H }));
+const candidatesRaw = (stack ? [preferY, preferY - 0.04, preferY - 0.08] : [preferY, 0.8, 0.88, 0.06, 0.66, 0.56]).filter((y, k, arr) => arr.indexOf(y) === k && y + bandH <= (portrait ? 0.75 : 0.98));
+const clearOfDemo = candidatesRaw.filter((y) => !demoBoxes.some((b) => overlaps({ x: 0.04, y, w: 0.92, h: bandH }, grow(b))));
+const bandCandidates = !demoBoxes.length ? candidatesRaw : clearOfDemo.length ? clearOfDemo : [Math.max(...demoBoxes.map((b) => b.y + b.h)) + 0.02];
 const bandOverlapShare = (y) => {
   if (stack) return 0;
   const band = { x: 0.04, y, w: 0.92, h: bandH };
@@ -97,12 +109,15 @@ const bandShare = bandOverlapShare(captionY);
 if (!captionsOff && captionY !== preferY) warnings.push(`dải caption dời tới y=${captionY.toFixed(2)} để ít đè mặt${hasFaces ? '' : ' (khung mặt giả định vì chưa dò được mặt)'}`);
 if (!captionsOff && bandShare > 0.05) warnings.push(`caption vẫn đè mặt ở ${(bandShare * 100).toFixed(0)}% số mẫu có mặt (mặt chiếm vùng dưới của khung)`);
 const capBand = captionsOff ? { x: 0, y: 0, w: 0, h: 0 } : { x: 0.04, y: captionY - 0.01, w: 0.92, h: bandH + 0.02 };
-const placed = [];
+const placed = demos.map(({ c }, k) => ({ ...demoBoxes[k], s: c.oStart, e: c.oEnd }));
 const clash = (box, t0, t1, faceAvoid) => faceAvoid.some((f) => overlaps(box, f)) || overlaps(box, capBand) || placed.some((p) => p.s < t1 && p.e > t0 && overlaps(box, { x: p.x - 0.01, y: p.y - 0.01, w: p.w + 0.02, h: p.h + 0.02 }));
-const placeBox = (wr, hr, prefer, t0, t1, srcT0, srcT1) => {
+const placeBox = (wr, hr, prefer, t0, t1, srcT0, srcT1, fromBottom = false) => {
   const order = prefer === 'left' ? [0.05, 0.3, 0.55, 0.78] : prefer === 'right' ? [0.78, 0.55, 0.3, 0.05] : [0.3, 0.05, 0.55, 0.78];
   const faceAvoid = faceBoxesFor(srcT0, srcT1);
-  for (let y = zone.y0; y <= zone.y1 - hr; y += 0.03) for (const x0 of order) {
+  const rows = [];
+  for (let y = zone.y0; y <= zone.y1 - hr; y += 0.03) rows.push(y);
+  if (fromBottom) rows.reverse();
+  for (const y of rows) for (const x0 of order) {
     const box = { x: Math.max(zone.x0, Math.min(x0, zone.x1 - wr)), y, w: wr, h: hr };
     if (!clash(box, t0, t1, faceAvoid)) return box;
   }
@@ -130,7 +145,7 @@ const showcases = [];
 let lastSide = 'right';
 let lastAnchor = '';
 let lastEntrance = '';
-const showcaseItems = mapped.cutaways.filter((c) => c.presentation && c.presentation !== 'fullbleed');
+const showcaseItems = mapped.cutaways.filter((c) => c.presentation && c.presentation !== 'fullbleed' && c.presentation !== 'demo');
 fs.mkdirSync(assetsDir, { recursive: true });
 showcaseItems.forEach((c, n) => {
   const cfg = MODES[c.presentation];
@@ -139,7 +154,8 @@ showcaseItems.forEach((c, n) => {
   if (!c.asset || !fs.existsSync(srcFile)) { warnings.push(`cutaway ${c.id} chưa có tài nguyên, bỏ showcase`); return; }
   const isVideo = c.kind === 'video' || /\.(mp4|webm|mov)$/i.test(srcFile);
   const dest = path.join(assetsDir, `${c.id}.${isVideo ? 'jpg' : (path.extname(srcFile).slice(1).toLowerCase() || 'jpg')}`);
-  if (isVideo) ffmpeg(['-ss', '0.6', '-i', srcFile, '-frames:v', '1', '-q:v', '2', dest], `lấy khung ${c.id}`);
+  const clip = isVideo ? clipPlan(c) : null;
+  if (isVideo) ffmpeg(['-ss', String(clip.once ? clip.start : 0.6), '-i', srcFile, '-frames:v', '1', '-q:v', '2', dest], `lấy khung ${c.id}`);
   else fs.copyFileSync(srcFile, dest);
   const dims = probe(dest);
   const imgAspect = (dims.width || 4) / (dims.height || 3);
@@ -163,7 +179,7 @@ showcaseItems.forEach((c, n) => {
     const faceAvoid = faceBoxesFor(c.start, c.end);
     const slotsX = c.presentation === 'peek'
       ? (wantSide === 'left' ? [-wr * 0.42] : [1 - wr * 0.58])
-      : (wantSide === 'left' ? [zone.x0, 0.22, 0.4] : [zone.x1 - wr, 0.74 - wr, 0.55 - wr / 2]);
+      : [...new Set((wantSide === 'left' ? [zone.x0, 0.22, 0.4] : [zone.x1 - wr, 0.74 - wr, 0.55 - wr / 2]).map((x) => Math.max(zone.x0, Math.min(x, zone.x1 - wr))))];
     const cands = [];
     for (let y = zone.y0; y <= zone.y1 - hr + 1e-6; y += 0.03) for (const x of slotsX) {
       const box = { x, y, w: wr, h: hr };
@@ -182,10 +198,30 @@ showcaseItems.forEach((c, n) => {
   lastSide = side;
   lastAnchor = placedBox.anchor;
   lastEntrance = entrance;
+  // Clip chạy thật: trích chuỗi khung JPG theo giờ thành phẩm (từ clipStart, 30 khung/giây), lớp phủ đổi img.src theo từng khung; clip ngắn hơn cửa sổ thì giữ khung cuối
+  let clipOut = null;
+  if (isVideo) {
+    const clipDir = path.join(assetsDir, 'clips', c.id);
+    fs.rmSync(clipDir, { recursive: true, force: true });
+    fs.mkdirSync(clipDir, { recursive: true });
+    const long = Math.ceil(Math.max(placedBox.wpx, placedBox.hpx));
+    ffmpeg([...(clip.once ? ['-ss', String(clip.start)] : ['-stream_loop', '-1']), '-t', ((c.oEnd - c.oStart) * clip.speed).toFixed(3), '-i', srcFile, '-vf', `${clip.speed !== 1 ? `setpts=PTS/${clip.speed},` : ''}fps=${FPS},scale='min(iw,${long})':'min(ih,${long})':force_original_aspect_ratio=decrease:force_divisible_by=2`, '-q:v', '4', path.join(clipDir, 'c_%05d.jpg')], `trích khung clip ${c.id}`);
+    clipOut = { dir: `assets/clips/${c.id}`, frames: fs.readdirSync(clipDir).length, fps: FPS, fit: clip.fit };
+  }
   placed.push({ ...placedBox.box, x: Math.max(0, placedBox.box.x), w: Math.min(1, placedBox.box.x + placedBox.box.w) - Math.max(0, placedBox.box.x), s: c.oStart, e: c.oEnd });
   const dir = side === 'left' ? -1 : 1;
-  showcases.push({ id: c.id, mode: c.presentation, src: `assets/${path.basename(dest)}`, x: placedBox.box.x, y: placedBox.box.y, w: placedBox.box.w, h: placedBox.box.h, rot: dir * between(...cfg.rot) * (rnd() < 0.2 ? -1 : 1), entrance, exit: entrance === 'slide' ? 'slide' : 'shrink', side, anchor: placedBox.anchor, label: c.label ?? '', s: c.oStart, e: c.oEnd });
+  showcases.push({ id: c.id, mode: c.presentation, src: `assets/${path.basename(dest)}`, x: placedBox.box.x, y: placedBox.box.y, w: placedBox.box.w, h: placedBox.box.h, rot: dir * between(...cfg.rot) * (rnd() < 0.2 ? -1 : 1), entrance, exit: entrance === 'slide' ? 'slide' : 'shrink', side, anchor: placedBox.anchor, label: c.label ?? '', clip: clipOut, s: c.oStart, e: c.oEnd });
 });
+
+// ---- Chú thích trên cảnh demo: nét circle, arrow, underline đi theo vùng đích khi clip zoom; quỹ đạo tính sẵn cho từng khung ----
+const demoMarks = [];
+// Cửa sổ cảnh demo có nền sáng (chủ đề pastel): caption trong đó đổi sang chữ tối, vì chữ trắng trên nền pastel gần như không đọc được
+const lumaOf = ([r, g, b]) => 0.299 * r + 0.587 * g + 0.114 * b;
+const demoLight = demos.filter(({ theme }) => (lumaOf(theme.bg.from) + lumaOf(theme.bg.to)) / 2 > 150).map(({ c }) => ({ s: c.oStart, e: c.oEnd }));
+demos.forEach(({ c, theme, layout }) => (c.marks ?? []).forEach((m, k) => {
+  if (!MARK_TYPES.includes(m.type) || !validRect(m.rect)) { warnings.push(`demo ${c.id}: chú thích ${k + 1} không hợp lệ (type: ${MARK_TYPES.join(', ')}; rect trong 0..1) nên bị bỏ`); return; }
+  demoMarks.push({ id: `${c.id}-m${k + 1}`, type: m.type, color: theme.mark, s: m.oStart, e: m.oEnd, track: markTrack({ demo: c, mark: m, layout, W, H, fps: FPS }) });
+}));
 
 // ---- Sticker và thẻ số liệu ----
 const chunkOf = (wordIndex) => chunkObjs.find((c) => c.words.some((w) => w.i === wordIndex));
@@ -255,6 +291,33 @@ for (const c of mapped.cards ?? []) {
     cardsOut.push({ ...base, type: 'bigtext', behind: c.behind !== false, lines, text, x: 0.02, y: Math.max(0.02, cy - hr / 2), w: 0.96, h: hr });
     continue;
   }
+  if (c.type === 'textspam') {
+    // Chữ nhân bản: một cụm chữ hiện thêm bản sao theo thời gian (vị trí và góc theo hạt giống). Các bản sau (từ 60% số lượng) được đè mặt khi coverFace; còn lại luôn tránh mặt, caption và vật thể khác
+    const text = String(c.text ?? '').trim().toUpperCase();
+    if (!text) { warnings.push(`thẻ ${c.id} (textspam) bỏ vì thiếu chữ`); continue; }
+    const count = Math.min(14, Math.max(3, Math.round(Number(c.count)) || 8));
+    const size = Math.min(U * 0.075, (W * 0.9) / (text.length * 0.6));
+    const dur = c.oEnd - c.oStart;
+    const faceAvoid = faceBoxesFor(c.start, c.end);
+    const copies = [];
+    for (let k = 0; k < count; k++) {
+      const s0 = c.oStart + (k / count) * dur * 0.7;
+      const wr = (text.length * 0.6 * size) / W;
+      const hr = (size * 1.25) / H;
+      const late = Boolean(c.coverFace) && k >= Math.ceil(count * 0.6);
+      let box = null;
+      for (let attempt = 0; attempt < 40 && !box; attempt++) {
+        const cand = { x: zone.x0 + rnd() * Math.max(0, zone.x1 - zone.x0 - wr), y: zone.y0 + rnd() * Math.max(0, zone.y1 - zone.y0 - hr), w: wr, h: hr };
+        if (!clash(cand, s0, c.oEnd, late ? [] : faceAvoid)) box = cand;
+      }
+      if (!box) { warnings.push(`thẻ ${c.id} (textspam): bản sao ${k + 1} bỏ vì không còn chỗ trống`); continue; }
+      placed.push({ ...box, s: s0, e: c.oEnd });
+      copies.push({ x: box.x, y: box.y, w: box.w, h: box.h, size, rot: Number(between(-8, 8).toFixed(2)), s: s0, late });
+    }
+    if (!copies.length) continue;
+    cardsOut.push({ ...base, text, coverFace: Boolean(c.coverFace), copies, x: 0, y: 0, w: 1, h: 1 });
+    continue;
+  }
   if (c.type === 'wall' || c.type === 'orbit') {
     // Hai kiểu này nằm SAU người nói (cần mặt nạ người): wall phủ kín khung, orbit chạy vòng quanh mặt theo khung mặt trong cửa sổ của thẻ
     const items = cardItems(c);
@@ -271,8 +334,50 @@ for (const c of mapped.cards ?? []) {
     cardsOut.push({ ...base, behind: true, items: items.slice(0, 8), cx, cy, rx: Math.min(0.42, Math.max(0.24, biggest ? biggest.w * 1.7 : 0.34)), ry: 0.08, x: 0, y: 0, w: 1, h: 1 });
     continue;
   }
-  if (c.type === 'title') { wpx = full; hpx = full * 0.22; extra = { text: c.text ?? '', sub: c.sub ?? '' }; }
-  else if (c.type === 'compare') {
+  if (c.type === 'title') {
+    wpx = full;
+    hpx = full * 0.22 * (c.kicker ? 1.3 : 1) * (c.plate ? 1.25 : 1);
+    extra = { text: c.text ?? '', sub: c.sub ?? '', kicker: String(c.kicker ?? ''), highlight: (c.highlight ?? []).map(String), plate: Boolean(c.plate) };
+  } else if (c.type === 'headline') {
+    // Ba dòng chữ gradient căn trái ở vùng dưới khung (kiểu tiêu đề cuối reels)
+    const lines = (c.lines ?? []).map((l) => String(l).trim()).filter(Boolean).slice(0, 3);
+    if (!lines.length) { warnings.push(`thẻ ${c.id} (headline) bỏ vì thiếu dòng chữ (lines)`); continue; }
+    const font = Math.min(U * 0.1, (full * 0.95) / (Math.max(...lines.map((l) => l.length)) * 0.6));
+    wpx = full;
+    hpx = lines.length * font * 1.12;
+    extra = { lines };
+  } else if (c.type === 'chips') {
+    // Thẻ chip: mỗi chip (nhãn, icon tùy chọn) hiện đúng lúc từ neo được nói; xếp dòng tự xuống hàng
+    const raw = (c.items ?? []).map((it) => (typeof it === 'string' ? { label: it } : it)).filter((it) => it.label).slice(0, 12);
+    if (!raw.length) { warnings.push(`thẻ ${c.id} (chips) bỏ vì không có mục nào (items: label)`); continue; }
+    wpx = Math.min(W * 0.9, U * 1.1);
+    const f = wpx / 22;
+    const items = [];
+    for (const [k, it] of raw.entries()) {
+      const word = it.anchorWord !== undefined ? words.find((x) => x.i === it.anchorWord) : null;
+      const item = { label: String(it.label), s: Math.max(c.oStart, word ? word.oStart : c.oStart + k * 0.18) };
+      if (it.icon && !offline) {
+        const found = await iconifyFind(it.icon);
+        if (!found) warnings.push(`thẻ ${c.id}: không tìm được icon "${it.icon}"`);
+        else {
+          fs.mkdirSync(path.join(assetsDir, 'decor'), { recursive: true });
+          fs.copyFileSync(found.file, path.join(assetsDir, 'decor', `${c.id}-${k}.svg`));
+          item.src = `assets/decor/${c.id}-${k}.svg`;
+          if (found.credit) credits.add(found.credit);
+        }
+      }
+      items.push(item);
+    }
+    let rows = 1;
+    let used = 0;
+    for (const it of items) {
+      const cw = (0.6 * it.label.length + 1.6 + (it.src ? 1.5 : 0)) * f;
+      if (used && used + cw > wpx) { rows++; used = 0; }
+      used += cw + 0.5 * f;
+    }
+    hpx = (c.title ? 1.8 * f : 0) + rows * 2.2 * f + (rows - 1) * 0.5 * f;
+    extra = { title: String(c.title ?? ''), items };
+  } else if (c.type === 'compare') {
     wpx = Math.min(W * 0.92, U * 1.2);
     hpx = wpx * 0.4;
     extra = { left: { title: c.left?.title ?? '', sub: c.left?.sub ?? '' }, right: { title: c.right?.title ?? '', sub: c.right?.sub ?? '' } };
@@ -317,11 +422,11 @@ for (const c of mapped.cards ?? []) {
     wpx = Math.min(W * 0.78, U * 1.0);
     hpx = wpx * (0.2 + rows.length * 0.12);
     extra = { title: String(c.title ?? ''), rows };
-  } else { warnings.push(`thẻ ${c.id}: kiểu "${c.type}" không hợp lệ (title, compare, logos, bigtext, comment, actions, counter, orbit, wall)`); continue; }
+  } else { warnings.push(`thẻ ${c.id}: kiểu "${c.type}" không hợp lệ (title, compare, logos, bigtext, comment, actions, counter, orbit, wall, headline, chips, textspam)`); continue; }
   let placedBox = null;
   let scale = 1;
   for (scale of [1, 0.85, 0.7]) {
-    placedBox = placeBox((wpx * scale) / W, (hpx * scale) / H, c.type === 'title' ? 'left' : 'center', c.oStart, c.oEnd, c.start, c.end);
+    placedBox = placeBox((wpx * scale) / W, (hpx * scale) / H, ['title', 'headline'].includes(c.type) ? 'left' : 'center', c.oStart, c.oEnd, c.start, c.end, c.type === 'headline');
     if (placedBox) break;
   }
   if (!placedBox) { warnings.push(`thẻ ${c.id} (${c.type}) bỏ vì không còn chỗ trống`); continue; }
@@ -432,7 +537,7 @@ for (const st of stats) {
 }
 
 // ---- Ghi dữ liệu và tài nguyên của trang ----
-const data = { W, H, style: { id: style.id, colors: style.colors, fonts: style.fonts, captions: captionCfg, accents: style.accents ?? {} }, captionY, chunks: chunkObjs, decor, showcases, stats, lowerThirds, cards: cardsOut, lottie: lottieData };
+const data = { W, H, style: { id: style.id, colors: style.colors, fonts: style.fonts, captions: captionCfg, accents: style.accents ?? {} }, captionY, chunks: chunkObjs, demoLight, decor, showcases, stats, lowerThirds, cards: cardsOut, demoMarks, lottie: lottieData };
 fs.copyFileSync(path.join(skillRoot, 'templates', 'overlay.html'), path.join(out, 'overlay.html'));
 fs.copyFileSync(path.join(skillRoot, 'templates', 'overlay.js'), path.join(out, 'overlay.js'));
 fs.cpSync(path.join(skillRoot, 'templates', 'vendor'), path.join(out, 'vendor'), { recursive: true });
@@ -452,7 +557,7 @@ if (style.sfx.whoosh) showcases.filter((x) => ['slide', 'drop'].includes(x.entra
 
 // ---- Chụp khung ----
 const total = Math.ceil(mapped.outDuration * FPS);
-const windows = [...chunkObjs, ...decor, ...showcases, ...stats, ...lowerThirds, ...cardsOut].map((x) => [x.s - 0.02, x.e + 0.05]);
+const windows = [...chunkObjs, ...decor, ...showcases, ...stats, ...lowerThirds, ...cardsOut, ...demoMarks].map((x) => [x.s - 0.02, x.e + 0.05]);
 const behindCards = cardsOut.filter((x) => (x.type === 'bigtext' && x.behind) || x.type === 'orbit' || x.type === 'wall');
 const behindWindows = behindCards.map((x) => [x.s - 0.02, x.e + 0.05]);
 const activeBehind = (t) => behindWindows.some(([a, b]) => t >= a && t <= b);
@@ -471,7 +576,7 @@ try {
   const blank = path.join(out, 'blank.png');
   await page.screenshot({ path: blank, omitBackground: true, type: 'png' });
   await page.evaluate(() => { document.getElementById('stage').style.visibility = 'visible'; });
-  const shoot = async (t, file, layer = 'front') => { await page.evaluate(([x, l]) => { window.setLayer(l); window.seek(x); }, [t, layer]); await page.screenshot({ path: file, omitBackground: true, type: 'png' }); };
+  const shoot = async (t, file, layer = 'front') => { await page.evaluate(([x, l]) => { window.setLayer(l); window.seek(x); }, [t, layer]); await page.evaluate(() => window.settle()); await page.screenshot({ path: file, omitBackground: true, type: 'png' }); };
   if (times) {
     for (const t of times) {
       await shoot(t, path.join(out, `test_${pad(Math.round(t * 1000), 6)}.png`));
@@ -506,6 +611,8 @@ writeJson(path.join(out, 'overlay-summary.json'), {
   stats: stats.length,
   cards: cardsOut.map((x) => ({ id: x.id, type: x.type })),
   behindWindows: behindCards.map((x) => ({ id: x.id, text: x.text, s: Number(x.s.toFixed(3)), e: Number(x.e.toFixed(3)) })),
+  demos: demos.map(({ c }, k) => ({ id: c.id, s: c.oStart, e: c.oEnd, ...demoBoxes[k] })),
+  demoMarks: demoMarks.length,
   layout: stack ? 'stack' : 'normal',
   lowerThirds: lowerThirds.length,
   captionY,

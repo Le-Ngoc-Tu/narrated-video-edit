@@ -1,5 +1,6 @@
 // Khâu B1: sinh BỘ KHUNG kế hoạch dựng từ lời nói và phong cách. Tác tử đọc, sửa truy vấn và quyết định cuối; plan-lint kiểm.
-// Chạy: node plan-skeleton.mjs --analysis work/analysis --style hype --out work/edit-plan.json [--seed 7] [--size 1280x720]
+// Chạy: node plan-skeleton.mjs --analysis work/analysis --style hype --out work/edit-plan.json [--seed 7] [--size 1280x720] [--user-footage <thư mục có footage.json>]
+// --user-footage: footage của chính người dùng (bản quay màn hình, ảnh) khớp từ khóa với lời nói thành cutaway dùng ngay (kiểu demo nếu footage khai demo: true) thay cho ảnh stock; không nêu --style thì dùng creator.
 // --keep chỉ dựng các đoạn đã chọn (kết quả pick-highlights.mjs, hoặc chuỗi "44-61,175-185" tính bằng giây): mọi thứ ngoài các đoạn bị cắt, không cắt khoảng lặng bên trong đoạn.
 // --layout stack|follow|auto đổi video ngang thành khung dọc 9:16 (xem references/11-reels-layout.md): stack giữ cả video gốc ở giữa và dành nửa trên cho thẻ decor;
 // follow cắt khung 9:16 bám mặt người nói; auto chọn follow khi mặt người nói rõ và có mặt ở phần lớn video, ngược lại stack.
@@ -12,13 +13,16 @@ import { loadLibrary } from './fx-lib.mjs';
 import { STOP, faceZone, followPath, hasDigit, loadAnalysis, loadStyle, mapFacesForLayout, norm, speechGap, stackGeometry } from './plan-lib.mjs';
 
 const { flags } = args();
-if (!flags.analysis || !flags.style || !flags.out) { console.error('Dùng: node plan-skeleton.mjs --analysis work/analysis --style hype|explainer|documentary --out work/edit-plan.json [--seed 7]'); process.exit(2); }
+const styleId = flags.style ? String(flags.style) : flags['user-footage'] ? 'creator' : null;
+if (!flags.analysis || !styleId || !flags.out) { console.error('Dùng: node plan-skeleton.mjs --analysis work/analysis --style hype|explainer|documentary|creator --out work/edit-plan.json [--seed 7] [--user-footage dir]'); process.exit(2); }
 const A = loadAnalysis(String(flags.analysis));
-const style = loadStyle(String(flags.style));
+const style = loadStyle(styleId);
 const { words, meta } = A;
 // Bảng gợi ý decor và truy vấn (data/decor-keywords.json): tác tử mở rộng được, không hardcode trong mã
 const KW = readJson(path.join(skillRoot, 'data', 'decor-keywords.json'));
 const WEAK = new Set((KW.weak ?? []).map(norm));
+const KEYWORD_MIN = (KW.keywordMinLength ?? {})[String(A.language ?? '').slice(0, 2)] ?? (KW.keywordMinLength ?? {}).default ?? 5;
+const ABSTRACT = new Set((KW.abstractQuery ?? []).map((x) => String(x).toLowerCase()));
 const POINTERS = new Set((KW.pointers ?? []).map(norm));
 if (!words.length) throw new Error('words.json không có từ nào: không có gì để dựng.');
 let seed = Number(flags.seed ?? 1);
@@ -38,6 +42,9 @@ const timeMap = makeTimeMap(cuts);
 const outDuration = timeMap.outDuration(meta.duration);
 
 // 2. Chia nhịp theo câu và khoảng ngắt
+// Biên của --keep luôn là chỗ cắt nhịp: nhịp vắt qua biên sẽ bị loại cả nhịp ở bước lọc inKept bên dưới
+const keepEdges = (keepRanges ?? []).flat();
+const crossesKeepEdge = (w, next) => !!next && keepEdges.some((e) => w.end <= e + 0.01 && next.start >= e - 0.01);
 const beatsRaw = [];
 let cur = [];
 words.forEach((w, i) => {
@@ -47,13 +54,13 @@ words.forEach((w, i) => {
   const gap = next ? next.start - w.end : Infinity;
   // Whisper không phải lúc nào cũng ghi dấu câu (giọng kể liền mạch): ngoài dấu câu và khoảng ngắt, cắt nhịp khi đã dài trên 6s tại chỗ nghỉ nhỏ, và bắt buộc trên 10s
   const elapsed = w.end - words[cur[0]].start;
-  if (!next || endsSentence || gap >= 0.6 || (elapsed >= 6 && gap >= 0.15) || elapsed >= 10) { beatsRaw.push(cur); cur = []; }
+  if (!next || endsSentence || gap >= 0.6 || crossesKeepEdge(w, next) || (elapsed >= 6 && gap >= 0.15) || elapsed >= 10) { beatsRaw.push(cur); cur = []; }
 });
 const merged = [];
 for (const idx of beatsRaw) {
   const span = words[idx.at(-1)].end - words[idx[0]].start;
   const prev = merged.at(-1);
-  if (prev && span < 1.4) prev.push(...idx); else merged.push([...idx]);
+  if (prev && span < 1.4 && !crossesKeepEdge(words[prev.at(-1)], words[idx[0]])) prev.push(...idx); else merged.push([...idx]);
 }
 const inKept = (t) => !keepRanges || keepRanges.some(([a, b]) => t >= a && t <= b);
 const beats = merged.filter((idx) => inKept(words[idx[0]].start + 0.01) && inKept(words[idx.at(-1)].end - 0.01)).map((idx, n) => {
@@ -61,18 +68,74 @@ const beats = merged.filter((idx) => inKept(words[idx[0]].start + 0.01) && inKep
   const last = words[idx.at(-1)];
   const text = idx.map((i) => words[i].text).join(' ');
   const numbers = idx.filter((i) => hasDigit(words[i].text));
-  const content = idx.filter((i) => !hasDigit(words[i].text) && norm(words[i].text).length >= 5 && !STOP.has(norm(words[i].text)) && !WEAK.has(norm(words[i].text)));
+  const content = idx.filter((i) => !hasDigit(words[i].text) && norm(words[i].text).length >= KEYWORD_MIN && !STOP.has(norm(words[i].text)) && !WEAK.has(norm(words[i].text)));
   const keywords = [...content].sort((a, b) => norm(words[b].text).length - norm(words[a].text).length).slice(0, 2).sort((a, b) => a - b);
   return { id: `b${String(n + 1).padStart(2, '0')}`, startWord: idx[0], endWord: idx.at(-1), start: first.start, end: last.end, text, role: n === 0 ? 'hook' : '', numbers, keywords, question: /\?$/.test(text), exclaim: /!$/.test(text) };
 });
+if (!beats.length) { console.error('Không có nhịp nào nằm trọn trong đoạn được giữ (--keep): kiểm lại khoảng giữ có lời nói không.'); process.exit(1); }
 beats.at(-1).role = beats.length > 1 ? 'cta' : 'hook';
+
+// 2b. Footage riêng của người dùng (--user-footage): footage.json liệt kê { file, description, keywords, demo, theme, clipStart, clipSpeed }. Nhịp nào có từ khóa trùng lời nói thì dùng footage đó;
+// các nhịp liền nhau cùng footage gộp thành một cutaway. demo: true dựng kiểu demo (tổng thời lượng dưới demoMaxShare), không thì dùng kiểu trình bày luân phiên của phong cách.
+const footageCuts = [];
+const sequence0 = (k) => (style.showcase?.sequence ?? ['card', 'polaroid', 'pip'])[k % (style.showcase?.sequence ?? ['card']).length];
+const footageDir = flags['user-footage'] ? path.resolve(String(flags['user-footage'])) : null;
+const footage = [];
+if (footageDir) {
+  const listFile = path.join(footageDir, 'footage.json');
+  if (!fs.existsSync(listFile)) throw new Error(`Thiếu ${listFile}: --user-footage cần footage.json (references/03-planning.md, mục footage của người dùng)`);
+  for (const f of readJson(listFile).files ?? []) {
+    const abs = path.resolve(footageDir, f.file);
+    if (!fs.existsSync(abs)) throw new Error(`footage.json: không thấy ${abs}`);
+    footage.push({ ...f, abs, keys: new Set((f.keywords ?? []).map(norm)) });
+  }
+}
+{
+  const outDirOfPlan = path.dirname(path.resolve(String(flags.out)));
+  const hits = (b, f) => words.slice(b.startWord, b.endWord + 1).filter((w) => f.keys.has(norm(w.text)));
+  const pick = beats.map((b) => { let best = -1; let bestN = 0; footage.forEach((f, k) => { const n = hits(b, f).length; if (n > bestN) { best = k; bestN = n; } }); return best; });
+  // Một nhịp ngắn không có từ khóa nằm giữa hai nhịp cùng footage thì thuộc về footage đó; cảnh demo luôn chừa nhịp mở đầu (hook) và nhịp kết (cta) cho người nói
+  for (let n = 1; n + 1 < pick.length; n++) if (pick[n] < 0 && pick[n - 1] >= 0 && pick[n - 1] === pick[n + 1] && beats[n].end - beats[n].start < 6) pick[n] = pick[n - 1];
+  if (pick.length && pick[0] >= 0 && footage[pick[0]].demo) pick[0] = -1;
+  if (pick.length > 1 && pick.at(-1) >= 0 && footage[pick.at(-1)].demo) pick[pick.length - 1] = -1;
+  const runs = [];
+  pick.forEach((k, n) => {
+    if (k < 0) return;
+    const last = runs.at(-1);
+    if (last && last.k === k && last.endBeat === n - 1) { last.endBeat = n; return; }
+    runs.push({ k, startBeat: n, endBeat: n });
+  });
+  let demoSec = 0;
+  for (const r of runs) {
+    const f = footage[r.k];
+    const first = beats[r.startBeat];
+    const lastBeat = beats[r.endBeat];
+    const start = words[first.startWord].start;
+    const end = words[lastBeat.endWord].end;
+    if (end - start < 2 || timeMap.toOut(start) === null) continue;
+    if (f.demo && (demoSec + (end - start)) / outDuration > style.demoMaxShare * 0.95) continue;
+    if (f.demo) demoSec += end - start;
+    const video = /\.(mp4|webm|mov)$/i.test(f.file);
+    const anchor = hits(first, f)[0] ? words.indexOf(hits(first, f)[0]) : first.startWord;
+    footageCuts.push({
+      id: '', beat: first.id, presentation: f.demo ? 'demo' : sequence0(footageCuts.length), ...(f.demo ? { theme: f.theme ?? 'pastel' } : {}),
+      start, end, anchorWord: anchor, query: f.description ?? f.file, kind: video ? 'video' : 'image', fit: style.cutaway.fit,
+      asset: path.relative(outDirOfPlan, f.abs).replace(/\\/g, '/'), userProvided: true, status: 'resolved',
+      ...(video && f.clipStart !== undefined ? { clipStart: f.clipStart } : {}), ...(video && f.clipSpeed !== undefined ? { clipSpeed: f.clipSpeed } : {}),
+      ...(f.demo ? { focus: [], marks: [] } : {})
+    });
+  }
+}
 
 // 3. Cutaway: ưu tiên nhịp có từ khóa; bắt đầu ở đầu một từ, kết thúc ở cuối một từ; xen kẽ, không vượt trần thời lượng
 const conceptOf = (word) => KW.concepts[word] ?? (/^[\x00-\x7f]+$/.test(word) ? word : null);
 const cutaways = [];
 const sequence = style.showcase?.sequence ?? ['card', 'polaroid', 'pip'];
+const droppedQueries = [];
+const queryOk = (q) => q.split(/\s+/).filter(Boolean).every((t) => /^[\x00-\x7f]+$/.test(t) && !ABSTRACT.has(t.toLowerCase())) && q.trim().length > 0;
 let brollOut = 0;
 let lastBroll = -2;
+footageCuts.forEach((c) => cutaways.push({ ...c, id: `c${String(cutaways.length + 1).padStart(2, '0')}` }));
 beats.forEach((b, n) => {
   if (!b.keywords.length || n - lastBroll < 2 || b.role === 'hook' && beats.length > 3) return;
   const anchor = b.keywords[0];
@@ -84,9 +147,12 @@ beats.forEach((b, n) => {
   // Kiểu trình bày luân phiên theo phong cách: fullbleed phủ kín khung (rời mặt người nói), các kiểu còn lại là vật thể thiết kế trong lớp phủ nên không tính vào tỉ lệ rời mặt
   const presentation = sequence[cutaways.length % sequence.length];
   if (presentation === 'fullbleed' && (brollOut + dur) / outDuration > style.brollMaxShare) return;
+  const query = (() => { const ks = b.keywords.map((i) => norm(words[i].text)); const mapped = ks.map(conceptOf).filter(Boolean); return mapped.length ? mapped.slice(0, 2).join(' ') : ks.join(' '); })();
+  if (!queryOk(query)) { droppedQueries.push(query); return; }
+  if (cutaways.some((c) => s < c.end && endWord.end > c.start)) return;
   if (presentation === 'fullbleed') brollOut += dur;
   lastBroll = n;
-  cutaways.push({ id: `c${String(cutaways.length + 1).padStart(2, '0')}`, beat: b.id, presentation, start: s, end: endWord.end, anchorWord: anchor, query: (() => { const ks = b.keywords.map((i) => norm(words[i].text)); const mapped = ks.map(conceptOf).filter(Boolean); return mapped.length ? mapped.slice(0, 2).join(' ') : ks.join(' '); })(), kind: 'auto', fit: style.cutaway.fit, zoom: rnd() < 0.5 ? 'push-in' : 'drift', asset: null, status: 'pending' });
+  cutaways.push({ id: `c${String(cutaways.length + 1).padStart(2, '0')}`, beat: b.id, presentation, start: s, end: endWord.end, anchorWord: anchor, query, kind: 'auto', fit: style.cutaway.fit, zoom: rnd() < 0.5 ? 'push-in' : 'drift', asset: null, status: 'pending' });
 });
 
 // 4. Zoom nhấn: ở đầu một từ của nhịp mạnh, cách nhau theo phong cách, không trùng cutaway
@@ -102,6 +168,8 @@ for (const b of beats) {
 
 // 5. Thẻ số liệu (chỉ từ lời nói) và sticker gắn từ khóa
 const stats = [];
+const overlapsAny = (start, end, list) => list.some((x) => start < x.end + 0.05 && end > x.start - 0.05);
+const bigCuts = () => cutaways.filter((c) => c.presentation === 'fullbleed' || c.presentation === 'demo');
 // Chỉ làm thẻ số cho con số có nghĩa: từ 3 chữ số, có %, hoặc đứng ngay trước một đơn vị (data/emoji-map.json "units"); bỏ "thứ 2", "tầng 3", "2 cái"
 const UNIT_WORDS = new Set((readJson(path.join(skillRoot, 'data', 'emoji-map.json')).units ?? []).flatMap((u) => u.words.map(norm)).concat(['%', 'triệu', 'nghìn', 'ngàn', 'tỷ', 'đồng', 'lần']));
 for (const b of beats) for (const i of b.numbers) {
@@ -114,7 +182,9 @@ for (const b of beats) for (const i of b.numbers) {
   const nextNorm = next && next.start - words[nextIdx - 1].end < 0.4 ? norm(next.text) : '';
   const meaningful = value.replace(/\D/g, '').length >= 3 || /%/.test(words[i].text) || UNIT_WORDS.has(nextNorm);
   if (!meaningful) continue;
-  stats.push({ id: `s${stats.length + 1}`, anchorWord: i, value, label: UNIT_WORDS.has(nextNorm) ? nextNorm : '', start: words[i].start, end: Math.min(words[i].start + 2.4, b.end + 0.8) });
+  const stat = { id: `s${stats.length + 1}`, anchorWord: i, value, label: UNIT_WORDS.has(nextNorm) ? nextNorm : '', start: words[i].start, end: Math.min(words[i].start + 2.4, b.end + 0.8) };
+  if (overlapsAny(stat.start, stat.end, [...bigCuts(), ...stats])) continue;
+  stats.push(stat);
 }
 const decor = [];
 const maxDecor = Math.max(1, Math.round((style.decor.maxPerMinute * outDuration) / 60));
@@ -168,7 +238,8 @@ if (flags['behind-text']) {
   const pickBeats = [beats[0], beats[Math.floor(beats.length * 0.6)]].filter((b, k, a) => b && a.indexOf(b) === k && b.keywords.length);
   for (const b of pickBeats) {
     const kw = [...b.keywords].sort((p, q) => norm(words[q].text).length - norm(words[p].text).length)[0];
-    cardsBehind.push({ id: `b${cardsBehind.length + 1}`, type: 'bigtext', text: words[kw].text.replace(/[^\p{L}\p{N}]+/gu, ''), start: words[kw].start, end: Math.min(words[kw].start + 2.6, b.end + 0.4) });
+    const behind = { id: `b${cardsBehind.length + 1}`, type: 'bigtext', text: words[kw].text.replace(/[^\p{L}\p{N}]+/gu, ''), start: words[kw].start, end: Math.min(words[kw].start + 2.6, b.end + 0.4) };
+    if (!overlapsAny(behind.start, behind.end, [...bigCuts(), ...stats, ...cardsBehind])) cardsBehind.push(behind);
   }
 }
 
@@ -182,7 +253,7 @@ if (flags['behind-text']) {
     for (let k = 0; k + 1 < ev.length; k++) {
       if (speechGap(ev[k], ev[k + 1], words) <= goal) continue;
       const target = ev[k] + goal * 0.8;
-      const w = words.find((x) => x.start >= target && x.start < ev[k + 1] - 0.8 && visible(x));
+      const w = words.find((x) => x.start >= target && x.start < ev[k + 1] - 0.8 && visible(x) && !overlapsAny(x.start, x.end, bigCuts()));
       if (!w) continue;
       punches.push({ id: `p${punches.length + 1}`, start: w.start, end: Math.min(w.start + style.punch.durSec, w.end + 0.6), scale: style.punch.scale, anchorWord: words.indexOf(w) });
       changed = true;
@@ -289,6 +360,7 @@ for (const w of words) {
   const last = cards.at(-1);
   if (last && w.start - last.start < 4) { if (!last.brands.includes(id) && last.brands.length < 3) { last.brands.push(id); last.end = Math.max(last.end, w.start + 2.4); } continue; }
   if (last && w.start - last.start < 12) continue;
+  if (overlapsAny(w.start, w.start + 2.6, [...bigCuts(), ...stats])) continue;
   cards.push({ id: `k${cards.length + 1}`, type: 'logos', brands: [id], start: w.start, end: w.start + 2.6 });
 }
 const requestedLayout = flags.layout ? String(flags.layout) : null;
@@ -333,4 +405,6 @@ const plan = {
 };
 writeJson(String(flags.out), plan);
 console.log(`Đã ghi ${flags.out}: ${beats.length} nhịp, ${cuts.length} cắt, ${cutaways.length} cutaway (${((brollOut / outDuration) * 100).toFixed(0)}% thời lượng), ${punches.length} zoom, ${effects.length} hiệu ứng thư viện, ${stats.length} thẻ số, ${decor.length} sticker.`);
+if (footageCuts.length) console.log(`Footage riêng: ${footageCuts.length} cutaway (${footageCuts.filter((c) => c.presentation === 'demo').length} cảnh demo); thêm focus và marks cho cảnh demo rồi plan-lint.`);
+if (droppedQueries.length) console.log(`Bỏ ${droppedQueries.length} cutaway vì truy vấn ảnh không đủ cụ thể (${[...new Set(droppedQueries)].join(' | ')}): thêm tay nếu có ảnh đúng, hoặc dùng --user-footage.`);
 console.log(`Thời lượng sau cắt ${outDuration.toFixed(1)}s (gốc ${meta.duration.toFixed(1)}s). Việc tiếp: đọc từng cutaway.query, viết lại thành khái niệm cảnh bằng tiếng Anh, rồi node plan-lint.mjs.`);

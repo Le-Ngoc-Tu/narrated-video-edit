@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "note": "Chủ đề của kiểu trình bày cutaway \"demo\" (voice-over trên màn hình thao tác). Nền tự vẽ bằng mã (gradient chéo và lưới chấm), không dùng ảnh của ai. bg.from và bg.to: màu hai góc (RGB 0..255); bg.dot: pitch (px trên cạnh ngắn của khung, tỉ lệ), radius (tỉ lệ) và shade (cộng vào RGB, âm là sáng hơn). area*: vùng đặt clip theo tỉ lệ khung hình, clip vừa khít trong vùng và giữ nguyên tỉ lệ. frame: bo góc, viền, bóng theo tỉ lệ cạnh ngắn. mark: màu nét chú thích. Thêm chủ đề là thêm mục ở đây, không sửa mã.",
+  "themes": {
+    "pastel": {
+      "label": "Sáng pastel",
+      "bg": { "from": [244, 236, 255], "to": [226, 238, 255], "dot": { "pitch": 0.044, "radius": 0.0024, "shade": [14, 14, 8] } },
+      "areaPortrait": { "x": 0.05, "y": 0.07, "w": 0.9, "h": 0.55 },
+      "areaLandscape": { "x": 0.05, "y": 0.08, "w": 0.9, "h": 0.7 },
+      "frame": { "radius": 0.034, "border": "#ffffff", "borderWidth": 0.009, "shadowAlpha": 0.38, "shadowBlur": 0.02, "shadowDy": 0.011 },
+      "mark": "#ff4d7d"
+    },
+    "night": {
+      "label": "Tối",
+      "bg": { "from": [20, 22, 42], "to": [38, 26, 62], "dot": { "pitch": 0.044, "radius": 0.0024, "shade": [-20, -20, -30] } },
+      "areaPortrait": { "x": 0.05, "y": 0.07, "w": 0.9, "h": 0.55 },
+      "areaLandscape": { "x": 0.05, "y": 0.08, "w": 0.9, "h": 0.7 },
+      "frame": { "radius": 0.034, "border": "#2d2f52", "borderWidth": 0.007, "shadowAlpha": 0.6, "shadowBlur": 0.024, "shadowDy": 0.012 },
+      "mark": "#ffd23f"
+    }
+  }
+}

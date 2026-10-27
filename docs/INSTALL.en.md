@@ -25,7 +25,7 @@ The skill is only the recipe. FFmpeg, Chrome and the speech model run on your co
 
 ## 2. Give your assistant the skill
 
-Download **`narrated-video-edit-v1.0.0.zip`** from the [Releases page](../../../releases/latest). The zip contains one folder, `narrated-video-edit/`, with `SKILL.md` inside it. That layout is what Claude requires: a zip with `SKILL.md` loose at the top is not recognised.
+Download **`narrated-video-edit-v1.1.0.zip`** from the [Releases page](../../../releases/latest). The zip contains one folder, `narrated-video-edit/`, with `SKILL.md` inside it. That layout is what Claude requires: a zip with `SKILL.md` loose at the top is not recognised.
 
 ### A. Claude on the web or in the desktop app
 
@@ -45,13 +45,13 @@ Personal install, available in every project:
 ```bash
 # macOS, Linux
 mkdir -p ~/.claude/skills
-unzip narrated-video-edit-v1.0.0.zip -d ~/.claude/skills
+unzip narrated-video-edit-v1.1.0.zip -d ~/.claude/skills
 ```
 
 ```powershell
 # Windows PowerShell
 New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
-Expand-Archive .\narrated-video-edit-v1.0.0.zip -DestinationPath "$HOME\.claude\skills"
+Expand-Archive .\narrated-video-edit-v1.1.0.zip -DestinationPath "$HOME\.claude\skills"
 ```
 
 Check that `~/.claude/skills/narrated-video-edit/SKILL.md` exists. For one project only, use `<project>/.claude/skills/` instead. Start `claude` and either describe the task or type `/narrated-video-edit`.

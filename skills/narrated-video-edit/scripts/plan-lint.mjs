@@ -3,9 +3,11 @@
 // --stage assets: đòi mọi cutaway đã có tệp tài nguyên và dòng ghi công.
 import fs from 'node:fs';
 import path from 'node:path';
-import { args, makeTimeMap, readJson } from './common.mjs';
+import { args, makeTimeMap, probe, readJson } from './common.mjs';
 import { bindVars, loadLibrary, makeCtx } from './fx-lib.mjs';
-import { hasDigit, loadAnalysis, loadStyle, mapPlan, norm, speechGap } from './plan-lib.mjs';
+import { readReport, wrongSpellings } from './glossary-lib.mjs';
+import { DEMO_THEMES, MARK_TYPES, validRect } from './demo-lib.mjs';
+import { STOP, clipPlan, hasDigit, loadAnalysis, loadStyle, mapPlan, norm, speechGap } from './plan-lib.mjs';
 import { segPythonPath, skillRoot } from './common.mjs';
 
 const { flags } = args();
@@ -48,11 +50,33 @@ inCut.length ? fail('cutaway không nằm trong đoạn bị cắt', inCut.map((
 
 // Thời lượng cutaway và tỉ lệ rời mặt người nói
 const cm = style.cutaway;
-const outOfRange = plan.cutaways.filter((c) => c.end - c.start < cm.minSec * 0.75 || c.end - c.start > cm.maxSec * 1.25);
+const outOfRange = plan.cutaways.filter((c) => c.presentation !== 'demo' && (c.end - c.start < cm.minSec * 0.75 || c.end - c.start > cm.maxSec * 1.25));
 outOfRange.length ? warn('thời lượng cutaway trong khoảng của phong cách', outOfRange.map((c) => `${c.id} ${(c.end - c.start).toFixed(1)}s`).join(', ')) : pass('thời lượng cutaway trong khoảng của phong cách', `${cm.minSec} đến ${cm.maxSec}s`);
-const MODES = ['fullbleed', 'card', 'polaroid', 'pip', 'sticker', 'peek', 'stack'];
+const MODES = ['fullbleed', 'card', 'polaroid', 'pip', 'sticker', 'peek', 'stack', 'demo'];
 const badMode = plan.cutaways.filter((c) => c.presentation && !MODES.includes(c.presentation));
 badMode.length ? fail('kiểu trình bày cutaway hợp lệ', badMode.map((c) => `${c.id}:${c.presentation}`).join(', ')) : pass('kiểu trình bày cutaway hợp lệ', MODES.join(', '));
+const badClip = plan.cutaways.filter((c) => (c.clipStart !== undefined && !(Number.isFinite(c.clipStart) && c.clipStart >= 0)) || (c.clipFit !== undefined && !['cover', 'contain'].includes(c.clipFit)));
+badClip.length ? fail('clipStart và clipFit của cutaway hợp lệ', badClip.map((c) => `${c.id}: clipStart ${c.clipStart ?? '-'}, clipFit ${c.clipFit ?? '-'} (clipStart là giây ≥ 0; clipFit: cover hoặc contain)`).join('; ')) : pass('clipStart và clipFit của cutaway hợp lệ');
+// Cảnh demo (voice-over trên màn hình): chủ đề có trong data/demo-themes.json, vùng zoom (focus) và chú thích (marks) hợp lệ và nằm trong cửa sổ, tổng thời lượng demo dưới trần riêng của phong cách (người nói vắng mặt trong lúc demo)
+const demoCuts = plan.cutaways.filter((c) => c.presentation === 'demo');
+if (demoCuts.length) {
+  const problems = [];
+  demoCuts.forEach((c) => {
+    if (c.theme !== undefined && !DEMO_THEMES[c.theme]) problems.push(`${c.id}: theme "${c.theme}" (có: ${Object.keys(DEMO_THEMES).join(', ')})`);
+    const inside = (x) => x.end > x.start && x.start >= c.start - 0.01 && x.end <= c.end + 0.01;
+    const focus = [...(c.focus ?? [])].sort((a, b) => a.start - b.start);
+    focus.forEach((f, i) => {
+      if (!validRect(f.rect) || !inside(f)) problems.push(`${c.id}: focus ${i + 1} có rect ngoài 0..1 hoặc nằm ngoài cửa sổ cutaway`);
+      if (i && f.start < focus[i - 1].end) problems.push(`${c.id}: focus ${i} và ${i + 1} chồng nhau`);
+    });
+    (c.marks ?? []).forEach((m, i) => { if (!MARK_TYPES.includes(m.type) || !validRect(m.rect) || !inside(m)) problems.push(`${c.id}: marks ${i + 1} sai type (${MARK_TYPES.join(', ')}), rect ngoài 0..1 hoặc nằm ngoài cửa sổ cutaway`); });
+  });
+  const count = (k) => demoCuts.reduce((t, c) => t + (c[k] ?? []).length, 0);
+  problems.length ? fail('cảnh demo hợp lệ (theme, focus, marks)', problems.join('; ')) : pass('cảnh demo hợp lệ (theme, focus, marks)', `${demoCuts.length} cảnh, ${count('focus')} vùng zoom, ${count('marks')} chú thích`);
+  const demoShare = demoCuts.reduce((t, c) => t + (c.end - c.start), 0) / outDur;
+  const demoCap = style.demoMaxShare ?? 0.7;
+  demoShare > demoCap + 0.1 ? fail('tỉ lệ cảnh demo (người nói vắng mặt)', `${(demoShare * 100).toFixed(0)}% > ${(demoCap * 100).toFixed(0)}%`) : demoShare > demoCap ? warn('tỉ lệ cảnh demo (người nói vắng mặt)', `${(demoShare * 100).toFixed(0)}%`) : pass('tỉ lệ cảnh demo (người nói vắng mặt)', `${(demoShare * 100).toFixed(0)}% (trần ${(demoCap * 100).toFixed(0)}%)`);
+}
 const isFullbleed = (c) => !c.presentation || c.presentation === 'fullbleed';
 const modeRun = plan.cutaways.filter((c, i, a) => i && c.presentation === a[i - 1].presentation && !isFullbleed(c));
 modeRun.length ? warn('không lặp liên tiếp cùng một kiểu showcase', modeRun.map((c) => c.id).join(', ')) : pass('không lặp liên tiếp cùng một kiểu showcase');
@@ -70,19 +94,43 @@ maxRun >= 3 ? fail('không quá 2 cutaway liên tiếp cùng kiểu', `${maxRun}
 
 // Thẻ headline (title, compare, logos, bigtext, comment, actions, counter): kiểu hợp lệ, thương hiệu có trong data/brands.json, chữ có số phải có nguồn
 const brandIds = new Set(JSON.parse(fs.readFileSync(path.join(skillRoot, 'data', 'brands.json'), 'utf8')).brands.map((b) => b.id));
-const badCard = (plan.cards ?? []).filter((c) => !['title', 'compare', 'logos', 'bigtext', 'comment', 'actions', 'counter', 'orbit', 'wall'].includes(c.type) || (['bigtext', 'comment'].includes(c.type) && !String(c.text ?? '').trim()) || (c.type === 'counter' && !(c.rows ?? []).some((r) => r.label && Number.isFinite(Number(r.to)))) || (c.type === 'wall' && !(c.items ?? []).length) || (c.type === 'orbit' && (c.items ?? []).length < 3) || (c.type === 'logos' && !(c.brands ?? []).length) || (c.brands ?? []).some((b) => !brandIds.has(b)));
+const CARD_TYPES = ['title', 'compare', 'logos', 'bigtext', 'comment', 'actions', 'counter', 'orbit', 'wall', 'headline', 'chips', 'textspam'];
+const cardProblem = (c) => {
+  if (c.type === 'headline') return !(c.lines ?? []).some((l) => String(l).trim());
+  if (c.type === 'chips') return !(c.items ?? []).some((it) => (typeof it === 'string' ? it : it?.label));
+  if (c.type === 'textspam') return !String(c.text ?? '').trim() || (c.count !== undefined && !(Number.isInteger(c.count) && c.count >= 3 && c.count <= 14));
+  if (c.type === 'title') return (c.highlight !== undefined && !(Array.isArray(c.highlight) && c.highlight.every((p) => typeof p === 'string' && String(c.text ?? '').toLowerCase().includes(p.toLowerCase())))) || (c.kicker !== undefined && typeof c.kicker !== 'string');
+  return false;
+};
+const badCard = (plan.cards ?? []).filter((c) => !CARD_TYPES.includes(c.type) || cardProblem(c) || (['bigtext', 'comment'].includes(c.type) && !String(c.text ?? '').trim()) || (c.type === 'counter' && !(c.rows ?? []).some((r) => r.label && Number.isFinite(Number(r.to)))) || (c.type === 'wall' && !(c.items ?? []).length) || (c.type === 'orbit' && (c.items ?? []).length < 3) || (c.type === 'logos' && !(c.brands ?? []).length) || (c.brands ?? []).some((b) => !brandIds.has(b)));
 badCard.length ? fail('thẻ headline hợp lệ', badCard.map((c) => c.id).join(', ')) : pass('thẻ headline hợp lệ', `${(plan.cards ?? []).length} thẻ`);
 // Thẻ orbit và wall nằm SAU người nói nên cần mặt nạ người; thiếu môi trường tách người thì wall che kín cả người
 const needMask = (plan.cards ?? []).filter((c) => ['orbit', 'wall'].includes(c.type));
 if (needMask.length) segPythonPath() ? pass('môi trường tách người cho thẻ orbit và wall') : fail('môi trường tách người cho thẻ orbit và wall', 'chạy node setup.mjs --with-segmentation (không có mặt nạ người thì thẻ che cả người nói)');
-const cardText = (c) => [c.text, c.sub, c.title, c.left?.title, c.left?.sub, c.right?.title, c.right?.sub, ...(c.rows ?? []).flatMap((r) => [r.from, r.to, r.label]), ...(c.items ?? []).map((i) => (typeof i === 'string' ? i : i.label))].filter((x) => x !== undefined && x !== null && x !== '').join(' ');
+const cardText = (c) => [c.text, c.sub, c.title, c.kicker, ...(c.lines ?? []), c.left?.title, c.left?.sub, c.right?.title, c.right?.sub, ...(c.rows ?? []).flatMap((r) => [r.from, r.to, r.label]), ...(c.items ?? []).map((i) => (typeof i === 'string' ? i : i.label))].filter((x) => x !== undefined && x !== null && x !== '').join(' ');
 const cardsBadNumber = (plan.cards ?? []).filter((c) => hasDigit(cardText(c)) && !(plan.userSource ?? []).some((u) => cardText(c).toLowerCase().includes(String(u).toLowerCase())) && !spokenHas(cardText(c)));
 function spokenHas(text) { const digits = (text.match(/\d+/g) ?? []); return digits.every((d) => words.some((w, i) => { let acc = ''; for (let k = 0; k < 3 && words[i + k]; k++) { acc += words[i + k].text.replace(/[^\d]/g, ''); if (acc === d) return true; } return false; })); }
 cardsBadNumber.length ? fail('số trên thẻ headline có trong lời nói', cardsBadNumber.map((c) => c.id).join(', ')) : pass('số trên thẻ headline có trong lời nói');
 
+// Chữ của thẻ kicker, headline, chips, textspam chỉ lấy từ lời nói quanh mốc neo (±3s, sai lệch cho phép 25% số từ nội dung) hoặc từ nguồn người dùng đưa (userSource)
+const shownText = (c) => (c.type === 'headline' ? [(c.lines ?? []).join(' ')] : c.type === 'chips' ? [c.title, ...(c.items ?? []).map((it) => (typeof it === 'string' ? it : it?.label))] : c.type === 'textspam' ? [c.text] : c.type === 'title' ? [c.kicker] : []).filter(Boolean).map(String);
+const unspoken = [];
+for (const c of plan.cards ?? []) {
+  const near = new Set(words.filter((w) => w.end >= c.start - 3 && w.start <= c.end + 3).map((w) => norm(w.text)));
+  for (const text of shownText(c)) {
+    if ((plan.userSource ?? []).some((u) => String(u).toLowerCase().includes(text.toLowerCase()))) continue;
+    const content = text.split(/\s+/).map(norm).filter((w) => w && !STOP.has(w) && !/^\d+$/.test(w));
+    const missing = content.filter((w) => !near.has(w));
+    if (content.length && missing.length / content.length > 0.25) unspoken.push(`${c.id}: "${text}" (không nghe thấy: ${missing.join(', ')})`);
+  }
+}
+unspoken.length ? fail('chữ trên thẻ mới có trong lời nói quanh mốc neo', unspoken.join('; ')) : pass('chữ trên thẻ mới có trong lời nói quanh mốc neo');
+
 // Sticker theo phong cách
 const perMin = plan.decor.length / (outDur / 60);
-perMin > style.decor.maxPerMinute * 1.3 ? fail('mật độ sticker', `${perMin.toFixed(1)}/phút > ${style.decor.maxPerMinute}`) : pass('mật độ sticker', `${perMin.toFixed(1)}/phút (trần ${style.decor.maxPerMinute})`);
+// Video ngắn vẫn được một sticker (sàn chống slideshow bên dưới đòi ít nhất một): trần tính theo số sticker, tối thiểu 1
+const decorCap = Math.max(1, Math.floor((style.decor.maxPerMinute * 1.3 * outDur) / 60));
+plan.decor.length > decorCap ? fail('mật độ sticker', `${perMin.toFixed(1)}/phút > ${style.decor.maxPerMinute}`) : pass('mật độ sticker', `${perMin.toFixed(1)}/phút (trần ${style.decor.maxPerMinute})`);
 const badType = plan.decor.filter((d) => !style.decor.allowed.includes(d.type));
 const iconNoQuery = plan.decor.filter((d) => d.type === 'icon' && !String(d.query ?? '').trim());
 iconNoQuery.length ? fail('sticker icon có truy vấn tiếng Anh', iconNoQuery.map((d) => d.id).join(', ')) : pass('sticker icon có truy vấn tiếng Anh');
@@ -142,6 +190,26 @@ badStat.length ? fail('số liệu trên màn hình có trong lời nói', badSt
 const badLt = (plan.lowerThirds ?? []).filter((l) => hasDigit(`${l.title} ${l.sub ?? ''}`) && !spoken.includes(norm(l.title)) && !userSource.includes(String(l.title).toLowerCase()));
 badLt.length ? fail('chữ có số trong lower third có nguồn', badLt.map((l) => l.title).join(', ')) : pass('chữ có số trong lower third có nguồn');
 
+// Tên riêng (data/glossary.json, work/glossary.json): chữ trên thẻ không dùng cách viết sai đã biết; biến thể mơ hồ chưa được người dùng xác nhận là cảnh báo (CỔNG 1)
+const glossary = readReport(A.dir);
+if (glossary) {
+  const shown = [...(plan.cards ?? []).map((c) => [c.id, cardText(c)]), ...(plan.lowerThirds ?? []).map((l, k) => [`lowerThird${k + 1}`, `${l.title} ${l.sub ?? ''}`]), ...plan.stats.map((s) => [s.id, `${s.value} ${s.label ?? ''}`])];
+  const wrong = shown.flatMap(([id, text]) => wrongSpellings(text, glossary).map((x) => `${id}: "${x.shown}" thay vì "${x.canonical}"`));
+  wrong.length ? fail('chữ trên màn hình viết đúng tên riêng theo từ điển', wrong.join('; ')) : pass('chữ trên màn hình viết đúng tên riêng theo từ điển', `${glossary.applied.length} từ đã thay trong lời nói`);
+  glossary.pending.length ? warn('tên riêng mơ hồ đã được người dùng xác nhận', glossary.pending.map((p) => p.question).join(' | ')) : pass('tên riêng mơ hồ đã được người dùng xác nhận', 'không còn biến thể chờ xác nhận');
+}
+
+// Không chồng hai vật thể lớn trong cùng cửa sổ: cảnh phủ kín (fullbleed, demo), thẻ số và thẻ chữ lớn (title, compare, logos, comment, counter, headline, chips). Chữ sau người nói, tường, quỹ đạo và chữ nhân bản là lớp nền nên không tính
+const BIG_CARDS = ['title', 'compare', 'logos', 'comment', 'counter', 'headline', 'chips'];
+const bigObjs = [
+  ...plan.cutaways.filter((c) => !c.presentation || c.presentation === 'fullbleed' || c.presentation === 'demo').map((c) => [`cutaway ${c.presentation ?? 'fullbleed'} ${c.id}`, c]),
+  ...plan.stats.map((x) => [`thẻ số ${x.id}`, x]),
+  ...(plan.cards ?? []).filter((c) => BIG_CARDS.includes(c.type)).map((c) => [`thẻ ${c.type} ${c.id}`, c])
+].sort((a, b) => a[1].start - b[1].start);
+const bigClash = [];
+bigObjs.forEach(([na, a], i) => bigObjs.slice(i + 1).forEach(([nb, b]) => { if (b.start < a.end - 0.05 && b.end > a.start + 0.05) bigClash.push(`${na} và ${nb}`); }));
+bigClash.length ? fail('không chồng hai vật thể lớn trong cùng cửa sổ', bigClash.join('; ')) : pass('không chồng hai vật thể lớn trong cùng cửa sổ', `${bigObjs.length} vật thể`);
+
 // Sàn chống slideshow: video đủ dài cần có zoom nhấn, sticker và cutaway; không quá lâu không có sự kiện hình
 if (outDur >= 12) {
   const missing = [plan.punches.length ? null : 'zoom nhấn', plan.decor.length ? null : 'sticker', plan.cutaways.length ? null : 'cutaway'].filter(Boolean);
@@ -149,7 +217,9 @@ if (outDur >= 12) {
 }
 // Tính trên giờ thành phẩm (như audit): đoạn bị cắt không còn trong video nên không tính vào khoảng trống; chỗ nối sau mỗi lần cắt là một sự kiện hình
 const outWords = words.map((w) => ({ oStart: timeMap.toOut(w.start), oEnd: timeMap.toOut(w.end - 0.001) })).filter((w) => w.oStart !== null && w.oEnd !== null).map((w) => ({ oStart: w.oStart, oEnd: w.oEnd + 0.001 }));
-const events = [...windows.map(([, x]) => x.start), ...plan.cuts.map((c) => c.end), ...A.shotCuts].map((t) => (t >= 0 && t < plan.duration ? timeMap.toOut(t) : null)).filter((t) => t !== null).sort((a, b) => a - b);
+// Cảnh demo là clip chạy liên tục (không phải khung tĩnh): cứ 4s trong cửa sổ demo tính một sự kiện hình
+const demoTicks = plan.cutaways.filter((c) => c.presentation === 'demo').flatMap((c) => Array.from({ length: Math.max(0, Math.ceil((c.end - c.start) / 4)) }, (_, k) => c.start + k * 4));
+const events = [...windows.map(([, x]) => x.start), ...plan.cuts.map((c) => c.end), ...A.shotCuts, ...demoTicks].map((t) => (t >= 0 && t < plan.duration ? timeMap.toOut(t) : null)).filter((t) => t !== null).sort((a, b) => a - b);
 let maxGap = events.length ? speechGap(0, events[0], outWords, 'oStart', 'oEnd') : outDur;
 let gapAt = 0;
 events.forEach((t, i) => { const g = speechGap(t, events[i + 1] ?? outDur, outWords, 'oStart', 'oEnd'); if (g > maxGap) { maxGap = g; gapAt = t; } });
@@ -164,6 +234,13 @@ if (stage === 'assets') {
   lacking.length ? fail('cutaway có tệp tài nguyên', lacking.map((c) => c.id).join(', ')) : pass('cutaway có tệp tài nguyên');
   const noCredit = plan.cutaways.filter((c) => c.asset && !credits.some((x) => path.resolve(base, c.asset).endsWith(path.normalize(x.file))) && !c.userProvided);
   noCredit.length ? fail('mọi tài nguyên tải về có dòng ghi công', noCredit.map((c) => c.id).join(', ')) : pass('mọi tài nguyên tải về có dòng ghi công');
+  // Clip chạy một lần (của người dùng hoặc có clipStart): clipStart phải nằm trong clip; clip ngắn hơn cửa sổ thì giữ khung cuối
+  const onceClips = plan.cutaways.filter((c) => c.asset && fs.existsSync(path.resolve(base, c.asset)) && (c.kind === 'video' || /\.(mp4|webm|mov)$/i.test(c.asset)) && clipPlan(c).once);
+  const lengths = onceClips.map((c) => ({ c, left: probe(path.resolve(base, c.asset)).duration - clipPlan(c).start }));
+  const pastEnd = lengths.filter((x) => x.left <= 0.1);
+  const short = lengths.filter((x) => x.left > 0.1 && x.left < (x.c.end - x.c.start) - 0.1);
+  pastEnd.length ? fail('clipStart nằm trong clip', pastEnd.map((x) => `${x.c.id} (clipStart ${x.c.clipStart} vượt độ dài clip)`).join(', ')) : pass('clipStart nằm trong clip', `${onceClips.length} clip chạy một lần`);
+  short.length ? warn('clip đủ dài cho cửa sổ cutaway', short.map((x) => `${x.c.id}: còn ${x.left.toFixed(1)}s so với ${(x.c.end - x.c.start).toFixed(1)}s, phần sau giữ khung cuối`).join('; ')) : pass('clip đủ dài cho cửa sổ cutaway');
 }
 
 for (const r of results) console.log(`${r.level.padEnd(4)} ${r.name}${r.detail ? `: ${r.detail}` : ''}`);

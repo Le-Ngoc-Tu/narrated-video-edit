@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "note": "Từ điển tên riêng và thuật ngữ áp sau phiên âm (scripts/glossary-lib.mjs). canonical: dạng đúng. variants: cách nghe sai đã gặp, số từ phải bằng số từ của canonical. ambiguous: true khi biến thể là từ thật (chỉ thay khi người dùng khai thuật ngữ cho video, bằng --terms hoặc work/glossary.json). lang: danh sách mã ngôn ngữ áp dụng, bỏ trống là mọi ngôn ngữ. Thêm mục là thêm dữ liệu, không sửa mã.",
+  "entries": [
+    { "canonical": "Claude", "variants": ["Cloud"], "ambiguous": true },
+    { "canonical": "Claude Code", "variants": ["Cloud Code"], "ambiguous": false }
+  ]
+}

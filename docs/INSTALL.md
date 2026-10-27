@@ -25,7 +25,7 @@ Skill chỉ là công thức. FFmpeg, Chrome và mô hình giọng nói chạy t
 
 ## 2. Đưa skill cho trợ lý
 
-Tải **`narrated-video-edit-v1.0.0.zip`** ở [trang Releases](../../../releases/latest). Zip chứa đúng một thư mục `narrated-video-edit/`, bên trong có `SKILL.md`. Cấu trúc đó là yêu cầu của Claude: zip để `SKILL.md` lẻ ngay gốc sẽ không được nhận.
+Tải **`narrated-video-edit-v1.1.0.zip`** ở [trang Releases](../../../releases/latest). Zip chứa đúng một thư mục `narrated-video-edit/`, bên trong có `SKILL.md`. Cấu trúc đó là yêu cầu của Claude: zip để `SKILL.md` lẻ ngay gốc sẽ không được nhận.
 
 ### A. Claude trên web hoặc ứng dụng máy tính
 
@@ -45,13 +45,13 @@ Cài cho cá nhân, dùng ở mọi dự án:
 ```bash
 # macOS, Linux
 mkdir -p ~/.claude/skills
-unzip narrated-video-edit-v1.0.0.zip -d ~/.claude/skills
+unzip narrated-video-edit-v1.1.0.zip -d ~/.claude/skills
 ```
 
 ```powershell
 # Windows PowerShell
 New-Item -ItemType Directory -Force "$HOME\.claude\skills" | Out-Null
-Expand-Archive .\narrated-video-edit-v1.0.0.zip -DestinationPath "$HOME\.claude\skills"
+Expand-Archive .\narrated-video-edit-v1.1.0.zip -DestinationPath "$HOME\.claude\skills"
 ```
 
 Kiểm có tệp `~/.claude/skills/narrated-video-edit/SKILL.md`. Chỉ cho một dự án thì dùng `<dự án>/.claude/skills/`. Chạy `claude` rồi mô tả việc cần làm, hoặc gõ `/narrated-video-edit`.

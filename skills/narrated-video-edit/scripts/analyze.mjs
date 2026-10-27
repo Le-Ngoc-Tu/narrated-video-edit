@@ -1,12 +1,14 @@
 // Khâu A: phân tích video có giọng nói. Ghi vào thư mục --out: meta.json, audio.wav, words.json, pauses.json, faces.json, shots.json, loudness.json.
-// Chạy: node analyze.mjs <video> --out work/analysis [--lang vi] [--model large-v3] [--prompt "tên riêng"] [--words words.json] [--no-faces]
+// Chạy: node analyze.mjs <video> --out work/analysis [--lang vi] [--model large-v3] [--prompt "tên riêng"] [--terms "Claude, GSAP"] [--glossary work/glossary.json] [--words words.json] [--no-faces]
 // Phiên âm chạy cục bộ (faster-whisper), không gửi video hay âm thanh đi đâu. --words dùng lại một words.json có sẵn thay cho phiên âm.
+// Sau phiên âm áp từ điển tên riêng (data/glossary.json và work/glossary.json): bản gốc giữ ở words.raw.json, mọi lần thay ghi vào glossary-report.json.
 import fs from 'node:fs';
 import path from 'node:path';
 import { args, ffmpeg, here, probe, pythonPath, readJson, run, writeJson } from './common.mjs';
+import { glossaryPass, loadGlossary } from './glossary-lib.mjs';
 
 const { flags, positional } = args();
-if (!positional[0] || !flags.out) { console.error('Dùng: node analyze.mjs <video> --out work/analysis [--lang vi] [--model large-v3] [--words words.json] [--no-faces]'); process.exit(2); }
+if (!positional[0] || !flags.out) { console.error('Dùng: node analyze.mjs <video> --out work/analysis [--lang vi] [--model large-v3] [--terms "Claude, GSAP"] [--words words.json] [--no-faces]'); process.exit(2); }
 const video = path.resolve(positional[0]);
 const out = path.resolve(String(flags.out));
 fs.mkdirSync(out, { recursive: true });
@@ -29,15 +31,23 @@ const loudJson = loud.stderr.match(/\{[\s\S]*?\}/g)?.pop();
 if (loudJson) writeJson(path.join(out, 'loudness.json'), JSON.parse(loudJson));
 
 const wordsFile = path.join(out, 'words.json');
-if (flags.words) fs.copyFileSync(path.resolve(String(flags.words)), wordsFile);
+const rawFile = path.join(out, 'words.raw.json');
+const glossaryOpts = { projectFile: path.resolve(String(flags.glossary ?? path.join(out, '..', 'glossary.json'))), terms: flags.terms ? String(flags.terms).split(',') : [] };
+if (flags.words) { if (path.resolve(String(flags.words)) !== rawFile) fs.copyFileSync(path.resolve(String(flags.words)), rawFile); }
 else {
-  const cmd = [path.join(here, 'transcribe.py'), wav, '--out', wordsFile, '--model', String(flags.model ?? 'large-v3')];
+  // Tên riêng người dùng đã khai (không kèm biến thể mơ hồ chưa khai) đi vào lời nhắc của Whisper để nhận đúng chính tả ngay từ đầu
+  const declared = loadGlossary({ ...glossaryOpts, language: flags.lang ? String(flags.lang) : undefined }).filter((e) => e.declared).map((e) => e.canonical);
+  const prompt = [flags.prompt, ...declared].filter((x) => x && x !== true).join(', ');
+  const cmd = [path.join(here, 'transcribe.py'), wav, '--out', rawFile, '--model', String(flags.model ?? 'large-v3')];
   if (flags.lang) cmd.push('--lang', String(flags.lang));
-  if (flags.prompt) cmd.push('--prompt', String(flags.prompt));
+  if (prompt) cmd.push('--prompt', prompt);
   const r = run(pythonPath(), cmd, { env });
   if (r.status !== 0) throw new Error(`Phiên âm lỗi: ${(r.stderr || r.stdout).trim().split('\n').slice(-5).join('\n')}\nChạy "node setup.mjs" để chuẩn bị môi trường Python.`);
   console.log(r.stdout.trim());
 }
+const report = glossaryPass(out, glossaryOpts);
+if (report.applied.length) console.log(`từ điển: thay ${report.applied.length} từ (${[...new Set(report.applied.map((a) => a.canonical))].join(', ')})`);
+report.pending.forEach((p) => console.log(`cảnh báo từ điển: ${p.question} Nếu đúng: node glossary-apply.mjs --analysis ${path.relative(process.cwd(), out) || '.'} --terms "${p.canonical}"`));
 const words = readJson(wordsFile);
 
 // Khoảng ngắt giữa các từ: ứng viên để cắt (chỉ đề xuất; kế hoạch quyết định)

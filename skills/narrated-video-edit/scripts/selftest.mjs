@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { FPS, args, ffmpeg, launchChrome, probe, pythonPath, readJson, run, segPythonPath, skillRoot, writeJson, here } from './common.mjs';
 import { allowed, ccName, licenseKey, score } from './resolve-assets.mjs';
 import { loadLibrary } from './fx-lib.mjs';
+import { captionProblems } from './glossary-lib.mjs';
 
 const { flags } = args();
 const model = String(flags.model ?? 'small');
@@ -59,7 +60,7 @@ writeJson(path.join(analysis, 'faces.json'), { coverage: 1, samples: Array.from(
 }
 
 // ---- Khâu B ----
-const styles = ['hype', 'explainer', 'documentary'];
+const styles = ['hype', 'explainer', 'documentary', 'creator'];
 const planFile = path.join(work, 'edit-plan.json');
 let allGood = true;
 for (const id of styles) {
@@ -67,7 +68,7 @@ for (const id of styles) {
   const lint = node('plan-lint.mjs', ['--plan', path.join(work, `plan-${id}.json`), '--analysis', analysis]);
   if (sk.status !== 0 || lint.status !== 0) { allGood = false; console.log(`  ${id}: ${tail(sk.status !== 0 ? sk : lint)}`); }
 }
-check('kế hoạch: bộ khung của cả 3 phong cách qua plan-lint', allGood);
+check('kế hoạch: bộ khung của cả 4 phong cách qua plan-lint', allGood);
 // Bản highlight: chọn đoạn quan trọng rồi dựng khung chỉ trên các đoạn đó
 const hlFile = path.join(work, 'highlights.json');
 const hl = node('pick-highlights.mjs', ['--analysis', analysis, '--out', hlFile, '--target', '8', '--min', '3', '--max', '6', '--bins', '2']);
@@ -84,6 +85,37 @@ fs.copyFileSync(path.join(work, 'plan-hype.json'), planFile);
 const good = readJson(planFile);
 check('gợi ý decor tự động: icon theo từ khóa trong data/decor-keywords.json, truy vấn ảnh bằng tiếng Anh', good.decor.some((d) => d.type === 'icon' && d.query === 'hot beverage') && good.cutaways.every((c) => !/[^\x00-\x7f]/.test(c.query)), `${good.decor.filter((d) => d.auto).map((d) => d.type).join(',')}`);
 check('kế hoạch hype có zoom, sticker, thẻ số và cutaway', good.punches.length && good.decor.length && good.stats.length && good.cutaways.length, `${good.punches.length} zoom, ${good.decor.length} sticker, ${good.stats.length} thẻ, ${good.cutaways.length} cutaway`);
+// Từ điển tên riêng (kế hoạch 51, P1): biến thể mơ hồ chỉ thay khi người dùng đã khai; bản gốc, mốc giờ và chỉ số từ không đổi
+{
+  const gdir = path.join(work, 'glossary-analysis');
+  fs.cpSync(analysis, gdir, { recursive: true });
+  const raw = readJson(path.join(gdir, 'words.raw.json'));
+  Object.entries({ 2: 'Cloud,', 6: 'cloud', 7: 'storage', 12: 'Cloud', 13: 'Code' }).forEach(([i, t]) => { raw.words[i].text = t; });
+  writeJson(path.join(gdir, 'words.raw.json'), raw);
+  const undeclared = node('glossary-apply.mjs', ['--analysis', gdir]);
+  const wu = readJson(path.join(gdir, 'words.json')).words;
+  const ru = readJson(path.join(gdir, 'glossary-report.json'));
+  check('từ điển: chưa khai thì "cloud" thật (cloud storage) không bị sửa, chỉ hỏi người dùng', undeclared.status === 0 && wu[2].text === 'Cloud,' && wu[6].text === 'cloud' && ru.pending.length === 1 && ru.pending[0].count === 2, undeclared.status === 0 ? ru.pending[0]?.question : tail(undeclared));
+  check('từ điển: "Cloud Code" không mơ hồ nên luôn thành "Claude Code"', wu[12].text === 'Claude' && wu[13].text === 'Code', `${wu[12].text} ${wu[13].text}`);
+  const pbq = node('plan-board.mjs', ['--plan', planFile, '--analysis', gdir, '--out', path.join(work, 'board-glossary')]);
+  const mdq = fs.existsSync(path.join(work, 'board-glossary', 'plan-board.md')) ? fs.readFileSync(path.join(work, 'board-glossary', 'plan-board.md'), 'utf8') : '';
+  check('từ điển: plan-board hỏi người dùng ở CỔNG 1 khi còn tên riêng mơ hồ', pbq.status === 0 && mdq.includes('Cần hỏi người dùng về tên riêng') && mdq.includes('"Claude"'), pbq.status === 0 ? '' : tail(pbq));
+  const declared = node('glossary-apply.mjs', ['--analysis', gdir, '--terms', 'Claude']);
+  const wd = readJson(path.join(gdir, 'words.json')).words;
+  const rd = readJson(path.join(gdir, 'glossary-report.json'));
+  const rawAfter = readJson(path.join(gdir, 'words.raw.json'));
+  check('từ điển: đã khai thì thay đủ, giữ dấu câu, mốc giờ và bản gốc', declared.status === 0 && wd[2].text === 'Claude,' && wd[6].text === 'Claude' && wd[6].was === 'cloud' && wd[2].start === raw.words[2].start && rd.applied.length === 3 && !rd.pending.length && rawAfter.words[6].text === 'cloud', declared.status === 0 ? `${rd.applied.length} từ` : tail(declared));
+  const gplan = (text) => path.join(work, `plan-glossary-${text}.json`);
+  for (const text of ['Cloud', 'Claude']) writeJson(gplan(text), { ...good, cards: [{ id: 'gz', type: 'bigtext', text, start: raw.words[12].start, end: raw.words[12].start + 1.5, anchorWord: 12 }] });
+  const lintBad = node('plan-lint.mjs', ['--plan', gplan('Cloud'), '--analysis', gdir]);
+  const lintOk = node('plan-lint.mjs', ['--plan', gplan('Claude'), '--analysis', gdir]);
+  check('từ điển: plan-lint báo FAIL khi thẻ ghi "Cloud" và PASS khi ghi "Claude"', /FAIL chữ trên màn hình viết đúng tên riêng/.test(lintBad.stdout) && /PASS chữ trên màn hình viết đúng tên riêng/.test(lintOk.stdout), tail(lintBad));
+  const capOf = (ws) => ws.map((w) => ({ i: w.i, text: w.text }));
+  const fixed = captionProblems(rd, capOf(wd));
+  const stale = captionProblems(rd, capOf(raw.words));
+  check('từ điển: kiểm caption của audit độc lập với bộ nhận dạng (bắt "Cloud", chấp nhận "Claude")', !fixed.changed.length && !fixed.leftover.length && stale.changed.length === 3,`caption sai lệch ${stale.changed.length}, đã sửa ${fixed.changed.length + fixed.leftover.length}`);
+}
+
 {
   const boardDir = path.join(work, 'board');
   const pb = node('plan-board.mjs', ['--plan', planFile, '--analysis', analysis, '--out', boardDir]);
@@ -155,6 +187,8 @@ const mutate = (name, edit, expect) => {
 mutate('stat', (p) => { p.stats[0].value = '999'; }, 'số liệu không có trong lời nói');
 mutate('midword', (p) => { const w = words[10]; p.cutaways[0].start = (w.start + w.end) / 2; }, 'cutaway cắt ngang một từ');
 mutate('decor', (p) => { p.decor[0].type = 'hologram'; }, 'loại sticker ngoài phong cách');
+mutate('clipfit', (p) => { p.cutaways[0].clipFit = 'zoom'; }, 'clipFit ngoài cover và contain');
+mutate('clipstart', (p) => { p.cutaways[0].clipStart = -3; }, 'clipStart âm');
 mutate('share', (p) => { p.cutaways = [{ ...p.cutaways[0], id: 'x1', start: 1, end: 6 }, { ...p.cutaways[0], id: 'x2', start: 7, end: 12 }]; }, 'rời mặt người nói quá nhiều');
 
 // ---- Khâu C (ngoại tuyến): giấy phép, chấm điểm, tài nguyên của người dùng ----
@@ -241,6 +275,289 @@ const sc0 = ovData.showcases[0];
 const roSc = node('render-overlay.mjs', ['--mapped', path.join(work, 'plan.mapped.json'), '--out', path.join(work, 'overlay-sc'), '--analysis', analysis, '--times', String(((sc0?.s ?? 0) + (sc0?.e ?? 1)) / 2)]);
 const scShot = fs.readdirSync(path.join(work, 'overlay-sc')).find((f) => f.startsWith('test_'));
 check('lớp phủ: khung giữa showcase có hình vật thể (khác khung trống)', roSc.status === 0 && scShot && fs.statSync(path.join(work, 'overlay-sc', scShot)).size > fs.statSync(path.join(work, 'overlay-sc', 'blank.png')).size * 3, scShot ?? tail(roSc));
+// Clip chạy thật trong thẻ (kế hoạch 51, P2): bắt đầu đúng clipStart, khung đổi theo thời gian (so với thẻ ảnh tĩnh cùng chuyển động), clip ngắn giữ khung cuối
+{
+  const clipFile = path.join(userDir, 'play.mp4');
+  ffmpeg(['-f', 'lavfi', '-i', 'testsrc2=size=640x360:rate=30:duration=8', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', clipFile], 'clip mẫu');
+  const target = structuredClone(mapped.cutaways.find((c) => c.presentation === 'card') ?? mapped.cutaways.find((c) => c.presentation !== 'fullbleed'));
+  const only = (patch) => { const m = structuredClone(mapped); m.cutaways = [{ ...target, ...patch }]; m.captions = { mode: 'off' }; m.stats = []; m.decor = []; m.cards = []; m.lowerThirds = []; return m; };
+  const render = (name, m, times) => {
+    const f = path.join(work, `plan.${name}.json`);
+    writeJson(f, m);
+    const dir = path.join(work, `overlay-${name}`);
+    const r = node('render-overlay.mjs', ['--mapped', f, '--out', dir, '--analysis', analysis, '--offline', ...(times ? ['--times', times.join(',')] : [])]);
+    return { r, dir, data: fs.existsSync(path.join(dir, 'overlay-data.js')) ? JSON.parse(fs.readFileSync(path.join(dir, 'overlay-data.js'), 'utf8').replace('window.OVERLAY = ', '').replace(/;\s*$/, '')) : null };
+  };
+  const tA = target.oStart + 0.5;
+  const tB = target.oEnd - 0.3;
+  const gray = (file, box) => run('ffmpeg', ['-v', 'error', '-i', file, '-vf', box ? `crop=iw*${box.w}:ih*${box.h}:iw*${box.x}:ih*${box.y},scale=64:64,format=gray` : 'scale=64:112,format=gray', '-f', 'rawvideo', '-'], { encoding: 'buffer' }).stdout;
+  const shots = (dir) => fs.readdirSync(dir).filter((x) => /^test_/.test(x)).sort().map((x) => path.join(dir, x));
+  // Cùng hình học và chuyển động của thẻ ở hai lần dựng: chỉ nội dung clip khác nhau (clip chạy so với clip giữ khung đầu), đo trong hộp của thẻ ở mốc cuối cửa sổ
+  const crossDiff = (a, b, box) => { const x = gray(shots(a)[1], box); const y = gray(shots(b)[1], box); let d = 0; for (let i = 0; i < Math.min(x.length, y.length); i++) d += Math.abs(x[i] - y[i]); return d / (x.length || 1); };
+  const play = render('clip-play', only({ asset: path.relative(work, clipFile).replace(/\\/g, '/'), kind: 'video', userProvided: true, clipStart: 2, entrance: 'pop' }), [tA, tB]);
+  const staticFile = path.join(userDir, 'static.mp4');
+  ffmpeg(['-ss', '2', '-i', clipFile, '-frames:v', '1', '-vf', 'fps=30', path.join(work, 'static-frame.png')], 'khung tĩnh');
+  ffmpeg(['-loop', '1', '-framerate', '30', '-i', path.join(work, 'static-frame.png'), '-t', '8', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', staticFile], 'clip tĩnh');
+  const still = render('clip-still', only({ asset: path.relative(work, staticFile).replace(/\\/g, '/'), kind: 'video', userProvided: true, clipStart: 2, entrance: 'pop' }), [tA, tB]);
+  const win = target.oEnd - target.oStart;
+  const sc = play.data?.showcases?.[0];
+  check('clip chạy thật: chuỗi khung trích đủ cho cửa sổ, bắt đầu từ clipStart', play.r.status === 0 && sc?.clip && Math.abs(sc.clip.frames - Math.round(win * 30)) <= 2, play.r.status === 0 ? `${sc?.clip?.frames} khung cho ${win.toFixed(2)}s` : tail(play.r));
+  const first = gray(path.join(play.dir, sc?.clip?.dir ?? 'x', 'c_00001.jpg'));
+  const src2s = run('ffmpeg', ['-v', 'error', '-ss', '2', '-i', clipFile, '-frames:v', '1', '-vf', 'scale=-2:ih,scale=64:112,format=gray', '-f', 'rawvideo', '-'], { encoding: 'buffer' }).stdout;
+  const firstDiff = first.length && first.length === src2s.length ? first.reduce((s, v, i) => s + Math.abs(v - src2s[i]), 0) / first.length : 255;
+  check('clip chạy thật: khung đầu của thẻ là khung tại clipStart của clip nguồn', firstDiff < 8, `chênh lệch ${firstDiff.toFixed(1)}`);
+  const dPlay = crossDiff(play.dir, still.dir, play.data.showcases[0]);
+  const dSelf = crossDiff(still.dir, still.dir, still.data.showcases[0]);
+  check('clip chạy thật: cuối cửa sổ thẻ hiện khung khác với clip giữ khung đầu (cùng vị trí và chuyển động của thẻ)', dPlay > 2 && dSelf < 0.5, `clip chạy so với giữ khung đầu ${dPlay.toFixed(1)}, đối chứng ${dSelf.toFixed(1)}`);
+  const shortClip = render('clip-short', only({ asset: path.relative(work, clipFile).replace(/\\/g, '/'), kind: 'video', userProvided: true, clipStart: 7.5 }), [tA]);
+  check('clip chạy thật: clip ngắn hơn cửa sổ giữ khung cuối, không lặp', shortClip.r.status === 0 && shortClip.data.showcases[0].clip.frames <= 20 && shortClip.data.showcases[0].clip.frames >= 10, shortClip.r.status === 0 ? `${shortClip.data.showcases[0].clip.frames} khung` : tail(shortClip.r));
+  const lintPast = path.join(work, 'plan-clip-past.json');
+  writeJson(lintPast, { ...resolved, cutaways: [{ ...resolved.cutaways[1], asset: path.relative(work, clipFile).replace(/\\/g, '/'), kind: 'video', userProvided: true, clipStart: 99 }] });
+  const lp = node('plan-lint.mjs', ['--plan', lintPast, '--analysis', analysis, '--stage', 'assets']);
+  check('plan-lint bắt lỗi: clipStart vượt độ dài clip', lp.status === 1 && /FAIL clipStart nằm trong clip/.test(lp.stdout), lp.status === 1 ? '' : 'không bị chặn');
+  // Thẻ rộng (clip 16:9) khi hai vị trí đầu bị mặt chiếm: vị trí thứ ba không được kéo thẻ ra ngoài khung (lỗi gặp khi dựng bộ demo từ vlog ngang)
+  {
+    const wf = path.join(work, 'analysis-wideface');
+    fs.cpSync(analysis, wf, { recursive: true });
+    writeJson(path.join(wf, 'faces.json'), { coverage: 1, samples: Array.from({ length: 20 }, (_, t) => ({ t, boxes: [[0, 0.05, 0.38, 0.7]] })) });
+    const fm = only({ asset: path.relative(work, clipFile).replace(/\\/g, '/'), kind: 'video', userProvided: true, clipStart: 1, entrance: 'pop' });
+    const ff = path.join(work, 'plan.wideface.json');
+    writeJson(ff, fm);
+    const r = node('render-overlay.mjs', ['--mapped', ff, '--out', path.join(work, 'overlay-wideface'), '--analysis', wf, '--offline', '--times', String(target.oStart + 0.8)]);
+    const sc = fs.existsSync(path.join(work, 'overlay-wideface', 'overlay-data.js')) ? JSON.parse(fs.readFileSync(path.join(work, 'overlay-wideface', 'overlay-data.js'), 'utf8').replace('window.OVERLAY = ', '').replace(/;\s*$/, '')).showcases : [];
+    check('thẻ showcase rộng luôn nằm trong khung dù hai vị trí đầu bị mặt chiếm', r.status === 0 && sc.length === 1 && sc.every((x) => x.x >= -1e-6 && x.x + x.w <= 1 + 1e-6), r.status === 0 ? sc.map((x) => `x ${x.x.toFixed(2)} w ${x.w.toFixed(2)}`).join(', ') : tail(r));
+  }
+  const baseClip = path.join(work, 'base-clip.mp4');
+  const clipPlanFile = path.join(work, 'edit-plan-clip.json');
+  const fb = structuredClone(resolved);
+  const fbTarget = fb.cutaways.find((c) => c.presentation === 'fullbleed') ?? fb.cutaways[0];
+  Object.assign(fbTarget, { presentation: 'fullbleed', asset: path.relative(work, clipFile).replace(/\\/g, '/'), kind: 'video', userProvided: true, clipStart: 3 });
+  writeJson(clipPlanFile, fb);
+  const mappedKeepClip = fs.readFileSync(path.join(work, 'plan.mapped.json'));
+  const cbClip = node('compose-base.mjs', ['--plan', clipPlanFile, '--analysis', analysis, '--out', baseClip]);
+  const fbMapped = readJson(path.join(work, 'plan.mapped.json'));
+  fs.writeFileSync(path.join(work, 'plan.mapped.json'), mappedKeepClip);
+  const fbm = fbMapped.cutaways.find((c) => c.id === fbTarget.id);
+  const grayAt = (file, t) => run('ffmpeg', ['-v', 'error', '-ss', String(t), '-i', file, '-frames:v', '1', '-vf', 'scale=64:112,format=gray', '-f', 'rawvideo', '-'], { encoding: 'buffer' }).stdout;
+  const g1 = cbClip.status === 0 ? grayAt(baseClip, fbm.oStart + 0.5) : Buffer.alloc(0);
+  const g2 = cbClip.status === 0 ? grayAt(baseClip, Math.min(fbm.oEnd - 0.4, fbm.oStart + 1.5)) : Buffer.alloc(0);
+  let dBase = 0;
+  for (let i = 0; i < Math.min(g1.length, g2.length); i++) dBase += Math.abs(g1[i] - g2[i]);
+  check('clip chạy thật: cutaway phủ kín ở lớp nền cũng chạy từ clipStart (không lặp từ đầu)', cbClip.status === 0 && dBase / (g1.length || 1) > 6, cbClip.status === 0 ? `chênh lệch giữa hai khung ${(dBase / (g1.length || 1)).toFixed(1)}` : tail(cbClip));
+}
+// Cảnh demo (kế hoạch 51, P3): nền hoa văn, khung bo góc, zoom vùng và chú thích theo tọa độ clip; đo pixel trên khung hình thật so với tọa độ tính bằng mã
+{
+  const { demoLayout, demoTheme, focusList, markTrack } = await import(pathToFileURL(path.join(here, 'demo-lib.mjs')).href);
+  const marker = path.join(userDir, 'marker.mp4');
+  // Clip đen 640x360 có một ô màu magenta ở tọa độ chuẩn hóa (0,70; 0,30; 0,10; 0,15): vị trí đã biết để đo
+  ffmpeg(['-f', 'lavfi', '-i', 'color=c=black:s=640x360:r=30:d=8,drawbox=x=448:y=108:w=64:h=54:color=magenta:t=fill', '-c:v', 'libx264', '-pix_fmt', 'yuv420p', marker], 'clip đánh dấu');
+  const dd = path.join(work, 'demo');
+  fs.mkdirSync(dd, { recursive: true });
+  const target = { x: 0.7, y: 0.3, w: 0.1, h: 0.15 };
+  const demoCut = { id: 'd01', start: 2, end: 10, anchorWord: 0, query: 'demo', kind: 'video', presentation: 'demo', theme: 'pastel', asset: '../user-assets/marker.mp4', userProvided: true, status: 'resolved', clipStart: 0, focus: [{ start: 4, end: 8, rect: { x: 0.6, y: 0.2, w: 0.3, h: 0.35 } }], marks: [{ type: 'underline', rect: target, start: 2.5, end: 9.5 }, { type: 'circle', rect: target, start: 4.6, end: 7.6 }] };
+  const pxPlan = { ...structuredClone(resolved), cuts: [], cutaways: [demoCut], punches: [], effects: [], stats: [], decor: [], cards: [], lowerThirds: [], captions: { mode: 'off' } };
+  writeJson(path.join(dd, 'edit-plan.json'), pxPlan);
+  const lintDemo = node('plan-lint.mjs', ['--plan', path.join(dd, 'edit-plan.json'), '--analysis', analysis, '--stage', 'assets']);
+  check('plan-lint: cảnh demo hợp lệ (chủ đề, vùng zoom, chú thích, tỉ lệ)', /PASS cảnh demo hợp lệ/.test(lintDemo.stdout) && /PASS tỉ lệ cảnh demo/.test(lintDemo.stdout), tail(lintDemo));
+  const badDemo = (name, edit, expect) => {
+    const p = structuredClone(pxPlan);
+    edit(p.cutaways[0]);
+    writeJson(path.join(dd, `neg-${name}.json`), p);
+    const r = node('plan-lint.mjs', ['--plan', path.join(dd, `neg-${name}.json`), '--analysis', analysis]);
+    return check(`plan-lint bắt lỗi: ${expect}`, r.status === 1 && /FAIL (cảnh demo hợp lệ|tỉ lệ cảnh demo)/.test(r.stdout), r.status === 1 ? '' : 'không bị chặn');
+  };
+  badDemo('theme', (c) => { c.theme = 'khong-co'; }, 'chủ đề demo không có trong data/demo-themes.json');
+  badDemo('rect', (c) => { c.focus[0].rect = { x: 0.8, y: 0.2, w: 0.5, h: 0.3 }; }, 'vùng zoom nằm ngoài clip');
+  badDemo('mark', (c) => { c.marks[0].type = 'star'; }, 'kiểu chú thích không hợp lệ');
+  badDemo('share', (c) => { c.start = 0; c.end = 19.9; c.focus = []; c.marks = []; }, 'cảnh demo chiếm gần hết video');
+  const baseDemo = path.join(dd, 'base.mp4');
+  const cbd = node('compose-base.mjs', ['--plan', path.join(dd, 'edit-plan.json'), '--analysis', analysis, '--out', baseDemo]);
+  check('lớp nền: dựng được cảnh demo (nền hoa văn, khung, zoom vùng)', cbd.status === 0 && fs.existsSync(baseDemo) && Math.abs(probe(baseDemo).duration - 19.9) < 0.15, tail(cbd));
+  const mappedDemo = readJson(path.join(dd, 'plan.mapped.json'));
+  const demo = mappedDemo.cutaways[0];
+  const theme = demoTheme('pastel');
+  const layout = demoLayout({ W: 1080, H: 1920, theme, clipW: 640, clipH: 360 });
+  const rawAt = (file, t) => run('ffmpeg', ['-v', 'error', '-ss', String(t), '-i', file, '-frames:v', '1', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], { encoding: 'buffer' }).stdout;
+  const centroid = (buf, W, pick) => { let n = 0; let sx = 0; let sy = 0; for (let i = 0; i + 2 < buf.length; i += 3) if (pick(buf[i], buf[i + 1], buf[i + 2])) { const p = i / 3; sx += p % W; sy += Math.floor(p / W); n++; } return n ? { n, x: sx / n, y: sy / n } : { n: 0, x: -1, y: -1 }; };
+  const magenta = (r, g, b) => r > 170 && b > 170 && g < 100;
+  const underline = demo.marks[0];
+  const track = markTrack({ demo, mark: underline, layout, W: 1080, H: 1920, fps: 30 });
+  let worst = 0;
+  const probes = [3.0, 4.2, 6.0, 7.8].map((t) => {
+    const b = track[Math.round((t - underline.oStart) * 30)];
+    const got = centroid(rawAt(baseDemo, t), 1080, magenta);
+    const err = b ? Math.hypot(got.x - (b[0] + b[2] / 2) * 1080, got.y - (b[1] + b[3] / 2) * 1920) : 999;
+    worst = Math.max(worst, err);
+    return `${t}s: ${err.toFixed(1)} px`;
+  });
+  check('demo: vị trí ô đánh dấu trong khung hình thật khớp tọa độ chú thích tính bằng mã (zoom 1, đang vào, đầy, đang ra)', worst < 8, `lệch tối đa ${worst.toFixed(1)} px (${probes.join('; ')})`);
+  const zoomed = centroid(rawAt(baseDemo, 6.0), 1080, magenta);
+  const plain = centroid(rawAt(baseDemo, 3.0), 1080, magenta);
+  check('demo: zoom vùng thật sự phóng to (ô đánh dấu to gấp hơn 2 lần khi zoom đầy)', zoomed.n > plain.n * 2, `${plain.n} và ${zoomed.n} điểm ảnh`);
+  const pat = rawAt(baseDemo, 3.0);
+  const corner = (x, y) => [0, 1, 2].map((c) => pat[(y * 1080 + x) * 3 + c]);
+  check('demo: nền hoa văn sáng pastel quanh khung (không còn hình người nói)', corner(10, 10).every((v) => v > 200) && corner(1070, 1900).every((v) => v > 200), `${corner(10, 10)} và ${corner(1070, 1900)}`);
+  const ovDemo = path.join(dd, 'overlay-px');
+  const tCircle = 6.0;
+  const rod = node('render-overlay.mjs', ['--mapped', path.join(dd, 'plan.mapped.json'), '--out', ovDemo, '--analysis', analysis, '--offline', '--times', String(tCircle)]);
+  const shot = fs.existsSync(ovDemo) ? fs.readdirSync(ovDemo).find((f) => /^test_/.test(f)) : null;
+  let pink = { n: 0, x: -1, y: -1 };
+  if (rod.status === 0 && shot) {
+    const comp = path.join(dd, 'comp.png');
+    ffmpeg(['-ss', String(tCircle), '-i', baseDemo, '-i', path.join(ovDemo, shot), '-filter_complex', '[0][1]overlay', '-frames:v', '1', comp], 'ghép khung thử');
+    const raw = run('ffmpeg', ['-v', 'error', '-i', comp, '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], { encoding: 'buffer' }).stdout;
+    const hits = []; for (let i = 0; i + 2 < raw.length; i += 3) if (raw[i] > 215 && raw[i + 1] > 40 && raw[i + 1] < 130 && raw[i + 2] > 90 && raw[i + 2] < 170) hits.push(i / 3); const xs = hits.map((p) => p % 1080); const ys = hits.map((p) => Math.floor(p / 1080)); pink = hits.length ? { n: hits.length, x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 } : pink;
+  }
+  const circleBox = markTrack({ demo, mark: demo.marks[1], layout, W: 1080, H: 1920, fps: 30 })[Math.round((tCircle - demo.marks[1].oStart) * 30)];
+  const ex = circleBox ? (circleBox[0] + circleBox[2] / 2) * 1080 : -99;
+  const ey = circleBox ? (circleBox[1] + circleBox[3] / 2) * 1920 : -99;
+  check('demo: nét chú thích (circle) hiện đúng màu chủ đề, hộp bao của nét có tâm nằm trên vùng đích', rod.status === 0 && pink.n > 300 && Math.hypot(pink.x - ex, pink.y - ey) < 14, rod.status === 0 ? `${pink.n} điểm ảnh, lệch tâm ${Math.hypot(pink.x - ex, pink.y - ey).toFixed(1)} px` : tail(rod));
+  // Dựng đủ đường ống với cảnh demo trên kế hoạch đầy đủ (caption, sticker, zoom): caption nằm dưới khung clip, audit không FAIL
+  const fullPlan = { ...structuredClone(resolved), cutaways: [{ ...demoCut, asset: '../../user-assets/marker.mp4', focus: [{ start: 4, end: 8, rect: { x: 0.6, y: 0.2, w: 0.3, h: 0.35 } }] }] };
+  writeJson(path.join(dd, 'full', 'edit-plan.json'), fullPlan);
+  const fd = path.join(dd, 'full');
+  const fdBase = path.join(fd, 'base.mp4');
+  const fcb = node('compose-base.mjs', ['--plan', path.join(fd, 'edit-plan.json'), '--analysis', analysis, '--out', fdBase]);
+  const fro = node('render-overlay.mjs', ['--mapped', path.join(fd, 'plan.mapped.json'), '--out', path.join(fd, 'overlay'), '--analysis', analysis, '--offline']);
+  const ffin = node('finalize.mjs', ['--base', fdBase, '--overlay', path.join(fd, 'overlay'), '--mapped', path.join(fd, 'plan.mapped.json'), '--out', path.join(fd, 'out.mp4')]);
+  const fau = node('audit-edit.mjs', ['--video', path.join(fd, 'out.mp4'), '--work', fd, '--analysis', analysis, '--no-asr']);
+  const fsum = fs.existsSync(path.join(fd, 'overlay', 'overlay-summary.json')) ? readJson(path.join(fd, 'overlay', 'overlay-summary.json')) : null;
+  const fdata = fs.existsSync(path.join(fd, 'overlay', 'overlay-data.js')) ? JSON.parse(fs.readFileSync(path.join(fd, 'overlay', 'overlay-data.js'), 'utf8').replace('window.OVERLAY = ', '').replace(/;\s*$/, '')) : null;
+  check('demo: caption nằm dưới khung clip (captionY không nhỏ hơn đáy khung)', Boolean(fsum?.demos?.length && fdata) && fdata.captionY >= fsum.demos[0].y + fsum.demos[0].h - 0.001, fsum?.demos?.length ? `captionY ${fdata?.captionY}, đáy khung ${(fsum.demos[0].y + fsum.demos[0].h).toFixed(3)}` : tail(fro));
+  const fullDemo = readJson(path.join(fd, 'plan.mapped.json')).cutaways[0];
+  check('demo: nền pastel báo cửa sổ nền sáng để caption đổi chữ tối (chữ trắng trên pastel không đọc được)', fdata?.demoLight?.length === 1 && Math.abs(fdata.demoLight[0].s - fullDemo.oStart) < 0.01 && Math.abs(fdata.demoLight[0].e - fullDemo.oEnd) < 0.01, JSON.stringify(fdata?.demoLight ?? null));
+  check('demo: đường ống đủ (nền, lớp phủ, ghép) và audit-edit không có hạng mục FAIL', fcb.status === 0 && fro.status === 0 && ffin.status === 0 && fau.status === 0, fau.status === 0 ? '' : (fcb.status !== 0 ? tail(fcb) : fro.status !== 0 ? tail(fro) : ffin.status !== 0 ? tail(ffin) : fau.stdout.split('\n').filter((l) => l.startsWith('FAIL')).join(' | ')));
+  check('audit-edit: có kiểm tỉ lệ cảnh demo và caption không đè khung clip', /PASS tỉ lệ cảnh demo/.test(fau.stdout) && /PASS caption không đè khung clip của cảnh demo/.test(fau.stdout), tail(fau));
+}
+// Thẻ chips, headline, textspam và biến thể title (kicker, highlight, plate) (kế hoạch 51, P4): lint, vị trí, thời điểm, pixel
+{
+  const cd = path.join(work, 'cards');
+  const wi = (re) => words.findIndex((w) => re.test(w.text));
+  const bare = (t) => t.replace(/[^\p{L}\p{N}\s]/gu, '');
+  const iToday = wi(/today/i);
+  const iRoast = wi(/roasting/i);
+  const iGood = wi(/^good$/i);
+  const iEnjoy = wi(/enjoy/i);
+  check('P4: tìm được các từ mốc trong phiên âm (today, roasting, good, enjoy)', [iToday, iRoast, iGood, iEnjoy].every((i) => i >= 0), `${iToday},${iRoast},${iGood},${iEnjoy}`);
+  const t0 = (i) => words[i].start;
+  const cards = [
+    { id: 't1', type: 'title', start: t0(iToday), end: t0(iToday) + 3, anchorWord: iToday, text: 'Today I want to talk about coffee', sub: '', kicker: bare(words[iRoast].text), highlight: ['coffee'], plate: true },
+    { id: 'h1', type: 'headline', start: t0(iRoast), end: t0(iRoast) + 3, anchorWord: iRoast, lines: [0, 3, 6].map((k) => words.slice(iRoast + k, iRoast + k + 3).map((w) => w.text).join(' ')) },
+    { id: 'k1', type: 'chips', start: t0(iGood) - 0.3, end: t0(iGood) + 3, anchorWord: iGood, title: bare(words[iGood + 1].text), items: [iGood, iGood + 2, iGood + 3].map((i) => ({ label: bare(words[i].text), anchorWord: i })) },
+    { id: 's1', type: 'textspam', start: t0(iEnjoy) - 0.2, end: Math.min(t0(iEnjoy) + 2.6, 19.8), anchorWord: iEnjoy, text: bare(words[iEnjoy].text), count: 8, coverFace: true }
+  ];
+  const cardPlan = { ...structuredClone(resolved), cuts: [], cutaways: [], punches: [], effects: [], stats: [], decor: [], lowerThirds: [], captions: { mode: 'off' }, cards };
+  const cpFile = path.join(cd, 'edit-plan.json');
+  writeJson(cpFile, cardPlan);
+  const lintCards = node('plan-lint.mjs', ['--plan', cpFile, '--analysis', analysis]);
+  check('plan-lint: thẻ title (kicker, highlight, plate), headline, chips, textspam hợp lệ và chữ có trong lời nói', /PASS thẻ headline hợp lệ: 4 thẻ/.test(lintCards.stdout) && /PASS chữ trên thẻ mới có trong lời nói/.test(lintCards.stdout), tail(lintCards));
+  const badCard = (name, edit, expect, rule) => {
+    const p = structuredClone(cardPlan);
+    edit(p.cards);
+    writeJson(path.join(cd, `neg-${name}.json`), p);
+    const r = node('plan-lint.mjs', ['--plan', path.join(cd, `neg-${name}.json`), '--analysis', analysis]);
+    return check(`plan-lint bắt lỗi: ${expect}`, r.status === 1 && r.stdout.includes(`FAIL ${rule}`), r.status === 1 ? '' : 'không bị chặn');
+  };
+  badCard('kicker', (c) => { c[0].kicker = 'Zanzibar'; }, 'kicker không có trong lời nói', 'chữ trên thẻ mới');
+  badCard('chips', (c) => { c[2].items = []; }, 'thẻ chips không có mục', 'thẻ headline hợp lệ');
+  badCard('spam', (c) => { c[3].count = 99; }, 'textspam quá số lượng cho phép', 'thẻ headline hợp lệ');
+  badCard('highlight', (c) => { c[0].highlight = ['khong-co']; }, 'highlight không nằm trong chữ của title', 'thẻ headline hợp lệ');
+  const cb = node('compose-base.mjs', ['--plan', cpFile, '--analysis', analysis, '--out', path.join(cd, 'base.mp4')]);
+  const mc = cb.status === 0 ? readJson(path.join(cd, 'plan.mapped.json')) : null;
+  const shootAt = (name, m, times) => {
+    const f = path.join(cd, `plan.${name}.json`);
+    writeJson(f, m);
+    const dir = path.join(cd, `overlay-${name}`);
+    const r = node('render-overlay.mjs', ['--mapped', f, '--out', dir, '--analysis', analysis, '--offline', '--times', times.join(',')]);
+    const data = fs.existsSync(path.join(dir, 'overlay-data.js')) ? JSON.parse(fs.readFileSync(path.join(dir, 'overlay-data.js'), 'utf8').replace('window.OVERLAY = ', '').replace(/;\s*$/, '')) : null;
+    return { r, dir, data, shots: fs.existsSync(dir) ? fs.readdirSync(dir).filter((x) => /^test_/.test(x)).sort().map((x) => path.join(dir, x)) : [] };
+  };
+  const tTitle = cards[0].start + 1.5;
+  const tHead = cards[1].start + 1.5;
+  const tChip = cards[2].end - 0.3;
+  const tSpam = cards[3].end - 0.6;
+  const rc = mc ? shootAt('cards', mc, [tTitle, tHead, tChip, tSpam]) : { r: cb, data: null, shots: [] };
+  const byId = Object.fromEntries((rc.data?.cards ?? []).map((c) => [c.id, c]));
+  check('thẻ mới: cả bốn thẻ được dựng vào lớp phủ, khung thử có nội dung', rc.r.status === 0 && ['t1', 'h1', 'k1', 's1'].every((id) => byId[id]) && rc.shots.length === 4 && rc.shots.every((f) => fs.statSync(f).size > fs.statSync(path.join(rc.dir, 'blank.png')).size * 1.5), rc.r.status === 0 ? Object.keys(byId).join(',') : tail(rc.r));
+  check('headline: nằm ở nửa dưới khung (quét chỗ trống từ dưới lên)', Boolean(byId.h1) && byId.h1.y > 0.35, `y ${byId.h1?.y?.toFixed(2)}`);
+  const anchored = (byId.k1?.items ?? []).map((it, k) => [it.s, mc?.wordsOut.find((w) => w.i === cards[2].items[k].anchorWord)?.oStart]);
+  check('chips: mỗi chip hiện đúng lúc từ neo được nói', anchored.length === 3 && anchored.every(([a, b]) => Number.isFinite(b) && Math.abs(a - Math.max(b, byId.k1.s)) < 0.002), anchored.map(([a, b]) => `${a?.toFixed(2)}/${b?.toFixed(2)}`).join(' '));
+  const face = readJson(path.join(analysis, 'faces.json')).samples[0].boxes[0];
+  const hitFace = (b) => b.x < face[0] + face[2] && b.x + b.w > face[0] && b.y < face[1] + face[3] && b.y + b.h > face[1];
+  check('textspam coverFace: có bản sao đè mặt ở các bản sau (late), bản đầu tránh mặt', byId.s1 && byId.s1.copies.some((c) => c.late) && byId.s1.copies.filter((c) => !c.late).every((c) => !hitFace(c)), byId.s1 ? `${byId.s1.copies.length} bản, ${byId.s1.copies.filter((c) => c.late).length} bản late` : '');
+  const mNo = structuredClone(mc ?? { cards: [] });
+  const spamNo = mNo.cards?.find((c) => c.id === 's1');
+  if (spamNo) spamNo.coverFace = false;
+  const rn = mc ? shootAt('cards-nocover', mNo, [tSpam]) : { r: cb, data: null };
+  const sNo = rn.data?.cards?.find((c) => c.id === 's1');
+  check('textspam không coverFace: mọi bản sao đều tránh mặt', Boolean(sNo) && sNo.copies.length >= 3 && sNo.copies.every((c) => !c.late && !hitFace(c)), sNo ? `${sNo.copies.length} bản` : tail(rn.r));
+  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const accent = hex(rc.data?.style?.colors?.accent ?? '#000000');
+  const rgba = rc.shots[0] ? run('ffmpeg', ['-v', 'error', '-i', rc.shots[0], '-f', 'rawvideo', '-pix_fmt', 'rgba', '-'], { encoding: 'buffer' }).stdout : Buffer.alloc(0);
+  let accentPx = 0;
+  let platePx = 0;
+  const t1 = byId.t1;
+  if (t1) for (let yy = Math.floor(t1.y * 1920); yy < Math.ceil((t1.y + t1.h) * 1920); yy++) for (let xx = Math.floor(t1.x * 1080); xx < Math.ceil((t1.x + t1.w) * 1080); xx++) {
+    const o = (yy * 1080 + xx) * 4;
+    if (rgba[o + 3] > 200 && accent.every((v, k) => Math.abs(rgba[o + k] - v) < 30)) accentPx++;
+    if (rgba[o + 3] > 150 && rgba[o + 3] < 255) platePx++;
+  }
+  check('title: kicker và highlight hiện bằng màu nhấn, nền thẻ (plate) bán trong suốt', accentPx > 150 && platePx > 2000, `${accentPx} điểm ảnh màu nhấn, ${platePx} điểm ảnh nền thẻ`);
+}
+// Phong cách creator, footage riêng của người dùng, cổng chất lượng truy vấn và cấm chồng vật thể lớn (kế hoạch 51, P5)
+{
+  const pd = path.join(work, 'p5');
+  const fdir = path.join(pd, 'footage');
+  fs.mkdirSync(fdir, { recursive: true });
+  fs.copyFileSync(path.join(userDir, 'marker.mp4'), path.join(fdir, 'screen.mp4'));
+  writeJson(path.join(fdir, 'footage.json'), { files: [{ file: 'screen.mp4', description: 'screen recording of the roasting steps', keywords: ['roasting', 'beans'], demo: true, theme: 'pastel', clipStart: 0, clipSpeed: 2 }] });
+  const planFootage = path.join(pd, 'edit-plan.json');
+  const sf = node('plan-skeleton.mjs', ['--analysis', analysis, '--user-footage', fdir, '--out', planFootage]);
+  const pf = fs.existsSync(planFootage) ? readJson(planFootage) : { cutaways: [], beats: [] };
+  const demoCut = pf.cutaways.find((c) => c.presentation === 'demo');
+  check('plan-skeleton --user-footage: không nêu --style thì dùng creator, footage khớp từ khóa thành cảnh demo của người dùng', sf.status === 0 && pf.style === 'creator' && demoCut?.userProvided === true && fs.existsSync(path.resolve(pd, demoCut.asset)) && demoCut.clipSpeed === 2, sf.status === 0 ? `${pf.style}, demo ${demoCut?.start?.toFixed(1)}-${demoCut?.end?.toFixed(1)}s` : tail(sf));
+  check('cảnh demo chừa nhịp mở đầu (hook) và nhịp kết (cta) cho người nói', Boolean(demoCut) && demoCut.start >= pf.beats[1].start - 0.01 && demoCut.end <= pf.beats.at(-1).start + 0.01, demoCut ? `${demoCut.start.toFixed(1)}s đến ${demoCut.end.toFixed(1)}s, hook kết thúc ${pf.beats[0].end.toFixed(1)}s, cta bắt đầu ${pf.beats.at(-1).start.toFixed(1)}s` : '');
+  const lintF = node('plan-lint.mjs', ['--plan', planFootage, '--analysis', analysis]);
+  check('plan-lint: kế hoạch có cảnh demo từ footage riêng đạt (demo hợp lệ, không chồng vật thể lớn, không khoảng trống hình)', /PASS cảnh demo hợp lệ/.test(lintF.stdout) && /PASS không chồng hai vật thể lớn/.test(lintF.stdout) && /PASS khoảng trống sự kiện hình/.test(lintF.stdout), tail(lintF));
+  const creatorPlan = readJson(path.join(work, 'plan-creator.json'));
+  const fxLib = loadLibrary();
+  const ownFx = (creatorPlan.effects ?? []).filter((x) => !x.look);
+  check('creator: ngân sách hiệu ứng thấp (không cú mạnh, không whoosh)', ownFx.every((x) => fxLib.byId.get(x.effect).intensity < 3) && (creatorPlan.sfx ?? []).every((x) => x.type !== 'whoosh') && creatorPlan.captions.preset === 'minimal', `${ownFx.length} hiệu ứng, ${creatorPlan.decor.length} sticker`);
+  // Cổng chất lượng truy vấn: lời nói toàn từ trừu tượng thì bỏ cutaway thay vì tìm ảnh sai
+  const ad = path.join(pd, 'analysis-abstract');
+  fs.cpSync(analysis, ad, { recursive: true });
+  const wj = readJson(path.join(ad, 'words.json'));
+  wj.words.forEach((w) => { if (w.text.replace(/[^\p{L}]/gu, '').length >= 5) w.text = 'animation'; });
+  writeJson(path.join(ad, 'words.json'), wj);
+  const planAbs = path.join(pd, 'plan-abstract.json');
+  const sa = node('plan-skeleton.mjs', ['--analysis', ad, '--style', 'hype', '--out', planAbs]);
+  const pa = fs.existsSync(planAbs) ? readJson(planAbs) : { cutaways: [{ query: '?' }] };
+  check('plan-skeleton: bỏ cutaway có truy vấn trừu tượng thay vì tìm ảnh sai, và báo ra', sa.status === 0 && pa.cutaways.every((c) => !/animation|effect|agent|comment/.test(c.query)) && /Bỏ \d+ cutaway vì truy vấn ảnh không đủ cụ thể/.test(sa.stdout), `${pa.cutaways.length} cutaway còn lại`);
+  // Cấm chồng vật thể lớn: thẻ số trong cửa sổ cutaway phủ kín
+  const iTw = words.findIndex((w) => /^12$/.test(w.text));
+  const clash = { ...structuredClone(pf), cutaways: [{ id: 'c01', start: words[iTw].start - 0.4, end: words[iTw].end + 1.2, anchorWord: iTw, query: 'coffee roasting', kind: 'auto', presentation: 'fullbleed', fit: 'fill', zoom: 'push-in', asset: null, status: 'pending' }], stats: [{ id: 's1', anchorWord: iTw, value: '12', label: '', start: words[iTw].start, end: words[iTw].start + 1.5 }] };
+  writeJson(path.join(pd, 'plan-clash.json'), clash);
+  const lc = node('plan-lint.mjs', ['--plan', path.join(pd, 'plan-clash.json'), '--analysis', analysis]);
+  check('plan-lint bắt lỗi: thẻ số chồng cửa sổ cutaway phủ kín', lc.status === 1 && /FAIL không chồng hai vật thể lớn/.test(lc.stdout), lc.status === 1 ? '' : 'không bị chặn');
+}
+// Đoạn --keep nằm gọn trong một nhịp liền mạch (video ngắn cắt từ vlog): biên --keep phải cắt nhịp, không được loại hết nhịp rồi sập;
+// lời tiếng Việt toàn âm tiết 4 chữ vẫn có từ khóa để gắn sticker, và một sticker trong video ngắn không bị trần mật độ chặn
+{
+  const ke = path.join(work, 'analysis-keepedge');
+  fs.cpSync(analysis, ke, { recursive: true });
+  const wk = readJson(path.join(ke, 'words.json'));
+  const vi = ['xinh', 'dáng', 'trời', 'cảnh'];
+  wk.language = 'vi';
+  wk.words = wk.words.map((w, i) => ({ ...w, text: vi[i % vi.length], start: i * 0.4, end: i * 0.4 + 0.35 }));
+  writeJson(path.join(ke, 'words.json'), wk);
+  const kePlan = path.join(work, 'plan-keepedge.json');
+  const ks = node('plan-skeleton.mjs', ['--analysis', ke, '--style', 'hype', '--keep', '2.0-11.2', '--out', kePlan]);
+  const kd = fs.existsSync(kePlan) ? readJson(kePlan) : { beats: [], decor: [] };
+  check('plan-skeleton --keep: đoạn giữ nằm gọn trong một nhịp liền mạch vẫn ra nhịp (không sập)', ks.status === 0 && kd.beats.length >= 1, ks.status === 0 ? `${kd.beats.length} nhịp` : tail(ks));
+  check('plan-skeleton: lời tiếng Việt âm tiết 4 chữ có từ khóa nên có sticker', kd.decor.length >= 1, `${kd.decor.length} sticker`);
+  const kl = node('plan-lint.mjs', ['--plan', kePlan, '--analysis', ke]);
+  check('plan-lint: video ngắn có một sticker không bị trần mật độ chặn', !/FAIL mật độ sticker/.test(kl.stdout), kl.stdout.split('\n').find((l) => /mật độ sticker/.test(l)) ?? '');
+}
 // Từ có cùng mốc thời gian (Whisper hay gán vậy): lượt caption phải có cửa sổ dương, không kẹt chữ trên màn hình
 const dup = structuredClone(mapped);
 const k0 = Math.floor(dup.wordsOut.length / 2);

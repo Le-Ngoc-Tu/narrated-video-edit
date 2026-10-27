@@ -33,6 +33,9 @@ export function loadAnalysis(dir) {
   };
 }
 
+/** Cách phát clip trong cutaway: clip của người dùng (hoặc có clipStart) chạy một lần từ clipStart rồi giữ khung cuối; clip tải về lặp lại để lấp cửa sổ. clipFit: cover (mặc định) hoặc contain. clipSpeed: tốc độ phát (mặc định 1; 4 là tua nhanh gấp 4 cho bản quay màn hình dài). */
+export const clipPlan = (c) => ({ start: Number(c.clipStart ?? 0), once: Boolean(c.userProvided) || c.clipStart !== undefined, fit: c.clipFit === 'contain' ? 'contain' : 'cover', speed: Number(c.clipSpeed) > 0 ? Number(c.clipSpeed) : 1 });
+
 /** Khung mặt hợp nhất theo tỉ lệ 0..1 (lấy hộp bao của mọi mẫu), hoặc vùng an toàn mặc định khi không dò được mặt. */
 export function faceZone(faces, orientation) {
   const boxes = (faces.samples ?? []).flatMap((s) => s.boxes);
@@ -86,7 +89,7 @@ export function mapPlan(plan, words, timeMap) {
   return {
     ...plan,
     outDuration: timeMap.outDuration(plan.duration),
-    cutaways: plan.cutaways.map(mapItem).filter((x) => x.oStart !== null),
+    cutaways: plan.cutaways.map(mapItem).filter((x) => x.oStart !== null).map((c) => (c.presentation === 'demo' ? { ...c, focus: (c.focus ?? []).map(mapItem).filter((x) => x.oStart !== null), marks: (c.marks ?? []).map(mapItem).filter((x) => x.oStart !== null) } : c)),
     punches: plan.punches.map(mapItem).filter((x) => x.oStart !== null),
     stats: plan.stats.map(mapItem).filter((x) => x.oStart !== null),
     decor: plan.decor.map(mapItem).filter((x) => x.oStart !== null),

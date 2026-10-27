@@ -46,6 +46,8 @@ Bạn đưa một video có người nói hoặc giọng đọc. Skill trả v�
 - **Caption từng từ** nhấn từ đang được nói, sáu preset (`bold`, `kinetic`, `pill`, `marker`, `minimal`, `editorial`). Có sẵn phông hỗ trợ dấu tiếng Việt.
 - **B-roll khớp lời nói**, hiện như vật thể thiết kế (thẻ, polaroid, hình trong hình, sticker, thẻ ló, chồng thẻ) đè lên người nói vẫn chạy liên tục. Ảnh chỉ lấy từ nguồn có giấy phép skill chấp nhận (CC0, miền công cộng, CC BY), và mỗi tệp có một dòng ghi công.
 - **Sticker, emoji động, thẻ số liệu, lower third, zoom nhấn, hiệu ứng âm thanh**, chọn theo đúng lời đã nói. Số trên màn hình phải có trong lời nói; không bịa gì.
+- **Cảnh demo cho video hướng dẫn công cụ** (kiểu `demo`): người nói chuyển sang bản quay màn hình của chính bạn trên nền hoa văn tự vẽ, khung bo góc, zoom vào vùng đang nói, chú thích khoanh tròn, mũi tên, gạch chân bám theo vùng đó khi clip phóng to. Clip trong cutaway chạy thật từ giây bạn chọn (không còn là một khung tĩnh); `--user-footage` khớp footage của bạn với lời nói.
+- **Từ điển tên riêng**: Whisper hay nghe "Claude" thành "Cloud"; từ điển sửa sau phiên âm, chỉ sửa từ trùng từ thường (như "cloud") khi bạn đã khai thuật ngữ, và hỏi bạn ở cổng đầu.
 - **Thư viện 190 hiệu ứng, 11 họ**, từng cái được `effects-selftest.mjs` chạy thật và đo (ngoài cửa sổ hiệu ứng khung phải giữ nguyên, trong cửa sổ phải đổi, không lộ góc đen, không quá ba lần chớp sáng mỗi giây).
 - **Bố cục nhận biết khuôn mặt**: bộ dò mặt giữ thẻ ra khỏi người nói; `--layout follow` cắt 9:16 bám theo mặt; chữ có thể nằm *sau* người nói nhờ tách người.
 - **Độ to chuẩn hóa -14 LUFS**, tệp `.srt` và `out.credits.txt` để dán vào mô tả video.
@@ -65,13 +67,13 @@ Mọi thứ chạy trên máy bạn, trừ bước tìm ảnh: bước này gử
 
 Ba cổng là bắt buộc: trợ lý dừng lại và hỏi. Chỉ khi bạn nói "nhanh" hoặc "tự chọn giúp tôi" nó mới đi tiếp, và khi đó phải ghi giả định vào báo cáo.
 
-Skill có ba phong cách: `hype` (ngắn, mạnh, 15 đến 60 giây), `explainer` (sạch, 30 đến 120 giây) và `documentary` (êm, 60 đến 180 giây). Chi tiết ở [`references/`](skills/narrated-video-edit/references/).
+Skill có bốn phong cách: `hype` (ngắn, mạnh, 15 đến 60 giây), `explainer` (sạch, 30 đến 120 giây), `documentary` (êm, 60 đến 180 giây) và `creator` (reel hướng dẫn công cụ, ít hiệu ứng, 45 đến 120 giây). Chi tiết ở [`references/`](skills/narrated-video-edit/references/).
 
 ## Cài đặt
 
 Các bước đầy đủ kèm xử lý lỗi: **[docs/INSTALL.md](docs/INSTALL.md)**. Tóm tắt:
 
-1. Tải `narrated-video-edit-v1.0.0.zip` ở [bản phát hành mới nhất](../../releases/latest).
+1. Tải `narrated-video-edit-v1.1.0.zip` ở [bản phát hành mới nhất](../../releases/latest).
 2. Thêm vào nơi trợ lý của bạn tìm skill:
    - **Claude (claude.ai hoặc ứng dụng máy tính):** mở menu tài khoản, chọn *Cài đặt* (ở một số phiên bản là *Customize*, rồi *Skills*), chọn *Thêm*, chọn *Tải Skill lên*, thả tệp zip vào. Bật skill.
    - **Claude Code:** giải nén vào `~/.claude/skills/` sao cho có `~/.claude/skills/narrated-video-edit/SKILL.md`, hoặc vào `.claude/skills/` trong một dự án.

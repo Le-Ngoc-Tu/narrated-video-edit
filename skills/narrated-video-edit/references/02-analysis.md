@@ -1,8 +1,8 @@
 # 02. Phân tích (khâu A)
 
-`node analyze.mjs <video> --out work/analysis [--lang vi] [--model large-v3] [--prompt "..."] [--no-faces] [--words words.json]`
+`node analyze.mjs <video> --out work/analysis [--lang vi] [--model large-v3] [--prompt "..."] [--terms "Claude, GSAP"] [--no-faces] [--words words.json]`
 
-Ghi: `meta.json`, `audio.wav` (16 kHz mono), `words.json`, `pauses.json`, `faces.json`, `shots.json`, `loudness.json`.
+Ghi: `meta.json`, `audio.wav` (16 kHz mono), `words.json`, `words.raw.json`, `glossary-report.json`, `pauses.json`, `faces.json`, `shots.json`, `loudness.json`.
 
 ## Phiên âm
 
@@ -13,9 +13,18 @@ Ghi: `meta.json`, `audio.wav` (16 kHz mono), `words.json`, `pauses.json`, `faces
 
 ## Việc phải làm sau khi chạy
 
-1. Đọc `words.json` (ít nhất 20 từ đầu, mọi con số, mọi tên riêng). Sai ngôn ngữ: chạy lại với `--lang vi`. Sai tên riêng hoặc thuật ngữ: chạy lại với `--prompt "Motion Atlas, GSAP, ScrollTrigger"`. Từ sai còn lại: sửa tay `text` trong `words.json` (mốc giữ nguyên), vì caption lấy chữ từ đây.
+1. Đọc `words.json` (ít nhất 20 từ đầu, mọi con số, mọi tên riêng). Sai ngôn ngữ: chạy lại với `--lang vi`. Sai tên riêng hoặc thuật ngữ: xem mục "Từ điển tên riêng" dưới đây; `--prompt "Motion Atlas, GSAP, ScrollTrigger"` vẫn dùng được để gợi ý cho Whisper. Từ sai còn lại: thêm mục vào `work/glossary.json` rồi chạy `glossary-apply.mjs` (sửa tay `text` trong `words.json` sẽ mất khi áp lại từ điển), vì caption lấy chữ từ `words.json`.
 2. Số: Whisper có thể viết "twelve" thành "12" hoặc ngược lại. Thẻ số liệu dùng chuỗi chữ số của từ nguồn; kiểm xem giá trị trên thẻ đọc đúng như người nói.
 3. `confidence` thấp (dưới 0,5) ở nhiều từ nghĩa là âm thanh nhiễu hoặc sai ngôn ngữ: báo người dùng thay vì dựng tiếp.
+
+## Từ điển tên riêng
+
+Whisper hay nghe sai tên sản phẩm: trên một reel tiếng Việt, "Claude" thành "Cloud" 9 lần trên 9, kể cả khi đã đưa vào `--prompt` (còn 6 lần sai). Vì vậy `analyze.mjs` áp từ điển SAU phiên âm:
+
+- `data/glossary.json` (mặc định) và `work/glossary.json` (của dự án, cùng cấu trúc): mỗi mục có `canonical` (dạng đúng), `variants` (cách nghe sai đã gặp, số từ bằng `canonical` để chỉ số từ trong kế hoạch không đổi), `ambiguous` (true khi biến thể là từ thật như "cloud") và `lang` (tùy chọn). Thêm mục là thêm dữ liệu, không sửa mã.
+- Biến thể không mơ hồ luôn được thay. Biến thể mơ hồ chỉ được thay khi người dùng đã khai thuật ngữ cho video này: có mục trong `work/glossary.json` hoặc `--terms "Claude"`. Chưa khai thì giữ nguyên chữ ("lưu trữ trên cloud" không bị sửa nhầm), ghi vào `pending` của `glossary-report.json`, và `plan-board.md` hỏi người dùng ở CỔNG 1. Người dùng xác nhận thì `node glossary-apply.mjs --analysis work/analysis --terms "Claude"` (không phiên âm lại), rồi chạy lại `plan-skeleton` nếu kế hoạch đã dựng.
+- Tên đã khai cũng đi vào lời nhắc của Whisper. Bản phiên âm gốc giữ ở `words.raw.json`, mọi lần thay ghi ở `glossary-report.json` (`applied`: chỉ số từ, giây, dạng cũ và mới); từ bị thay có thêm trường `was` trong `words.json`. Trường `segments` của `words.json` giữ nguyên bản gốc và không có bước nào đọc nó.
+- `plan-lint` báo FAIL khi thẻ, lower third hoặc thẻ số dùng dạng sai; `audit-edit` đối chiếu caption với báo cáo này, không qua phiên âm lại.
 
 ## Khoảng ngắt (`pauses.json`)
 

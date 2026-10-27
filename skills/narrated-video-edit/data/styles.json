@@ -1,5 +1,5 @@
 {
-  "_doc": "Ba phong cách dựng. Con số là mốc hiệu chuẩn, chỉnh được; 'banned' là danh sách cấm mà plan-lint và audit-edit đọc. Phông chỉ dùng phông hệ thống có hỗ trợ tiếng Việt. 'maxPauseToCut': khoảng lặng dài hơn mức này KHÔNG bị cắt vì thường là cảnh quay thị giác không có lời (vlog đang cho xem món đồ, quang cảnh). 'maxEventGap': số giây (tính thời gian CÓ lời nói) tối đa không có sự kiện hình (cutaway, zoom, sticker, thẻ, cắt, cắt cảnh gốc) trước khi lint báo lỗi; ngưỡng cảnh báo là 60% của số này. 'captions.preset': bold, kinetic, pill, marker, minimal (xem references/09-social-edit-design.md); yRatioPortrait là vị trí dải caption với video dọc 9:16 (tránh khu vực giao diện TikTok phía dưới). 'showcase.sequence': luân phiên kiểu trình bày cutaway do plan-skeleton gán (fullbleed phủ kín khung, các kiểu còn lại là vật thể thiết kế trong lớp phủ giữ nguyên mặt người nói); 'emoji': mật độ emoji phản ứng. statVariants: danh sách kiểu thẻ số (ring, sticker, capsule) luân phiên theo thứ tự xuất hiện. accents.statSparkle: lấp lánh quanh thẻ số khi hiện. emoji.animated: dùng emoji động Noto (Lottie, CC BY 4.0) khi có. decor.allowed có thêm sparkle, confetti (hiệu ứng mã) và icon (sticker Iconify, cần query tiếng Anh). showcase.sequence mặc định KHÔNG có fullbleed (editor chuyên nghiệp giữ nguyên video của người nói và chỉ đè decor lên) và không có peek (ảnh ló nửa ngoài khung bị khuất): thêm tay khi người dùng yêu cầu hoặc khi video gốc không có hình đáng xem. decor.auto: ngân sách decor plan-skeleton tự gợi ý từ data/decor-keywords.json (icons và sparkle là số lần mỗi phút, confetti bật hoặc tắt, minGapSec là khoảng cách tối thiểu giữa hai gợi ý).",
+  "_doc": "Ba phong cách dựng. Con số là mốc hiệu chuẩn, chỉnh được; 'banned' là danh sách cấm mà plan-lint và audit-edit đọc. Phông chỉ dùng phông hệ thống có hỗ trợ tiếng Việt. 'maxPauseToCut': khoảng lặng dài hơn mức này KHÔNG bị cắt vì thường là cảnh quay thị giác không có lời (vlog đang cho xem món đồ, quang cảnh). 'maxEventGap': số giây (tính thời gian CÓ lời nói) tối đa không có sự kiện hình (cutaway, zoom, sticker, thẻ, cắt, cắt cảnh gốc) trước khi lint báo lỗi; ngưỡng cảnh báo là 60% của số này. 'captions.preset': bold, kinetic, pill, marker, minimal (xem references/09-social-edit-design.md); yRatioPortrait là vị trí dải caption với video dọc 9:16 (tránh khu vực giao diện TikTok phía dưới). 'showcase.sequence': luân phiên kiểu trình bày cutaway do plan-skeleton gán (fullbleed phủ kín khung, các kiểu còn lại là vật thể thiết kế trong lớp phủ giữ nguyên mặt người nói); 'emoji': mật độ emoji phản ứng. statVariants: danh sách kiểu thẻ số (ring, sticker, capsule) luân phiên theo thứ tự xuất hiện. accents.statSparkle: lấp lánh quanh thẻ số khi hiện. emoji.animated: dùng emoji động Noto (Lottie, CC BY 4.0) khi có. decor.allowed có thêm sparkle, confetti (hiệu ứng mã) và icon (sticker Iconify, cần query tiếng Anh). showcase.sequence mặc định KHÔNG có fullbleed (editor chuyên nghiệp giữ nguyên video của người nói và chỉ đè decor lên) và không có peek (ảnh ló nửa ngoài khung bị khuất): thêm tay khi người dùng yêu cầu hoặc khi video gốc không có hình đáng xem. decor.auto: ngân sách decor plan-skeleton tự gợi ý từ data/decor-keywords.json (icons và sparkle là số lần mỗi phút, confetti bật hoặc tắt, minGapSec là khoảng cách tối thiểu giữa hai gợi ý). creator: phong cách cho reel hướng dẫn công cụ của người làm nội dung (caption nhỏ trắng một dòng, bảng màu pastel, ít hiệu ứng, không whoosh); plan-skeleton tự chọn khi có --user-footage mà không nêu --style.",
   "styles": {
     "hype": {
       "name": "Hype dọc (TikTok, Reels, Shorts)",
@@ -39,6 +39,7 @@
         "durSec": 0.9
       },
       "brollMaxShare": 0.5,
+      "demoMaxShare": 0.7,
       "cutaway": {
         "minSec": 1.2,
         "maxSec": 2.6,
@@ -158,6 +159,7 @@
         "durSec": 1.2
       },
       "brollMaxShare": 0.45,
+      "demoMaxShare": 0.7,
       "cutaway": {
         "minSec": 1.6,
         "maxSec": 3.5,
@@ -271,6 +273,7 @@
         "durSec": 2.4
       },
       "brollMaxShare": 0.55,
+      "demoMaxShare": 0.7,
       "cutaway": {
         "minSec": 2.4,
         "maxSec": 5,
@@ -331,6 +334,115 @@
       },
       "statVariants": [
         "capsule"
+      ],
+      "accents": {
+        "statSparkle": false
+      }
+    },
+    "creator": {
+      "name": "Creator (người làm nội dung, thao tác trên màn hình)",
+      "mood": [
+        "gọn",
+        "pastel",
+        "điềm tĩnh",
+        "thân thiện"
+      ],
+      "fits": "reel hướng dẫn công cụ: người nói rồi chuyển sang footage của chính họ, 45 đến 120 giây",
+      "colors": {
+        "ink": "#ffffff",
+        "stroke": "#1d1b2e",
+        "accent": "#ff8fb1",
+        "accent2": "#8fd3ff",
+        "panel": "#1d1b2e"
+      },
+      "fonts": {
+        "display": "\"Be Vietnam Pro\",\"Segoe UI\",Arial,sans-serif",
+        "body": "\"Be Vietnam Pro\",\"Segoe UI\",Arial,sans-serif"
+      },
+      "captions": {
+        "preset": "minimal",
+        "maxWords": 5,
+        "sizeRatio": 0.047,
+        "uppercase": false,
+        "activeColor": "accent",
+        "yRatio": 0.78,
+        "yRatioPortrait": 0.62,
+        "popScale": 1.03
+      },
+      "cutPauses": true,
+      "minPauseToCut": 0.6,
+      "punch": {
+        "scale": 1.08,
+        "everySec": 10,
+        "durSec": 1
+      },
+      "brollMaxShare": 0.4,
+      "demoMaxShare": 0.7,
+      "cutaway": {
+        "minSec": 1.6,
+        "maxSec": 3.5,
+        "fit": "fill"
+      },
+      "decor": {
+        "allowed": [
+          "arrow",
+          "circle",
+          "underline",
+          "check",
+          "question",
+          "icon"
+        ],
+        "maxPerMinute": 4,
+        "lifeSec": [
+          1,
+          2
+        ],
+        "auto": {
+          "icons": 1,
+          "sparkle": 0,
+          "confetti": false,
+          "minGapSec": 20
+        }
+      },
+      "transitions": [
+        "cut",
+        "fade"
+      ],
+      "sfx": {
+        "whoosh": false,
+        "pop": true
+      },
+      "banned": [
+        "rung camera",
+        "glow neon",
+        "ease nảy mạnh",
+        "caption dài hơn một dòng",
+        "chữ dưới 4,5:1 tương phản",
+        "thẻ số chồng lên cảnh demo hoặc cutaway"
+      ],
+      "maxPauseToCut": 4,
+      "maxEventGap": 8,
+      "showcase": {
+        "sequence": [
+          "card",
+          "pip",
+          "polaroid"
+        ],
+        "entrances": [
+          "pop",
+          "mask"
+        ]
+      },
+      "emoji": {
+        "perMinute": 3,
+        "minGapSec": 10,
+        "lifeSec": 1.4,
+        "size": 0.1,
+        "animated": true
+      },
+      "statVariants": [
+        "capsule",
+        "sticker"
       ],
       "accents": {
         "statSparkle": false
