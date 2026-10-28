@@ -3,6 +3,7 @@
 //   node scripts/style-ledger.mjs list
 //   node scripts/style-ledger.mjs seed --subject "chủ đề" [--n 3]        gợi ý n tổ hợp ý tưởng chưa dùng (chưa phải thiết kế, chỉ là hạt giống để bạn phát triển)
 //   node scripts/style-ledger.mjs check dna.json [--last 3] [--min 5]    so với các thiết kế gần nhất, trượt (mã 1) nếu quá giống
+//   node scripts/style-ledger.mjs check dna.json --also data/template-dna.json   thêm: so với một danh sách mẫu có sẵn (chế độ, màu nhấn, phông tiêu đề); trượt nếu trùng cả ba với MỘT mẫu
 //   node scripts/style-ledger.mjs add dna.json                           ghi thiết kế đã chốt vào sổ
 // Mỗi skill một sổ: ~/.<tên thư mục skill>/style-ledger.json (đổi bằng biến STYLE_LEDGER). Không để trong thư mục skill vì đồng bộ skill ghi đè tệp đó và sổ là của từng người dùng.
 // Tệp này thuộc lõi chung ai_skills_package/_creative-core: sửa ở đó rồi chạy scripts/sync_skills.mjs, đừng sửa bản chép trong skill.
@@ -52,6 +53,18 @@ if (cmd === 'list') {
     console.log(`\nSo với "${p.name}" (${p.date}): khác ${diff}/${AXES.length} trục (cần ≥ ${MIN})`);
     res.forEach(([n, ok]) => console.log(`  ${ok ? 'khác  ' : 'GIỐNG '} ${n}`));
     if (diff < MIN) fail = true;
+  }
+  // Mẫu có sẵn (--also): chỉ so các trục mẫu có dữ liệu (chế độ sáng tối, màu nhấn, phông tiêu đề). Trùng cả ba với một mẫu nghĩa là cùng diện mạo.
+  const alsoFile = flag('also');
+  if (alsoFile) {
+    const refs = JSON.parse(fs.readFileSync(alsoFile, 'utf8')).entries ?? [];
+    const font = (x) => norm(x).replace(/s+/g, '-');
+    // Ngưỡng màu 40 độ (chặt hơn 50 của so với video trước): mẫu có sẵn nhiều, ngưỡng rộng sẽ báo nhầm các màu chỉ gần nhau về sắc
+    const same = (r) => r.mode === dna.mode && hueDiff(hue(dna.palette?.accent), hue(r.palette?.accent)) < 40 && font(dna.fonts?.display) === font(r.fonts?.display);
+    const close = refs.filter(same);
+    console.log(`
+So với ${refs.length} mẫu có sẵn (chế độ, màu nhấn, phông tiêu đề): ${close.length ? 'GIỐNG ' + close.map((r) => r.name ?? r.id).join(', ') : 'không mẫu nào trùng cả ba'}`);
+    if (close.length) fail = true;
   }
   const last = prev[prev.length - 1];
   if (last) {
