@@ -57,12 +57,34 @@ const badMode = plan.cutaways.filter((c) => c.presentation && !MODES.includes(c.
 badMode.length ? fail('kiểu trình bày cutaway hợp lệ', badMode.map((c) => `${c.id}:${c.presentation}`).join(', ')) : pass('kiểu trình bày cutaway hợp lệ', MODES.join(', '));
 const badClip = plan.cutaways.filter((c) => (c.clipStart !== undefined && !(Number.isFinite(c.clipStart) && c.clipStart >= 0)) || (c.clipFit !== undefined && !['cover', 'contain'].includes(c.clipFit)));
 badClip.length ? fail('clipStart và clipFit của cutaway hợp lệ', badClip.map((c) => `${c.id}: clipStart ${c.clipStart ?? '-'}, clipFit ${c.clipFit ?? '-'} (clipStart là giây ≥ 0; clipFit: cover hoặc contain)`).join('; ')) : pass('clipStart và clipFit của cutaway hợp lệ');
+// Thiết kế gốc (plan.design, lõi sáng tạo): DNA đủ trường, preset caption hợp lệ, màu nhấn đủ tương phản với tấm nền caption của phong cách
+let design = null;
+if (plan.design) {
+  const designFile = path.resolve(path.dirname(planFile), String(plan.design));
+  const problems = [];
+  if (!fs.existsSync(designFile)) problems.push(`không thấy ${plan.design}`);
+  else {
+    design = readJson(designFile);
+    const hex = (v) => /^#[0-9a-f]{6}$/i.test(String(v ?? ''));
+    ['bg', 'ink', 'accent'].forEach((k) => { if (!hex(design.palette?.[k])) problems.push(`palette.${k} phải là mã #rrggbb`); });
+    if (!['light', 'dark'].includes(design.mode)) problems.push('mode phải là light hoặc dark');
+    const PRESETS = ['bold', 'kinetic', 'pill', 'marker', 'minimal', 'editorial'];
+    if (design.video?.captionPreset && !PRESETS.includes(design.video.captionPreset)) problems.push(`video.captionPreset "${design.video.captionPreset}" (có: ${PRESETS.join(', ')})`);
+    if (hex(design.palette?.accent) && hex(style.colors.panel)) {
+      const lum = (h) => { const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+      const [a, b] = [lum(design.palette.accent), lum(style.colors.panel)].sort((x, y) => y - x);
+      const ratio = (a + 0.05) / (b + 0.05);
+      if (ratio < 3) problems.push(`màu nhấn ${design.palette.accent} chỉ ${ratio.toFixed(2)}:1 với tấm nền caption ${style.colors.panel} của phong cách (cần 3:1): từ đang nói sẽ chìm`);
+    }
+  }
+  problems.length ? fail('thiết kế gốc (design) hợp lệ', problems.join('; ')) : pass('thiết kế gốc (design) hợp lệ', `${design.name ?? plan.design}`);
+}
 // Cảnh demo (voice-over trên màn hình): chủ đề có trong data/demo-themes.json, vùng zoom (focus) và chú thích (marks) hợp lệ và nằm trong cửa sổ, tổng thời lượng demo dưới trần riêng của phong cách (người nói vắng mặt trong lúc demo)
 const demoCuts = plan.cutaways.filter((c) => c.presentation === 'demo');
 if (demoCuts.length) {
   const problems = [];
   demoCuts.forEach((c) => {
-    if (c.theme !== undefined && !DEMO_THEMES[c.theme]) problems.push(`${c.id}: theme "${c.theme}" (có: ${Object.keys(DEMO_THEMES).join(', ')})`);
+    if (c.theme !== undefined && !DEMO_THEMES[c.theme] && !(c.theme === 'dna' && design)) problems.push(`${c.id}: theme "${c.theme}" (có: ${Object.keys(DEMO_THEMES).join(', ')}, hoặc dna khi kế hoạch có design)`);
     const inside = (x) => x.end > x.start && x.start >= c.start - 0.01 && x.end <= c.end + 0.01;
     const focus = [...(c.focus ?? [])].sort((a, b) => a.start - b.start);
     focus.forEach((f, i) => {

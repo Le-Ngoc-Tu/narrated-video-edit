@@ -1,0 +1,26 @@
+{
+  "name": "Đông Hồ hiện đại",
+  "subject": "ví dụ: thương hiệu bánh truyền thống",
+  "date": "2026-01-01",
+  "lang": "vi",
+  "material": "tranh dân gian Đông Hồ",
+  "mode": "light",
+  "palette": {
+    "bg": "#f2e6c9",
+    "ink": "#2b1d15",
+    "accent": "#c43b2f",
+    "accent2": "#2f7a5b"
+  },
+  "bgType": "grain",
+  "frame": "double-rule",
+  "fonts": {
+    "display": "playfair-display",
+    "label": "jetbrains-mono",
+    "body": "be-vietnam-pro"
+  },
+  "layoutGrammar": "chồng giữa trục",
+  "heroObject": "con dấu",
+  "motionSignature": "đóng dấu kèm rung trang",
+  "transitionSignature": "tràn mực tròn",
+  "notes": "Màu điệp, đỏ son, xanh lá, nét in mộc bản; chỉ lấy tinh thần, không chép tranh."
+}

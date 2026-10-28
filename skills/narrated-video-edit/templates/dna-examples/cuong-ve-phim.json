@@ -1,0 +1,26 @@
+{
+  "name": "Cuống vé rạp",
+  "subject": "ví dụ: lịch chiếu phim độc lập",
+  "date": "2026-01-01",
+  "lang": "vi",
+  "material": "cuống vé giấy",
+  "mode": "light",
+  "palette": {
+    "bg": "#f3e3c3",
+    "ink": "#2a1a12",
+    "accent": "#d2402f",
+    "accent2": "#1f6f78"
+  },
+  "bgType": "stripes",
+  "frame": "border",
+  "fonts": {
+    "display": "oswald",
+    "label": "space-mono",
+    "body": "archivo"
+  },
+  "layoutGrammar": "poster một vật thể lớn",
+  "heroObject": "cuống vé",
+  "motionSignature": "xé giấy răng cưa",
+  "transitionSignature": "vén giấy từ góc",
+  "notes": "Mỗi cảnh là một cuống vé được xé ra, nhịp cắt trùng nhịp xé."
+}

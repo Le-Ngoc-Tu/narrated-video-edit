@@ -5,7 +5,16 @@ import path from 'node:path';
 import { ffmpeg, readJson, skillRoot } from './common.mjs';
 
 export const DEMO_THEMES = readJson(path.join(skillRoot, 'data', 'demo-themes.json')).themes;
-export const demoTheme = (id) => {
+const hexRgb = (hex) => { const n = parseInt(String(hex).replace('#', ''), 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
+// Chủ đề "dna": nền, màu chú thích lấy từ DNA của thiết kế gốc (plan.design); vùng đặt clip và khung lấy từ chủ đề cùng chế độ sáng tối
+export const demoTheme = (id, design = null) => {
+  if (id === 'dna') {
+    if (!design?.palette?.bg || !design?.palette?.accent) throw new Error('Chủ đề demo "dna" cần plan.design trỏ tới dna.json có palette.bg và palette.accent');
+    const base = DEMO_THEMES[design.mode === 'dark' ? 'night' : 'pastel'];
+    const bg = hexRgb(design.palette.bg);
+    const tint = hexRgb(design.palette.accent2 ?? design.palette.accent);
+    return { ...base, label: `DNA ${design.name ?? ''}`.trim(), bg: { ...base.bg, from: bg, to: bg.map((c, i) => Math.round(c * 0.8 + tint[i] * 0.2)) }, mark: design.palette.accent };
+  }
   const theme = DEMO_THEMES[id ?? 'pastel'];
   if (!theme) throw new Error(`Chủ đề demo "${id}" không có trong data/demo-themes.json (có: ${Object.keys(DEMO_THEMES).join(', ')})`);
   return theme;

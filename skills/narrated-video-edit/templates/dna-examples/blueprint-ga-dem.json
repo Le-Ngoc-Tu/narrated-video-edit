@@ -1,0 +1,26 @@
+{
+  "name": "Bản vẽ ga đêm",
+  "subject": "ví dụ: ứng dụng đặt vé tàu",
+  "date": "2026-01-01",
+  "lang": "vi",
+  "material": "bản vẽ kỹ thuật xanh (blueprint)",
+  "mode": "dark",
+  "palette": {
+    "bg": "#0b2a4a",
+    "ink": "#e8f1ff",
+    "accent": "#ffcf3a",
+    "accent2": "#5fb4ff"
+  },
+  "bgType": "grid",
+  "frame": "corner-marks",
+  "fonts": {
+    "display": "space-grotesk",
+    "label": "space-mono",
+    "body": "be-vietnam-pro"
+  },
+  "layoutGrammar": "bảng tra cứu kiểu sổ cái",
+  "heroObject": "bản vẽ kỹ thuật",
+  "motionSignature": "đường đo kích thước chạy ra",
+  "transitionSignature": "quét ngang bằng băng dính",
+  "notes": "Mọi con số hiện ra như được đo bằng thước, hợp sản phẩm cần cảm giác chính xác."
+}

@@ -558,6 +558,21 @@ check('lớp phủ: khung giữa showcase có hình vật thể (khác khung tr�
   const kl = node('plan-lint.mjs', ['--plan', kePlan, '--analysis', ke]);
   check('plan-lint: video ngắn có một sticker không bị trần mật độ chặn', !/FAIL mật độ sticker/.test(kl.stdout), kl.stdout.split('\n').find((l) => /mật độ sticker/.test(l)) ?? '');
 }
+// Thiết kế gốc (kế hoạch 54, lõi sáng tạo): plan.design trỏ tới DNA; chủ đề demo "dna" lấy nền và màu chú thích từ DNA;
+// plan-lint chặn DNA có màu nhấn chìm trên tấm nền caption của phong cách
+{
+  const { demoTheme } = await import(pathToFileURL(path.join(here, 'demo-lib.mjs')).href);
+  const dnaOk = { name: 'thử', mode: 'dark', palette: { bg: '#0f1f1a', ink: '#e9ecea', accent: '#7fd1a3', accent2: '#c0c7cf' }, fonts: { display: 'lora' }, video: { captionPreset: 'editorial' } };
+  const th = demoTheme('dna', dnaOk);
+  check('demo theme "dna": nền và màu chú thích lấy từ DNA, khung theo chủ đề cùng chế độ', th.bg.from.join(',') === '15,31,26' && th.mark === '#7fd1a3' && th.areaPortrait && th.frame, `${th.bg.from} ${th.mark}`);
+  writeJson(path.join(work, 'design-ok.json'), dnaOk);
+  writeJson(path.join(work, 'design-dim.json'), { ...dnaOk, palette: { ...dnaOk.palette, accent: '#1d2b26' } });
+  const lintDesign = (file) => { const p = path.join(work, `plan-${path.basename(file)}`); writeJson(p, { ...structuredClone(resolved), design: path.basename(file) }); return node('plan-lint.mjs', ['--plan', p, '--analysis', analysis]); };
+  const ok = lintDesign('design-ok.json');
+  const dim = lintDesign('design-dim.json');
+  check('plan-lint: DNA hợp lệ qua cổng thiết kế gốc', /PASS thiết kế gốc \(design\) hợp lệ/.test(ok.stdout), ok.stdout.split('\n').find((l) => /thiết kế gốc/.test(l)) ?? '');
+  check('plan-lint: màu nhấn của DNA chìm trên tấm nền caption bị chặn', dim.status === 1 && /FAIL thiết kế gốc \(design\) hợp lệ/.test(dim.stdout), dim.stdout.split('\n').find((l) => /thiết kế gốc/.test(l)) ?? '');
+}
 // Từ có cùng mốc thời gian (Whisper hay gán vậy): lượt caption phải có cửa sổ dương, không kẹt chữ trên màn hình
 const dup = structuredClone(mapped);
 const k0 = Math.floor(dup.wordsOut.length / 2);

@@ -18,6 +18,12 @@ export function loadStyle(id) {
   return { id, ...styles[id] };
 }
 
+// Thiết kế gốc (lõi sáng tạo): plan.design trỏ tới dna.json, đường dẫn tính từ thư mục của kế hoạch
+export function loadDesign(dir, plan) {
+  if (!plan?.design) return null;
+  return readJson(path.resolve(dir, String(plan.design)));
+}
+
 export function loadAnalysis(dir) {
   const d = path.resolve(dir);
   const words = readJson(path.join(d, 'words.json'));

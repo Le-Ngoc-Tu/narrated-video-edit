@@ -7,7 +7,7 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { FPS, args, ffmpeg, launchChrome, pad, probe, readJson, skillRoot, writeJson } from './common.mjs';
 import { MARK_TYPES, demoLayout, demoTheme, markTrack, validRect } from './demo-lib.mjs';
-import { clipPlan, facesIn, loadStyle, mapFacesForLayout, norm, sizeOf, stackGeometry } from './plan-lib.mjs';
+import { clipPlan, facesIn, loadDesign, loadStyle, mapFacesForLayout, norm, sizeOf, stackGeometry } from './plan-lib.mjs';
 import { brandLogo, iconifyFind, notoLottie } from './decor-lib.mjs';
 
 const { flags } = args();
@@ -16,6 +16,9 @@ const mappedFile = path.resolve(String(flags.mapped));
 const planDir = path.dirname(mappedFile);
 const mapped = readJson(mappedFile);
 const style = loadStyle(mapped.style);
+// Thiết kế gốc: DNA đổi màu nhấn (từ đang nói, thẻ, sticker); màu chữ, viền và tấm nền caption giữ theo phong cách để đọc được trên mọi khung hình
+const design = loadDesign(planDir, mapped);
+if (design?.palette?.accent) style.colors = { ...style.colors, accent: design.palette.accent, accent2: design.palette.accent2 ?? style.colors.accent2 };
 const { W, H } = sizeOf(mapped.orientation, mapped.size);
 const U = Math.min(W, H);
 const portrait = mapped.orientation === '9x16';
@@ -88,7 +91,7 @@ const preferY = stack ? stack.box.y + stack.box.h - bandH - 0.03 : portrait ? ca
 const demos = mapped.cutaways.filter((c) => c.presentation === 'demo').flatMap((c) => {
   const file = c.asset ? path.resolve(planDir, c.asset) : null;
   if (!file || !fs.existsSync(file)) { warnings.push(`demo ${c.id} chưa có tài nguyên, bỏ chú thích`); return []; }
-  const theme = demoTheme(c.theme);
+  const theme = demoTheme(c.theme, design);
   const dims = probe(file);
   return [{ c, theme, layout: demoLayout({ W, H, theme, clipW: dims.width, clipH: dims.height }) }];
 });

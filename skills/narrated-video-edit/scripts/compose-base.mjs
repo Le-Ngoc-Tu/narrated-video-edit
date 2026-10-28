@@ -6,13 +6,14 @@ import path from 'node:path';
 import { FPS, args, ffmpeg, makeTimeMap, probe, readJson, writeJson } from './common.mjs';
 import { demoLayout, demoTheme, buildPlate, focusFilters, focusList } from './demo-lib.mjs';
 import { loadLibrary, makeCtx, snapWindow, videoStage } from './fx-lib.mjs';
-import { clipPlan, facesIn, followLeftAt, loadAnalysis, loadStyle, mapFacesForLayout, mapPlan, sizeOf, stackGeometry } from './plan-lib.mjs';
+import { clipPlan, facesIn, followLeftAt, loadAnalysis, loadDesign, loadStyle, mapFacesForLayout, mapPlan, sizeOf, stackGeometry } from './plan-lib.mjs';
 
 const { flags } = args();
 if (!flags.plan || !flags.analysis || !flags.out) { console.error('Dùng: node compose-base.mjs --plan work/edit-plan.json --analysis work/analysis --out work/base.mp4'); process.exit(2); }
 const planFile = path.resolve(String(flags.plan));
 const base = path.dirname(planFile);
 const plan = readJson(planFile);
+const design = loadDesign(path.dirname(planFile), plan);
 const A = loadAnalysis(String(flags.analysis));
 const style = loadStyle(plan.style);
 const { W, H } = sizeOf(plan.orientation, plan.size);
@@ -98,7 +99,7 @@ baseCutaways.forEach((c, k) => {
   const timing = `${clip.speed !== 1 ? `setpts=PTS/${clip.speed},` : ''}fps=${FPS}`;
   if (c.presentation === 'demo') {
     const info = probe(file);
-    const theme = demoTheme(c.theme);
+    const theme = demoTheme(c.theme, design);
     const layout = demoLayout({ W, H, theme, clipW: info.width, clipH: info.height });
     const { plate, mask } = buildPlate({ theme, W, H, rect: layout, dir: path.join(tmp, `demo-${c.id}`) });
     const still = ['-loop', '1', '-framerate', String(FPS), '-t', num(dur)];

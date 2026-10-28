@@ -4,6 +4,17 @@
 
 All notable changes are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Original look from a design DNA** (`references/13-original-design.md`): `plan-skeleton --design dna.json`, a `dna` demo theme, accent colours and caption preset from the DNA; caption text, outline and fonts stay with the style so they read on any frame. `plan-lint` blocks a DNA whose accent is under 3:1 against the caption panel.
+- Tools from the shared creative core: `style-ledger.mjs` (anti-repetition ledger in `~/.narrated-video-edit/`), `concept-board.mjs`, `fontpack.mjs`, seeds and the DNA schema.
+
+### Verified
+
+- `selftest.mjs` passes 121 of 121; a real run on a 22-second vertical vlog clip with its own DNA passes `plan-lint` and `audit-edit`.
+
 ## [1.1.0] - 2026-10-27
 
 Adds editing for tool-tutorial videos of the kind "speaker, then a screen recording", drawn from comparing the skill against a real Vietnamese reel (plan 51 in the Motion Atlas repository).

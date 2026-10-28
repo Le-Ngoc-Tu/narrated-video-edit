@@ -4,6 +4,17 @@
 
 Mọi thay đổi đáng chú ý được ghi ở đây. Định dạng theo [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/), đánh phiên bản theo [Semantic Versioning](https://semver.org/lang/vi/).
 
+## [Chưa phát hành]
+
+### Thêm
+
+- **Diện mạo gốc theo DNA** (`references/13-original-design.md`): `plan-skeleton --design dna.json`, chủ đề demo `dna`, màu nhấn và preset caption theo DNA; chữ caption, viền và phông giữ theo phong cách để đọc được trên mọi khung hình. `plan-lint` chặn DNA có màu nhấn dưới 3:1 với tấm nền caption.
+- Công cụ của lõi sáng tạo dùng chung: `style-ledger.mjs` (sổ chống lặp ở `~/.narrated-video-edit/`), `concept-board.mjs`, `fontpack.mjs`, hạt giống và lược đồ DNA.
+
+### Đã kiểm
+
+- `selftest.mjs` đạt 121/121; chạy thật trên một đoạn vlog dọc 22 giây với DNA riêng, `plan-lint` và `audit-edit` đạt.
+
 ## [1.1.0] - 2026-10-27
 
 Thêm phần dựng cho video hướng dẫn công cụ kiểu "người nói rồi chuyển sang bản quay màn hình", rút ra từ việc đối chiếu skill với một reel tiếng Việt thật (kế hoạch 51 trong kho Motion Atlas).

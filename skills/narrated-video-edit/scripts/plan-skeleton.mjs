@@ -118,7 +118,7 @@ if (footageDir) {
     const video = /\.(mp4|webm|mov)$/i.test(f.file);
     const anchor = hits(first, f)[0] ? words.indexOf(hits(first, f)[0]) : first.startWord;
     footageCuts.push({
-      id: '', beat: first.id, presentation: f.demo ? 'demo' : sequence0(footageCuts.length), ...(f.demo ? { theme: f.theme ?? 'pastel' } : {}),
+      id: '', beat: first.id, presentation: f.demo ? 'demo' : sequence0(footageCuts.length), ...(f.demo ? { theme: f.theme ?? (flags.design ? 'dna' : 'pastel') } : {}),
       start, end, anchorWord: anchor, query: f.description ?? f.file, kind: video ? 'video' : 'image', fit: style.cutaway.fit,
       asset: path.relative(outDirOfPlan, f.abs).replace(/\\/g, '/'), userProvided: true, status: 'resolved',
       ...(video && f.clipStart !== undefined ? { clipStart: f.clipStart } : {}), ...(video && f.clipSpeed !== undefined ? { clipSpeed: f.clipSpeed } : {}),
@@ -378,9 +378,13 @@ const verticalSize = (stackMode || followMode) && !flags.size && meta.height <= 
 const layoutFields = stackMode
   ? { layout: 'stack', layoutY: 0.38, srcSize: { w: meta.width, h: meta.height } }
   : followMode ? { layout: 'follow', srcSize: { w: meta.width, h: meta.height }, follow: followPath(A.faces, { w: meta.width, h: meta.height }, meta.duration) } : {};
+// Thiết kế gốc (--design dna.json): ghi đường dẫn tương đối vào kế hoạch, preset caption theo DNA nếu có
+const designFile = flags.design ? path.resolve(String(flags.design)) : null;
+const design = designFile ? readJson(designFile) : null;
 const plan = {
   version: 1,
   style: style.id,
+  ...(designFile ? { design: path.relative(path.dirname(path.resolve(String(flags.out))), designFile).replace(/\\/g, '/') } : {}),
   source: meta.source,
   orientation: stackMode || followMode ? '9x16' : meta.orientation,
   ...layoutFields,
@@ -399,7 +403,7 @@ const plan = {
   decor,
   cards,
   lowerThirds: [],
-  captions: { mode: 'words', preset: style.captions.preset, maxWords: style.captions.maxWords, emphasis: [...new Set(beats.flatMap((b) => b.keywords))] },
+  captions: { mode: 'words', preset: design?.video?.captionPreset ?? style.captions.preset, maxWords: style.captions.maxWords, emphasis: [...new Set(beats.flatMap((b) => b.keywords))] },
   sfx,
   music: { file: null, duckDb: -12, level: -22 }
 };

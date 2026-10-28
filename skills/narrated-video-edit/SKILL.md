@@ -29,7 +29,7 @@ Biến một video có người nói hoặc giọng đọc thành video đã d�
 | `pick-highlights.mjs --analysis work/analysis --out work/highlights.json [--target 75]` | khâu B0 (video dài): chọn các đoạn quan trọng (số liệu, câu hỏi, từ khóa, đổi cảnh, có người nói), trải đều câu chuyện, ranh giới giữa hai từ |
 | `segment-person.mjs --base work/base.mp4 --overlay work/overlay` | khâu D3 (chỉ khi có thẻ `bigtext`, chữ lớn sau người nói): tách người bằng MediaPipe ra `overlay/mask.mkv` (cần `node setup.mjs --with-segmentation`) |
 | `edit-plan-ui.mjs --work work` | trang cục bộ để sửa trực tiếp phụ đề, ảnh minh họa, sticker, thẻ, emoji và xem khung thử (thay cho việc nhắn AI sửa nhiều lần) |
-| `plan-skeleton.mjs --analysis work/analysis --style hype --out work/edit-plan.json [--keep work/highlights.json] [--layout auto|stack|follow] [--behind-text] [--user-footage dir]` | khâu B: bộ khung kế hoạch (nhịp, cắt khoảng ngắt, cutaway, zoom, sticker, thẻ số, SFX); `--user-footage` đọc `footage.json` của người dùng thành cutaway, cảnh demo (kiểu `demo`) và dùng phong cách `creator` nếu không nêu `--style` |
+| `plan-skeleton.mjs --analysis work/analysis --style hype --out work/edit-plan.json [--keep work/highlights.json] [--layout auto|stack|follow] [--behind-text] [--user-footage dir] [--design dna.json]` | khâu B: bộ khung kế hoạch (nhịp, cắt khoảng ngắt, cutaway, zoom, sticker, thẻ số, SFX); `--user-footage` đọc `footage.json` của người dùng thành cutaway, cảnh demo (kiểu `demo`) và dùng phong cách `creator` nếu không nêu `--style` |
 | `plan-lint.mjs --plan work/edit-plan.json --analysis work/analysis [--stage assets]` | kiểm kế hoạch: ranh giới từ, mật độ, số liệu có nguồn, chống slideshow |
 | `plan-board.mjs --plan work/edit-plan.json --analysis work/analysis` | storyboard bằng ảnh cho CỔNG 1: mỗi sự kiện một hàng gồm khung hình gốc, mốc giờ, câu đang nói, xử lý, âm thanh (ra `plan-board.png`, `plan-board.md`) |
 | `style-menu.mjs --out work/style-menu.html [--demos <thư mục demo>]` | trang HTML ngoại tuyến để người dùng CHỌN và TRỘN hiệu ứng (mã TRA-07...), rồi Copy prompt dán cho tác tử; mẫu và ba ràng buộc cố định ở `data/style-menu.json`. Người dùng đưa video tham chiếu thì dùng `scripts/reference-study.mjs --words` của skill đồng hành `beat-synced-video-edit` (kho Motion Atlas, không kèm theo gói này) (truyền `words.json` của `analyze.mjs`) |
@@ -105,6 +105,7 @@ Dữ liệu: `data/brands.json` (thương hiệu và logo CC0), `data/decor-sour
 | `references/09-social-edit-design.md` | preset caption, kiểu trình bày cutaway, emoji, vùng an toàn video dọc, cách mở rộng |
 | `references/11-reels-layout.md` | bố cục stack (video ngang sang dọc, decor ở nửa trên), thẻ title, compare, logos, trang sửa trực tiếp |
 | `references/10-decor-assets.md` | nguồn decor đã xác minh giấy phép (emoji động Noto, icon Iconify), sparkle, confetti, 3 kiểu thẻ số, ghi công |
+| `references/13-original-design.md` | diện mạo gốc theo DNA khi người dùng muốn khác bốn phong cách: màu nhấn, preset caption, chủ đề demo `dna`; giữ chữ caption, phông và rào chắn |
 | `references/12-effects.md` | thư viện hiệu ứng: họ và engine, cách chọn, dùng trong kế hoạch, thêm hiệu ứng mới, bẫy ffmpeg |
 | `references/12-effects-catalog.md` | mục lục tự sinh của toàn bộ hiệu ứng |
 | `references/08-agy-delegation.md` | giao cho agy, bài thi |

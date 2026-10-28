@@ -1,0 +1,17 @@
+{
+  "name": "tên ý tưởng ngắn (ví dụ: Cuống vé ga đêm)",
+  "subject": "chủ đề video",
+  "date": "YYYY-MM-DD",
+  "lang": "vi",
+  "material": "chất liệu chủ đạo, lấy từ chính chủ đề nếu có thể",
+  "mode": "light | dark",
+  "palette": { "bg": "#000000", "ink": "#000000", "accent": "#000000", "accent2": "#000000" },
+  "bgType": "grain | halftone | grid | gradient | solid | stripes | photo",
+  "frame": "double-rule | corner-marks | border | none",
+  "fonts": { "display": "tên fontsource có tiếng Việt", "label": "tên fontsource", "body": "tên fontsource có tiếng Việt" },
+  "layoutGrammar": "một trong layoutGrammar của creative-seeds.json hoặc tự đặt",
+  "heroObject": "vật thể đặc trưng xuất hiện nhiều lần (con dấu, vé, đĩa...)",
+  "motionSignature": "một chuyển động chữ ký, lặp lại ở vài cảnh",
+  "transitionSignature": "một kiểu chuyển cảnh chữ ký",
+  "notes": "vì sao hợp chủ đề này"
+}

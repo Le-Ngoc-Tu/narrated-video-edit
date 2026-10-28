@@ -1,0 +1,46 @@
+{
+  "note": "Kho hạt giống sáng tạo. Dùng với `style-ledger.mjs seed`. Thêm mục mới thoải mái; mục đã dùng trong ledger sẽ bị loại khỏi gợi ý.",
+  "material": [
+    "giấy kem và con dấu", "bản vẽ kỹ thuật xanh (blueprint)", "cuống vé giấy", "đĩa than và bìa đĩa", "báo in cũ (newsprint)",
+    "nhãn bảo tàng", "hộp diêm và tem nhãn", "bảng mạch in", "hải đồ và biểu đồ thủy triều", "thẻ thư viện (catalog card)",
+    "phim âm bản (contact sheet)", "bìa vở học sinh", "tem thư", "nhãn vải và áo thun", "bảng đèn LED chạy chữ",
+    "màn hình CRT và terminal", "sổ tay phác thảo kẻ ô", "bao bì dược phẩm tối giản", "biển hiệu neon", "tranh khắc gỗ in lụa",
+    "bảng điện ga tàu (split-flap)", "giấy gấp origami", "kính mờ và ánh sáng", "bản đồ đường đồng mức", "sticker và decal",
+    "hóa đơn in nhiệt", "bộ bài tarot và thẻ bài", "bưu thiếp du lịch", "pixel 8-bit",
+    "gạch bông Hà Nội", "tem nhãn và bao bì xưa", "biển hiệu neon phố đêm", "vải thổ cẩm", "tranh dân gian Đông Hồ", "bao bì lá và giấy dó", "bảng giá quán cà phê vỉa hè"
+  ],
+  "paletteLogic": [
+    "giấy kem, đỏ son, chàm", "xanh blueprint, trắng, vàng cảnh báo", "đen, vàng đồng", "vàng chanh, đen, đỏ tươi", "hồng kẹo, xanh dương đậm, kem",
+    "xanh rêu đậm, kem, cam đất", "trắng sứ, xanh cobalt", "tím than, hồng neon, xanh ngọc", "nâu cà phê, kem sữa, đỏ gạch", "xám bê tông, cam an toàn",
+    "xanh lá chuối, vàng nghệ, nâu đất", "đỏ gạch, xanh men, kem vôi"
+  ],
+  "motionSignature": [
+    "đóng dấu kèm rung trang", "mực loang từ một điểm", "lật bảng split-flap", "băng chữ chạy (ticker)", "cuộn cột ảnh ngược chiều",
+    "thẻ bài rải rồi gom lại", "bóc nhãn dán", "xé giấy răng cưa", "đèn rọi quét qua", "máy in nhiệt nhả hóa đơn",
+    "đường đo kích thước chạy ra", "gõ lệnh trong terminal", "lật trang sách 3D", "xếp chồng polaroid", "đồng hồ đếm số cơ",
+    "thanh trượt so sánh trước sau", "nét bút vẽ quanh từ khóa", "ghim bản đồ và vẽ tuyến", "phóng to xuyên qua màn hình", "đèn LED dot-matrix hiện chữ"
+  ],
+  "transitionSignature": [
+    "tràn mực tròn", "vén giấy từ góc", "cửa cuốn kéo lên", "lật bảng", "cắt cứng kèm rung", "quét ngang bằng băng dính",
+    "mở khe sáng ở giữa", "lộ từng ô vuông", "cuộn phim", "cắt chéo", "gấp giấy", "nhiễu glitch ngắn", "kéo rèm", "phóng to vào một ô", "dập chữ che màn"
+  ],
+  "layoutGrammar": [
+    "tiêu đề trái, thẻ lệch", "chồng giữa trục", "viết dọc và cột dọc", "collage lệch pha", "băng ngang chia ô như truyện tranh",
+    "bảng tra cứu kiểu sổ cái", "poster một vật thể lớn", "dòng thời gian dọc"
+  ],
+  "heroObject": [
+    "con dấu", "cuống vé", "đĩa than", "nhãn dán", "thẻ bài", "máy in hóa đơn", "bảng split-flap", "đèn neon", "bản đồ và ghim", "ngăn kéo thẻ thư viện", "cuộn phim", "bản vẽ kỹ thuật"
+  ],
+  "typePairing": [
+    { "name": "serif biên tập + mono nhãn", "display": "fraunces", "label": "jetbrains-mono", "body": "be-vietnam-pro" },
+    { "name": "grotesk lệch + mono", "display": "bricolage-grotesque", "label": "ibm-plex-mono", "body": "inter-tight" },
+    { "name": "display rộng + sans trung tính", "display": "unbounded", "label": "space-mono", "body": "inter-tight" },
+    { "name": "poster nén (cần giãn dòng lớn)", "display": "oswald", "label": "space-mono", "body": "archivo" },
+    { "name": "serif sách + sans hiện đại", "display": "newsreader", "label": "ibm-plex-mono", "body": "plus-jakarta-sans" },
+    { "name": "bo tròn vui", "display": "lexend", "label": "space-mono", "body": "quicksand" },
+    { "name": "kỹ thuật vuông", "display": "space-grotesk", "label": "space-mono", "body": "be-vietnam-pro" },
+    { "name": "thủ công", "display": "lora", "label": "patrick-hand", "body": "be-vietnam-pro" },
+    { "name": "serif kinh điển + grotesk", "display": "playfair-display", "label": "jetbrains-mono", "body": "manrope" },
+    { "name": "đậm tương phản", "display": "archivo", "label": "jetbrains-mono", "body": "be-vietnam-pro" }
+  ]
+}
