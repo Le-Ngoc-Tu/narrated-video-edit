@@ -54,7 +54,7 @@ if (cmd === 'list') {
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(script, [...pre, ...stage].join(';\n'));
   const codec = flags.lossless ? ['-c:v', 'ffv1'] : ['-c:v', 'libx264', '-crf', '16', '-preset', 'fast'];
-  ffmpeg([...inputs, '-filter_complex_script', script, '-map', '[vout]', ...(info.hasAudio && !flags.lossless ? ['-map', '0:a', '-c:a', 'copy'] : []), ...codec, '-pix_fmt', 'yuv420p', '-r', String(fps), out], `hiệu ứng ${e.id}`);
+  ffmpeg([...inputs, '-/filter_complex', script, '-map', '[vout]', ...(info.hasAudio && !flags.lossless ? ['-map', '0:a', '-c:a', 'copy'] : []), ...codec, '-pix_fmt', 'yuv420p', '-r', String(fps), out], `hiệu ứng ${e.id}`);
   if (!flags.keep) fs.rmSync(script, { force: true });
   console.log(`Đã ghi ${out}: ${e.id} từ ${win.t0.toFixed(2)}s đến ${win.t1.toFixed(2)}s`);
 } else if (cmd === 'sound') {

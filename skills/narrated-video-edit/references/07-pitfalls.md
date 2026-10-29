@@ -13,7 +13,7 @@
 | `Filter 'asplit' has output unconnected` | tách đường chỉ để chạy chuỗi nén khi không có nhạc | chỉ `asplit` khi có nhạc nền |
 | "twelve" thành "12" | Whisper tự chuẩn hóa số | dùng chữ số của từ nguồn cho thẻ; kiểm lại bằng tai khi số quan trọng |
 | Phiên âm tiếng Việt từ giọng tổng hợp sai nặng | eSpeak tiếng Việt khó nghe | không dùng TTS để kiểm tiếng Việt; dùng giọng người thật |
-| Chuỗi `-filter_complex` dài lỗi vì dấu phẩy | shell và ffmpeg cùng xử lý ký tự | ghi tệp và dùng `-filter_complex_script` |
+| Chuỗi `-filter_complex` dài lỗi vì dấu phẩy | shell và ffmpeg cùng xử lý ký tự | ghi tệp và dùng `-/filter_complex <tệp>` qua `ffmpeg()` của `common.mjs` (FFmpeg 9 bỏ `-filter_complex_script`, FFmpeg 6.x chưa có `-/`; hàm tự lùi về cú pháp cũ) |
 | Ảnh tải về nhỏ, mờ khi phủ kín khung dọc | ảnh ngang bị cắt và phóng to | ưu tiên ảnh từ 1600 px; chấm điểm đã tính; hoặc dùng chiều ngang với `fit` khác (chưa hỗ trợ) |
 | Kết quả tìm ảnh không đúng ngữ cảnh | khớp từ khóa nhưng sai nghĩa | đọc `assets-sheet.png`, đổi truy vấn, `--only` |
 | `NODE_TLS_REJECT_UNAUTHORIZED=0` trong môi trường | cấu hình cũ của người dùng | tắt xác minh chứng chỉ cho mọi tiến trình Node; báo người dùng, không tự sửa |

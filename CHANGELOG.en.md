@@ -11,9 +11,13 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 - **Original look from a design DNA** (`references/13-original-design.md`): `plan-skeleton --design dna.json`, a `dna` demo theme, accent colours and caption preset from the DNA; caption text, outline and fonts stay with the style so they read on any frame. `plan-lint` blocks a DNA whose accent is under 3:1 against the caption panel.
 - Tools from the shared creative core: `style-ledger.mjs` (anti-repetition ledger in `~/.narrated-video-edit/`), `concept-board.mjs`, `fontpack.mjs`, seeds and the DNA schema.
 
+### Fixed
+
+- FFmpeg filter graphs read from a file: FFmpeg 9 removed `-filter_complex_script`, so the code now uses `-/filter_complex` (a fix from the user while setting up on another machine). `ffmpeg()` in `common.mjs` falls back once to `-filter_complex_script` when ffmpeg does not accept it (FFmpeg 6.x, e.g. Ubuntu 24.04).
+
 ### Verified
 
-- `selftest.mjs` passes 121 of 121; a real run on a 22-second vertical vlog clip with its own DNA passes `plan-lint` and `audit-edit`.
+- `selftest.mjs` passes 124 of 124; a real run on a 22-second vertical vlog clip with its own DNA passes `plan-lint` and `audit-edit`.
 
 ## [1.1.0] - 2026-10-27
 

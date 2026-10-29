@@ -33,9 +33,16 @@ export function run(cmd, cmdArgs, options = {}) {
   return { status: r.status, stdout: r.stdout ?? '', stderr: r.stderr ?? '', error: r.error };
 }
 
+// Bộ lọc dài ghi vào tệp: FFmpeg mới (7 trở lên) đọc bằng -/filter_complex và bỏ -filter_complex_script (FFmpeg 9 báo lỗi); FFmpeg cũ (6.x, vd Ubuntu 24.04) chỉ có -filter_complex_script.
+// Mã gọi ffmpeg() luôn viết '-/filter_complex <tệp>'; nếu ffmpeg không nhận thì chạy lại một lần với cú pháp cũ.
+export const FILTER_FILE_OPTION = '-/filter_complex';
+export const legacyFilterArgs = (ffArgs) => ffArgs.map((a) => (a === FILTER_FILE_OPTION ? '-filter_complex_script' : a));
+export const rejectsFilterFileOption = (stderr) => /Unrecognized option '\/filter_complex'|Option not found/i.test(stderr);
+
 /** Chạy ffmpeg, ném lỗi kèm đoạn cuối của stderr nếu thoát khác 0. */
 export function ffmpeg(ffArgs, label = 'ffmpeg') {
-  const r = run('ffmpeg', ['-v', 'error', '-y', ...ffArgs]);
+  let r = run('ffmpeg', ['-v', 'error', '-y', ...ffArgs]);
+  if (r.status !== 0 && ffArgs.includes(FILTER_FILE_OPTION) && rejectsFilterFileOption(r.stderr)) r = run('ffmpeg', ['-v', 'error', '-y', ...legacyFilterArgs(ffArgs)]);
   if (r.status !== 0) throw new Error(`${label} lỗi (mã ${r.status}): ${r.stderr.split('\n').slice(-8).join('\n')}`);
   return r;
 }

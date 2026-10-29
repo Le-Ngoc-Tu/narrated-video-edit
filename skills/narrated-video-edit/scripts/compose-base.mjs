@@ -61,7 +61,7 @@ if (stack) {
 const g1File = path.join(tmp, 'stage1.txt');
 fs.writeFileSync(g1File, g1.join(';\n'));
 const cutVideo = path.join(tmp, 'cut.mp4');
-ffmpeg(['-i', plan.source, '-filter_complex_script', g1File, '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-crf', '14', '-preset', 'fast', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', cutVideo], 'giai đoạn cắt');
+ffmpeg(['-i', plan.source, '-/filter_complex', g1File, '-map', '[v]', '-map', '[a]', '-c:v', 'libx264', '-crf', '14', '-preset', 'fast', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '192k', cutVideo], 'giai đoạn cắt');
 const cutInfo = probe(cutVideo);
 
 // ---- Giai đoạn 2: zoom nhấn và cutaway ----
@@ -146,7 +146,7 @@ g2.push(`[${fxLast}]format=yuv420p[vout]`);
 const g2File = path.join(tmp, 'stage2.txt');
 fs.writeFileSync(g2File, g2.join(';\n'));
 fs.mkdirSync(path.dirname(out), { recursive: true });
-ffmpeg([...inputs, '-filter_complex_script', g2File, '-map', '[vout]', '-map', '0:a', '-c:v', 'libx264', '-crf', '16', '-preset', 'fast', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-r', String(FPS), '-t', num(cutInfo.duration), out], 'giai đoạn lớp nền');
+ffmpeg([...inputs, '-/filter_complex', g2File, '-map', '[vout]', '-map', '0:a', '-c:v', 'libx264', '-crf', '16', '-preset', 'fast', '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-r', String(FPS), '-t', num(cutInfo.duration), out], 'giai đoạn lớp nền');
 
 writeJson(path.join(base, 'plan.mapped.json'), { ...mapped, wordsOut: mapped.wordsOut.map(({ i, text, oStart, oEnd, confidence }) => ({ i, text, oStart, oEnd, confidence })) });
 const info = probe(out);

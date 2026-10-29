@@ -11,6 +11,10 @@ Mọi thay đổi đáng chú ý được ghi ở đây. Định dạng theo [Ke
 - **Diện mạo gốc theo DNA** (`references/13-original-design.md`): `plan-skeleton --design dna.json`, chủ đề demo `dna`, màu nhấn và preset caption theo DNA; chữ caption, viền và phông giữ theo phong cách để đọc được trên mọi khung hình. `plan-lint` chặn DNA có màu nhấn dưới 3:1 với tấm nền caption.
 - Công cụ của lõi sáng tạo dùng chung: `style-ledger.mjs` (sổ chống lặp ở `~/.narrated-video-edit/`), `concept-board.mjs`, `fontpack.mjs`, hạt giống và lược đồ DNA.
 
+### Sửa
+
+- Bộ lọc FFmpeg đọc từ tệp: FFmpeg 9 bỏ `-filter_complex_script`, mã đổi sang `-/filter_complex` (bản sửa của người dùng khi cài trên máy khác). `ffmpeg()` trong `common.mjs` tự lùi về `-filter_complex_script` một lần khi ffmpeg không nhận (FFmpeg 6.x, vd Ubuntu 24.04).
+
 ### Đã kiểm
 
 - `selftest.mjs` đạt 121/121; chạy thật trên một đoạn vlog dọc 22 giây với DNA riêng, `plan-lint` và `audit-edit` đạt.

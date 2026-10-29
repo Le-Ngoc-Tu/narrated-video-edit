@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { FPS, args, ffmpeg, launchChrome, probe, pythonPath, readJson, run, segPythonPath, skillRoot, writeJson, here } from './common.mjs';
+import { FPS, args, ffmpeg, launchChrome, legacyFilterArgs, rejectsFilterFileOption, probe, pythonPath, readJson, run, segPythonPath, skillRoot, writeJson, here } from './common.mjs';
 import { allowed, ccName, licenseKey, score } from './resolve-assets.mjs';
 import { loadLibrary } from './fx-lib.mjs';
 import { captionProblems } from './glossary-lib.mjs';
@@ -572,6 +572,19 @@ check('lớp phủ: khung giữa showcase có hình vật thể (khác khung tr�
   const dim = lintDesign('design-dim.json');
   check('plan-lint: DNA hợp lệ qua cổng thiết kế gốc', /PASS thiết kế gốc \(design\) hợp lệ/.test(ok.stdout), ok.stdout.split('\n').find((l) => /thiết kế gốc/.test(l)) ?? '');
   check('plan-lint: màu nhấn của DNA chìm trên tấm nền caption bị chặn', dim.status === 1 && /FAIL thiết kế gốc \(design\) hợp lệ/.test(dim.stdout), dim.stdout.split('\n').find((l) => /thiết kế gốc/.test(l)) ?? '');
+}
+// Bộ lọc đọc từ tệp: ffmpeg() viết '-/filter_complex' (FFmpeg 7 trở lên, FFmpeg 9 bỏ -filter_complex_script) và tự lùi về cú pháp cũ cho FFmpeg 6.x
+{
+  const legacy = legacyFilterArgs(['-i', 'a.mp4', '-/filter_complex', 'g.txt', '-map', '[v]']);
+  check('ffmpeg(): lùi cú pháp đổi -/filter_complex thành -filter_complex_script và giữ nguyên phần còn lại', legacy.join(' ') === '-i a.mp4 -filter_complex_script g.txt -map [v]', legacy.join(' '));
+  check('ffmpeg(): nhận ra thông báo của ffmpeg không có -/filter_complex', rejectsFilterFileOption("Unrecognized option '/filter_complex'.\nError splitting the argument list: Option not found") && !rejectsFilterFileOption('Invalid argument'));
+  const gFile = path.join(work, 'filter-file.txt');
+  const gOut = path.join(work, 'filter-file.mp4');
+  fs.writeFileSync(gFile, '[0:v]scale=64:64[v]');
+  let gOk = true;
+  try { ffmpeg(['-f', 'lavfi', '-i', 'testsrc=d=0.2:s=128x128:r=10', '-/filter_complex', gFile, '-map', '[v]', '-pix_fmt', 'yuv420p', gOut], 'bộ lọc từ tệp'); } catch (e) { gOk = false; console.log(e.message); }
+  const gInfo = gOk && fs.existsSync(gOut) ? probe(gOut) : null;
+  check('ffmpeg(): bộ lọc đọc từ tệp chạy được trên ffmpeg của máy này (ra video 64x64)', Boolean(gInfo) && gInfo.width === 64 && gInfo.height === 64, gInfo ? `${gInfo.width}x${gInfo.height}` : '');
 }
 // Từ có cùng mốc thời gian (Whisper hay gán vậy): lượt caption phải có cửa sổ dương, không kẹt chữ trên màn hình
 const dup = structuredClone(mapped);
